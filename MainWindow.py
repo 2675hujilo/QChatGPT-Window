@@ -1,19 +1,26 @@
+import os
+import sys
+if not os.path.exists('main.py') :
+    print("未找到项目文件，检查目录！")
+    print("请把此文件放在项目文件根目录下！")
+    sys.exit(0)
+import main
 import ast
 import json
-import os
+
 import re
 import subprocess
-import sys
 import threading
 import time
 
+import markdown2
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import *
-from PyQt5.QtGui import QTextCursor, QBrush, QColor
+from PyQt5.QtGui import QTextCursor, QBrush, QColor, QFont
 from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import QMessageBox, QApplication
 import sys
-import locale
+
 
 log_colors_config = {
     'DEBUG': 'green',
@@ -22,11 +29,32 @@ log_colors_config = {
     'ERROR': 'red',
     'CRITICAL': 'cyan',
 }
-doc_cfg = "config.py"
-doc_cmds = "cmdpriv.json"
-doc_tips = "tips.py"
+
+doc_cfg = "config-win.py"
+doc_cmds = "cmdpriv-win.json"
+doc_tips = "tips-win.py"
+
+
+main.check_file()
+
+with open('config.py', 'r', encoding="utf-8") as f1, open(doc_cfg, 'w', encoding="utf-8") as f2:
+    for line in f1:
+        if 'logging_level' in line and 'logging.INFO' in line:
+            # 去掉该行中的 logging_level = logging.INFO
+            # 因为ast节点读不出这句
+            continue
+        f2.write(line)
+
+with open('tips.py', 'r', encoding="utf-8") as f1, open(doc_tips, 'w', encoding="utf-8") as f2:
+    for line in f1:
+        f2.write(line)
+
+with open('cmdpriv.json', 'r', encoding="utf-8") as f1, open(doc_cmds, 'w', encoding="utf-8") as f2:
+    for line in f1:
+        f2.write(line)
+
 # 文本框对应字段的值
-#doc_cfg = "config.py"的值
+# doc_cfg = "config.py"的值
 value_cfgs_mirai_http_api_config = "mirai_http_api_config"
 value_cfgs_mirai_http_api_config_adapter = "adapter"
 value_cfgs_mirai_http_api_config_host = "host"
@@ -101,7 +129,7 @@ value_cfgs_upgrade_dependencies = "upgrade_dependencies"
 value_cfgs_report_usage = "report_usage"
 value_cfgs_inappropriate_message_tips = "inappropriate_message_tips"
 
-#doc_cmds = "cmdpriv.json"的值
+# doc_cmds = "cmdpriv.json"的值
 value_cmds_draw = "draw"
 value_cmds_plugin = "plugin"
 value_cmds_plugin_get = "plugin.get"
@@ -121,15 +149,15 @@ value_cmds_next = "next"
 value_cmds_prompt = "prompt"
 value_cmds_resend = "resend"
 value_cmds_reset = "reset"
-value_cmds_cfg = "dict_cfg"
-value_cmds_cmd = "dict_cmd"
+value_cmds_cfg = "cfg"
+value_cmds_cmd = "cmd"
 value_cmds_help = "help"
 value_cmds_reload = "reload"
 value_cmds_update = "update"
 value_cmds_usage = "usage"
 value_cmds_version = "version"
 
-#doc_tips = "tips.py"的值
+# doc_tips = "tips.py"的值
 value_tips_alter_tip_message = "alter_tip_message"
 value_tips_rate_limit_drop_tip = "rate_limit_drop_tip"
 value_tips_help_message = "help_message"
@@ -141,17 +169,10 @@ value_tips_command_reset_message = "command_reset_message"
 value_tips_command_reset_name_message = "command_reset_name_message"
 
 
-# if isinstance(getattr(config, cfg_name), type(cfg_value)):
-#     setattr(config, cfg_name, cfg_value)
-#     pkg.utils.context.set_config(config)
-#     reply = ["[bot]配置项{}修改成功".format(cfg_name)]
-# else:
-#     reply = ["[bot]err:配置项{}类型不匹配".format(cfg_name)]
 
-# argv_debug = 1
-# 当没有传入参数-debug时，日志控件编码utf-8
-# 当传入参数-debug时，修改日志控件编码gbk
-mark_add_succ=1
+
+
+
 class Bot(QObject):
     output_signal = pyqtSignal(str)
 
@@ -164,20 +185,13 @@ class Bot(QObject):
         if self.running:
             self.output_signal.emit("程序已经在运行中。")
             return
-
         self.running = True
-        # pro_encoding = "UTF-8"
-        # if argv_debug == 1:
-        #     pro_encoding = "gbk"
-        #     print("切换为u2")
-        # else:
-        #     pro_encoding = "GBK"
-        #     print("切换为gbk")
+
 
         # 当从pycharm中无参数启动时，编码为utf-8
-        # 当从pycharm中有-debug参数启动时，编码为gbk
+        # 当从pycharm中有--debug参数启动时，编码为gbk
         # 当从cmd中无参数启动时，编码为gbk
-        # 当从cmd中有-debug参数启动时，编码为gbk
+        # 当从cmd中有--debug参数启动时，编码为gbk
         self.process = subprocess.Popen(
             ["..\python\python.exe", "main.py"],
             stdout=subprocess.PIPE,
@@ -217,9 +231,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.bot = Bot()
         self.bot.output_signal.connect(self.log_output)
         self.value_cfgs_default_prompt = "default_prompt"
-        # self.page_main_label_bot_start.clicked.connect(self.bot_start_clicked)
-        # self.page_main_label_bot_stop.clicked.connect(self.bot_stop_clicked)
-
         self.update_status_buttons()
 
     # def mousePressEvent(self, event):
@@ -261,31 +272,8 @@ class MainWindow(QtWidgets.QMainWindow):
             "[2023-04-06 20:29: 0], group: [204785790, 691226829]")
 
     def switchEncoding(self):
-        # 获取当前文本框的编码方式
-        codec = self.page_log_text.document().encoding()
+        print("a")
 
-        # 判断当前编码方式
-        if codec == QTextCodec.codecForName('UTF-8'):
-            self.encoding = 'gbk'
-        else:
-            self.encoding = 'utf-8'
-
-        # 获取文本框中的文本
-        text = self.textInput.toPlainText()
-
-        # 根据编码方式转换文本
-        if codec is not None:
-            # 如果找到了指定的编码，则使用该编码进行编码和解码
-            decoder = codec.makeDecoder()
-            encoder = codec.makeEncoder()
-            convertedText = decoder.toUnicode(text.encode(codec.name()))
-            convertedText = encoder.fromUnicode(convertedText).data()
-        else:
-            # 如果找不到指定的编码，则不进行转换
-            convertedText = text
-
-        # 更新文本框中的内容
-        self.textInput.setPlainText(convertedText.decode(self.encoding))
 
     def open_log_path(self):
         log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
@@ -293,12 +281,14 @@ class MainWindow(QtWidgets.QMainWindow):
             os.startfile(log_path)
         except Exception as e:
             rai_dia(e)
+
     def open_scenario_path(self):
         scenario_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scenario')
         try:
             os.startfile(scenario_path)
         except Exception as e:
-            rai_dia(e)
+            QtWidgets.QMessageBox.warning(self, "我", "最少保留一个人格！")
+
     def page_log_text_appendText(self, text):
         # 获取当前的光标位置
         cursor = self.page_log_text.textCursor()
@@ -339,7 +329,6 @@ class MainWindow(QtWidgets.QMainWindow):
         # 确保文档内容已经展示出来（如果需要滚动条自动跟随最新内容，则需要调用该函数）
         self.page_log_text.ensureCursorVisible()
 
-
     def add_api_key(self):
         api_key_name, ok = QtWidgets.QInputDialog.getText(self, "添加 API Key", "API 名称：")
         if ok and api_key_name:
@@ -347,105 +336,93 @@ class MainWindow(QtWidgets.QMainWindow):
                                                                                     {}).keys():
                 QtWidgets.QMessageBox.warning(self, "添加 API Key", "API 名称已存在！")
             else:
-                api_key_value, ok = QtWidgets.QInputDialog.getText(self, "添加 API Key", "API 值：")
-                if ok and api_key_value:
-                    if value_cfgs_openai_config not in self.dict_cfgs:
-                        self.dict_cfgs[value_cfgs_openai_config] = {}
-                    if value_cfgs_openai_config_api_key not in self.dict_cfgs[value_cfgs_openai_config]:
-                        self.dict_cfgs[value_cfgs_openai_config][value_cfgs_openai_config_api_key] = {}
+                while True:
+                    api_key_value, ok = QtWidgets.QInputDialog.getText(self, "添加 API Key", "API 值：")
+                    if ok and api_key_value:
+                        regex = QtCore.QRegExp("^sk-.+$")
+                        validator = QtGui.QRegExpValidator(regex, self)
+                        if validator.validate(api_key_value, 0)[0] == QtGui.QValidator.Acceptable:
+                            if value_cfgs_openai_config not in self.dict_cfgs:
+                                self.dict_cfgs[value_cfgs_openai_config] = {}
+                            if value_cfgs_openai_config_api_key not in self.dict_cfgs[value_cfgs_openai_config]:
+                                self.dict_cfgs[value_cfgs_openai_config][value_cfgs_openai_config_api_key] = {}
 
-                    # 新增键值对并排序
-                    self.dict_cfgs[value_cfgs_openai_config][value_cfgs_openai_config_api_key][
-                        api_key_name] = api_key_value
-                    sorted_dict = dict(
-                        sorted(self.dict_cfgs[value_cfgs_openai_config][value_cfgs_openai_config_api_key].items()))
-                    self.dict_cfgs[value_cfgs_openai_config][value_cfgs_openai_config_api_key] = sorted_dict
+                            # 新增键值对并排序
+                            self.dict_cfgs[value_cfgs_openai_config][value_cfgs_openai_config_api_key][
+                                api_key_name] = api_key_value
+                            sorted_dict = dict(sorted(
+                                self.dict_cfgs[value_cfgs_openai_config][value_cfgs_openai_config_api_key].items()))
+                            self.dict_cfgs[value_cfgs_openai_config][value_cfgs_openai_config_api_key] = sorted_dict
 
-                    # 更新下拉框
-                    self.page_set_edit_cfg_api.clear()
-                    self.page_set_edit_cfg_api.addItems(sorted_dict.keys())
-                    self.page_set_edit_cfg_api.setCurrentIndex(self.page_set_edit_cfg_api.count() - 1)
+                            # 更新下拉框
+                            self.page_set_edit_cfg_api.clear()
+                            self.page_set_edit_cfg_api.addItems(sorted_dict.keys())
+                            self.page_set_edit_cfg_api.setCurrentIndex(self.page_set_edit_cfg_api.count() - 1)
 
-                    # 写回文件
+                            # 写回文件
+                            with open(doc_cfg, "w", encoding='utf-8') as f:
+                                for key, value in self.dict_cfgs.items():
+                                    f.write(f"{key} = {repr(value)}\n")
+                            break
+                        else:
+                            QtWidgets.QMessageBox.warning(self, "添加 API Key", "API 值格式不正确，请重新输入！")
+                            continue
+                    else:
+                        break
+
+
+    def del_api_key(self):
+        self.dict_cfgs[value_cfgs_openai_config][value_cfgs_openai_config_api_key].pop(
+            self.page_set_edit_cfg_api.currentText(), None)
+        self.page_set_edit_cfg_api.removeItem(self.page_set_edit_cfg_api.currentIndex())
+
+        # 写回文件
+        with open(doc_cfg, "w", encoding='utf-8') as f:
+            for key, value in self.dict_cfgs.items():
+                f.write(f"{key} = {repr(value)}\n")
+    def add_default_prompt(self):
+        new_key, ok = QtWidgets.QInputDialog.getText(self, "添加普通人格", "请输入人格名:")
+        if ok:
+            if new_key in self.dict_cfgs.get(value_cfgs_default_prompt, {}).keys():
+                QtWidgets.QMessageBox.warning(self, "添加普通人格", "人格名已存在！")
+            else:
+                # 使用QInputDialog获取新值
+                new_value, ok = QtWidgets.QInputDialog.getText(self, "添加普通人格", "请输入人格内容:")
+                if ok and new_value:
+                    # 将新键值对插入字典
+                    self.dict_cfgs[value_cfgs_default_prompt][new_key] = new_value
                     with open(doc_cfg, "w", encoding='utf-8') as f:
                         for key, value in self.dict_cfgs.items():
                             f.write(f"{key} = {repr(value)}\n")
+                    # # 更新下拉框
+                    self.page_set_edit_cfg_default_prompt_choose.clear()
+                    self.page_set_edit_cfg_default_prompt_choose.addItems(
+                        self.dict_cfgs[value_cfgs_default_prompt].keys())
 
-    def del_api_key(self):
-        api_key_name = self.page_set_edit_cfg_api.currentText()
-        if api_key_name:
-            confirm = QtWidgets.QMessageBox.question(self, "删除 API Key", "确定删除该 API Key 吗？",
-                                                     QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-                                                     QtWidgets.QMessageBox.No)
-            if confirm == QtWidgets.QMessageBox.Yes:
-                # 删除键值对
-                self.dict_cfgs[value_cfgs_openai_config][value_cfgs_openai_config_api_key].pop(api_key_name)
-
-                # 更新下拉框
-                self.page_set_edit_cfg_api.removeItem(self.page_set_edit_cfg_api.currentIndex())
-
-                # 写回文件
-                with open(doc_cfg, "w", encoding='utf-8') as f:
-                    for key, value in self.dict_cfgs.items():
-                        f.write(f"{key} = {repr(value)}\n")
-    def add_default_prompt(self):
-        # key =QInputDialog.getText(None, "Input Dialog", "Enter new key:")
-        # value =QInputDialog.getText(None, "Input Dialog", "Enter new value:")
-        # # key = self.page_set_edit_cfg_default_prompt_choose.currentText()
-        # # value = self.page_set_edit_cfg_default_prompt.toPlainText()
-        # self.dict_cfgs[value_cfgs_default_prompt][key] = value
-        # self.update_default_prompt_choose()
-        # self.update_default_prompt()
-        new_key, ok = QInputDialog.getText(None, "Input Dialog", "Enter new key:")
-        if ok:
-            # 使用QInputDialog获取新值
-            new_value, ok = QInputDialog.getText(None, "Input Dialog", "Enter new value:")
-            if ok:
-                # 将新键值对插入字典
-                self.dict_cfgs[value_cfgs_default_prompt][new_key] = new_value
-        with open(doc_cfg, "w", encoding='utf-8') as f:
-            for key, value in self.dict_cfgs.items():
-                f.write(f"{key} = {repr(value)}\n")
 
     def del_default_prompt(self):
+        if len(self.dict_cfgs[value_cfgs_default_prompt]) == 1:
+            QtWidgets.QMessageBox.warning(self, "删除普通人格", "最少保留一个人格！")
+        else:
+            self.dict_cfgs[value_cfgs_default_prompt].pop(self.page_set_edit_cfg_default_prompt_choose.currentText(), None)
+            self.page_set_edit_cfg_default_prompt_choose.removeItem(
+                self.page_set_edit_cfg_default_prompt_choose.currentIndex())
+            with open(doc_cfg, "w", encoding='utf-8') as f:
+                for key, value in self.dict_cfgs.items():
+                    f.write(f"{key} = {repr(value)}\n")
 
-        self.dict_cfgs[value_cfgs_default_prompt].pop(self.page_set_edit_cfg_default_prompt_choose.currentText(),None)
-        # key = self.page_set_edit_cfg_default_prompt_choose.currentText()
-        # if key in self.dict_cfgs[self.value_cfgs_default_prompt]:
-        #     del self.dict_cfgs[self.value_cfgs_default_prompt][key]
-        #     # 更新控件显示的值
-        #     self.page_set_edit_cfg_default_prompt_choose.clear()
-        #     self.page_set_edit_cfg_default_prompt_choose.addItems(self.dict_cfgs[self.value_cfgs_default_prompt].keys())
-        #     if self.dict_cfgs[self.value_cfgs_default_prompt]:
-        #         self.page_set_edit_cfg_default_prompt.setPlainText(
-        #             next(iter(self.dict_cfgs[self.value_cfgs_default_prompt].values())))
-        #     else:
-        #         self.page_set_edit_cfg_default_prompt.setPlainText("")
-        #     # 将更改后的配置写回到配置文件中
-        with open(doc_cfg, "w", encoding='utf-8') as f:
-            for key, value in self.dict_cfgs.items():
-                f.write(f"{key} = {repr(value)}\n")
-    # def update_default_prompt_choose(self):
-    #
-    #     if self.page_set_edit_cfg_default_prompt_choose.currentText() :
-    #         self.page_set_edit_cfg_default_prompt.setPlainText(self.dict_cfgs[value_cfgs_default_prompt][self.page_set_edit_cfg_default_prompt_choose.currentText() ] )
-    #         self.page_set_edit_cfg_default_prompt_choose.clear()
-    #         self.page_set_edit_cfg_default_prompt_choose.addItems(self.dict_cfgs[value_cfgs_default_prompt].keys())
     def update_default_prompt(self):
-
-        self.page_set_edit_cfg_default_prompt.setPlainText(self.dict_cfgs[value_cfgs_default_prompt][self.page_set_edit_cfg_default_prompt_choose.currentText()])
-        # current_key = self.page_set_edit_cfg_default_prompt_choose.currentText()
-        #
-        # # 更新self.page_set_edit_cfg_default_prompt_choose控件的显示值
-        # self.page_set_edit_cfg_default_prompt_choose.clear()
-        # self.page_set_edit_cfg_default_prompt_choose.addItems(self.dict_cfgs[value_cfgs_default_prompt].keys())
-        # self.page_set_edit_cfg_default_prompt_choose.setCurrentText(current_key)
-        #
-        # # 更新self.page_set_edit_cfg_default_prompt控件的显示值
-        # self.page_set_edit_cfg_default_prompt.setPlainText(self.dict_cfgs[value_cfgs_default_prompt][current_key])
+        current_text = self.page_set_edit_cfg_default_prompt_choose.currentText()
+        if current_text in self.dict_cfgs.get(value_cfgs_default_prompt, {}):
+            self.page_set_edit_cfg_default_prompt.setPlainText(
+                self.dict_cfgs[value_cfgs_default_prompt][self.page_set_edit_cfg_default_prompt_choose.currentText()])
+        else:
+            # 给出默认值或错误提示
+            print("无法获取该键人格下拉框的值的值。")
 
     def setupUi(self, MainWIndow):
         MainWIndow.setObjectName("MainWIndow")
+        MainWIndow.setWindowIcon( QtGui.QIcon("images/icon.png"))
         MainWIndow.resize(1160, 840)
         MainWIndow.setMinimumSize(QtCore.QSize(1160, 840))
         MainWIndow.setMaximumSize(QtCore.QSize(1300, 840))
@@ -513,25 +490,6 @@ class MainWindow(QtWidgets.QMainWindow):
             with open(doc_cmds, "w", encoding='utf-8') as f:
                 json.dump(self.dict_cmds, f)
 
-        # def add_api_key(self):
-        #     api_key_name, ok = QtWidgets.QInputDialog.getText(self, "添加 API Key", "API 名称：")
-        #     if ok and api_key_name:
-        #         if api_key_name in self.dict_cfgs.get(value_cfgs_openai_config, {}).get(value_cfgs_openai_config_api_key,
-        #                                                                                 {}).keys():
-        #             QtWidgets.QMessageBox.warning(self, "添加 API Key", "API 名称已存在！")
-        #         else:
-        #             api_key_value, ok = QtWidgets.QInputDialog.getText(self, "添加 API Key", "API 值：")
-        #             if ok and api_key_value:
-        #                 if value_cfgs_openai_config not in self.dict_cfgs:
-        #                     self.dict_cfgs[value_cfgs_openai_config] = {}
-        #                 if value_cfgs_openai_config_api_key not in self.dict_cfgs[value_cfgs_openai_config]:
-        #                     self.dict_cfgs[value_cfgs_openai_config][value_cfgs_openai_config_api_key] = {}
-        #                 self.dict_cfgs[value_cfgs_openai_config][value_cfgs_openai_config_api_key][
-        #                     api_key_name] = api_key_value
-        #                 self.page_set_edit_cfg_api.addItem(api_key_name)
-        #                 self.page_set_edit_cfg_api.setCurrentIndex(self.page_set_edit_cfg_api.count() - 1)
-        #                 # 保存修改后的配置字典
-        #     update_value_cfgs(value_cfgs_openai_config, self.dict_cfgs[value_cfgs_openai_config])
         self.centralwidget = QtWidgets.QWidget(MainWIndow)
         self.centralwidget.setEnabled(True)
         self.centralwidget.setMinimumSize(QtCore.QSize(1300, 840))
@@ -873,7 +831,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_title_zhilingquanxian.setFont(font)
         self.page_set_title_zhilingquanxian.setObjectName("page_set_title_zhilingquanxian")
         self.page_set_title_xiaoxitishiyu = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_title_xiaoxitishiyu.setGeometry(QtCore.QRect(60, 3100, 161, 31))
+        self.page_set_title_xiaoxitishiyu.setGeometry(QtCore.QRect(60, 3140, 161, 31))
         font = QtGui.QFont()
         font.setFamily("楷体")
         font.setPointSize(16)
@@ -888,7 +846,8 @@ class MainWindow(QtWidgets.QMainWindow):
         font.setPointSize(11)
         self.page_set_edit_cfg_response_at.setFont(font)
         self.page_set_edit_cfg_response_at.setObjectName("page_set_edit_cfg_response_at")
-        self.page_set_edit_cfg_response_at.setChecked(self.dict_cfgs[value_cfgs_response_rules][value_cfgs_response_rules_at])
+        self.page_set_edit_cfg_response_at.setChecked(
+            self.dict_cfgs[value_cfgs_response_rules][value_cfgs_response_rules_at])
         self.page_set_edit_cfg_response_at.stateChanged.connect(
             lambda state: update_value_cfgs(value_cfgs_response_rules, {**self.dict_cfgs[value_cfgs_response_rules],
                                                                         **{value_cfgs_response_rules_at: bool(state)}}))
@@ -898,7 +857,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_font_path.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_cfg_font_path.setObjectName("page_set_edit_cfg_font_path")
         self.page_set_edit_cfg_font_path.setText(self.dict_cfgs[value_cfgs_font_path])
-        self.page_set_edit_cfg_font_path.textChanged.connect(lambda new_value: update_value_cfgs(value_cfgs_font_path, new_value))
+        self.page_set_edit_cfg_font_path.textChanged.connect(
+            lambda new_value: update_value_cfgs(value_cfgs_font_path, new_value))
 
         self.page_set_edit_cfg_user_pool_num = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_user_pool_num.setGeometry(QtCore.QRect(560, 1860, 61, 30))
@@ -907,7 +867,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_user_pool_num.setMaximum(30)
         self.page_set_edit_cfg_user_pool_num.setObjectName("page_set_edit_cfg_user_pool_num")
         self.page_set_edit_cfg_user_pool_num.setValue(self.dict_cfgs[value_cfgs_user_pool_num])
-        self.page_set_edit_cfg_user_pool_num.valueChanged.connect(lambda new_value: update_value_cfgs(value_cfgs_user_pool_num,new_value))
+        self.page_set_edit_cfg_user_pool_num.valueChanged.connect(
+            lambda new_value: update_value_cfgs(value_cfgs_user_pool_num, new_value))
 
         self.page_set_label_cfg_user_pool_num = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_label_cfg_user_pool_num.setGeometry(QtCore.QRect(260, 1860, 306, 30))
@@ -924,7 +885,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_admin_pool_num.setMaximum(30)
         self.page_set_edit_cfg_admin_pool_num.setObjectName("page_set_edit_cfg_admin_pool_num")
         self.page_set_edit_cfg_admin_pool_num.setValue(self.dict_cfgs[value_cfgs_admin_pool_num])
-        self.page_set_edit_cfg_admin_pool_num.valueChanged.connect(lambda new_value:update_value_cfgs(value_cfgs_admin_pool_num,new_value))
+        self.page_set_edit_cfg_admin_pool_num.valueChanged.connect(
+            lambda new_value: update_value_cfgs(value_cfgs_admin_pool_num, new_value))
 
         self.page_set_label_cfg_admin_pool_num = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_label_cfg_admin_pool_num.setGeometry(QtCore.QRect(260, 1820, 306, 30))
@@ -969,7 +931,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_inappropriate_message_tips.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_cfg_inappropriate_message_tips.setObjectName("page_set_edit_cfg_inappropriate_message_tips")
         self.page_set_edit_cfg_inappropriate_message_tips.setText(self.dict_cfgs[value_cfgs_inappropriate_message_tips])
-        self.page_set_edit_cfg_inappropriate_message_tips.textChanged.connect(lambda new_value: update_value_cfgs(value_cfgs_inappropriate_message_tips, new_value))
+        self.page_set_edit_cfg_inappropriate_message_tips.textChanged.connect(
+            lambda new_value: update_value_cfgs(value_cfgs_inappropriate_message_tips, new_value))
 
         self.page_set_label_cfg_prompt_submit_length = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_label_cfg_prompt_submit_length.setGeometry(QtCore.QRect(260, 1300, 288, 30))
@@ -993,10 +956,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_random_rate.setMaximum(1.0)
         self.page_set_edit_cfg_random_rate.setSingleStep(0.1)
         self.page_set_edit_cfg_random_rate.setObjectName("page_set_edit_cfg_random_rate")
-        self.page_set_edit_cfg_random_rate.setValue(self.dict_cfgs[value_cfgs_response_rules][value_cfgs_response_rules_random_rate])
+        self.page_set_edit_cfg_random_rate.setValue(
+            self.dict_cfgs[value_cfgs_response_rules][value_cfgs_response_rules_random_rate])
         self.page_set_edit_cfg_random_rate.valueChanged.connect(
             lambda new_value: update_value_cfgs(value_cfgs_response_rules, {**self.dict_cfgs[value_cfgs_response_rules],
-                                                                        **{value_cfgs_response_rules_random_rate: new_value}}))
+                                                                            **{
+                                                                                value_cfgs_response_rules_random_rate: new_value}}))
 
         self.page_set_edit_cmd_draw = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_draw.setGeometry(QtCore.QRect(350, 2600, 36, 30))
@@ -1127,6 +1092,26 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cmd_version.valueChanged.connect(
             lambda new_value: update_value_cmds(value_cmds_version, new_value))
 
+        self.page_set_edit_cmd_cmd = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
+        self.page_set_edit_cmd_cmd.setGeometry(QtCore.QRect(629, 3080, 36, 30))
+        self.page_set_edit_cmd_cmd.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_cmd.setMinimum(1)
+        self.page_set_edit_cmd_cmd.setMaximum(2)
+        self.page_set_edit_cmd_cmd.setObjectName("page_set_edit_cmd_cmd")
+        self.page_set_edit_cmd_cmd.setValue(self.dict_cmds[value_cmds_cmd])
+        self.page_set_edit_cmd_cmd.valueChanged.connect(
+            lambda new_value: update_value_cmds(value_cmds_cmd, new_value))
+
+        self.page_set_edit_cmd_cfg = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
+        self.page_set_edit_cmd_cfg.setGeometry(QtCore.QRect(350, 3080, 36, 30))
+        self.page_set_edit_cmd_cfg.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_cfg.setMinimum(1)
+        self.page_set_edit_cmd_cfg.setMaximum(2)
+        self.page_set_edit_cmd_cfg.setObjectName("page_set_edit_cmd_cfg")
+        self.page_set_edit_cmd_cfg.setValue(self.dict_cmds[value_cmds_cfg])
+        self.page_set_edit_cmd_cfg.valueChanged.connect(
+            lambda new_value: update_value_cmds(value_cmds_cfg, new_value))
+
         self.page_set_edit_cmd_update = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_update.setGeometry(QtCore.QRect(629, 3000, 36, 30))
         self.page_set_edit_cmd_update.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
@@ -1245,29 +1230,27 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_label_cfg_api.setFont(font)
         self.page_set_label_cfg_api.setObjectName("page_set_label_cfg_api")
 
-
-
         self.page_set_edit_cfg_api = QtWidgets.QComboBox(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_cfg_api.setGeometry(QtCore.QRect(370, 290,450, 30))
+        self.page_set_edit_cfg_api.setGeometry(QtCore.QRect(370, 290, 230, 30))
         self.page_set_edit_cfg_api.setTabletTracking(True)
         self.page_set_edit_cfg_api.setFocusPolicy(QtCore.Qt.ClickFocus)
         self.page_set_edit_cfg_api.setStyleSheet("border: 1px solid rgba(0,0,0,0.5);")
         self.page_set_edit_cfg_api.setEditable(True)
         self.page_set_edit_cfg_api.setInsertPolicy(QtWidgets.QComboBox.InsertAlphabetically)
         self.page_set_edit_cfg_api.setObjectName("page_set_edit_cfg_api")
-        # self.page_set_edit_cfg_api.addItem("")
-        # self.page_set_edit_cfg_api.addItem("")
-        # self.page_set_edit_cfg_api.setItemText(0,"sk-11111111")
-        # self.page_set_edit_cfg_api.setItemText(1,"sk-22222222222")
         self.page_set_edit_cfg_api.setCurrentIndex(0)
+        self.page_set_edit_cfg_api.addItems(
+            self.dict_cfgs[value_cfgs_openai_config][value_cfgs_openai_config_api_key].keys())
+
+        # self.page_set_edit_cfg_api.currentText(lambda text:":".join(str(self.dict_cfgs[value_cfgs_openai_config][value_cfgs_openai_config_api_key].keys())) + ":" + str(self.dict_cfgs[value_cfgs_openai_config][value_cfgs_openai_config_api_key].values()))
         self.page_set_edit_cfg_api_add = QtWidgets.QPushButton(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_cfg_api_add.setGeometry(QtCore.QRect(840, 290, 50, 30))
+        self.page_set_edit_cfg_api_add.setGeometry(QtCore.QRect(620, 290, 50, 30))
         self.page_set_edit_cfg_api_add.setText("添加")
         self.page_set_edit_cfg_api_add.setStyleSheet("border: 1px solid rgba(0,0,0,0.5);")
         self.page_set_edit_cfg_api_add.clicked.connect(self.add_api_key)
 
         self.page_set_edit_cfg_api_del = QtWidgets.QPushButton(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_cfg_api_del.setGeometry(QtCore.QRect(910, 290, 50, 30))
+        self.page_set_edit_cfg_api_del.setGeometry(QtCore.QRect(690, 290, 50, 30))
         self.page_set_edit_cfg_api_del.setText("删除")
         self.page_set_edit_cfg_api_del.setStyleSheet("border: 1px solid rgba(0,0,0,0.5);")
         self.page_set_edit_cfg_api_del.clicked.connect(self.del_api_key)
@@ -1275,18 +1258,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_default_prompt = QtWidgets.QPlainTextEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_default_prompt.setGeometry(QtCore.QRect(260, 510, 711, 400))
         self.page_set_edit_cfg_default_prompt.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
+        self.page_set_edit_cfg_default_prompt.setDisabled(True)
         self.page_set_edit_cfg_default_prompt.setStyleSheet("background-color:rgba(255,255,255,0.5);")
         self.page_set_edit_cfg_default_prompt.setObjectName("page_set_edit_cfg_default_prompt")
-        # self.page_set_edit_cfg_default_prompt.setCurrentCharFormat(self.dict_cfgs.get(value_cfgs_default_prompt))
-        self.page_set_edit_cfg_default_prompt.setPlainText(next(iter(self.dict_cfgs[value_cfgs_default_prompt].values())))
-        # self.setCentralWidget(self.page_set_edit_cfg_default_prompt)
-        # self.page_set_edit_cfg_default_prompt.textChanged.connect(lambda: update_value_cfgs(value_cfgs_default_prompt, {
-        #
-        # self.page_set_edit_cfg_default_prompt_choose.currentText(): self.page_set_edit_cfg_default_prompt.toPlainText()}))
-        # self.page_set_edit_cfg_default_prompt.textChanged.connect(
-        # lambda new_value: update_value_cfgs(value_cfgs_value_default_prompt,
-        #                                     {**self.dict_cfgs[value_cfgs_default_prompt],
-        #                                      **{value_cfgs_completion_api_params_top_p: new_value}}))
+        self.page_set_edit_cfg_default_prompt.setPlainText(
+            next(iter(self.dict_cfgs[value_cfgs_default_prompt].values())))
+
         self.page_set_edit_cfg_default_prompt_choose = QtWidgets.QComboBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_default_prompt_choose.setGeometry(QtCore.QRect(400, 472, 170, 30))
         self.page_set_edit_cfg_default_prompt_choose.setTabletTracking(True)
@@ -1297,9 +1274,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_default_prompt_choose.setObjectName("page_set_edit_cfg_default_prompt_choose")
         # 添加选项到下拉框中
         self.page_set_edit_cfg_default_prompt_choose.addItems(self.dict_cfgs[value_cfgs_default_prompt].keys())
-
+        self.page_set_edit_cfg_default_prompt_choose.setCurrentIndex(0)
         # 显示对应值
-#        self.page_set_edit_cfg_default_prompt_choose.currentIndexChanged.connect(self.show_default_prompt_value)
         self.page_set_edit_cfg_default_prompt_choose.currentTextChanged.connect(self.update_default_prompt)
 
         self.page_set_edit_cfg_prompt_add = QtWidgets.QPushButton(self.scrollAreaWidgetContents_5)
@@ -1321,9 +1297,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_blob_message_strategy.addItem("")
         self.page_set_edit_cfg_blob_message_strategy.addItem("")
         self.page_set_edit_cfg_blob_message_strategy.setItemText(0, "image")
-        self.page_set_edit_cfg_blob_message_strategy.setItemText(1,  "forward")
+        self.page_set_edit_cfg_blob_message_strategy.setItemText(1, "forward")
         self.page_set_edit_cfg_blob_message_strategy.setCurrentText(self.dict_cfgs[value_cfgs_blob_message_strategy])
-        self.page_set_edit_cfg_blob_message_strategy.currentTextChanged.connect(lambda new_value: update_value_cfgs(value_cfgs_blob_message_strategy, new_value))
+        self.page_set_edit_cfg_blob_message_strategy.currentTextChanged.connect(
+            lambda new_value: update_value_cfgs(value_cfgs_blob_message_strategy, new_value))
 
         self.page_set_edit_cfg_rate_limit_strategy = QtWidgets.QComboBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_rate_limit_strategy.setGeometry(QtCore.QRect(380, 1980, 71, 30))
@@ -1401,7 +1378,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_income_msg_check.setFont(font)
         self.page_set_edit_cfg_income_msg_check.setObjectName("page_set_edit_cfg_income_msg_check")
         self.page_set_edit_cfg_income_msg_check.setChecked(self.dict_cfgs[value_cfgs_income_msg_check])
-        self.page_set_edit_cfg_income_msg_check.stateChanged.connect(lambda state: update_value_cfgs(value_cfgs_income_msg_check, bool(state)))
+        self.page_set_edit_cfg_income_msg_check.stateChanged.connect(
+            lambda state: update_value_cfgs(value_cfgs_income_msg_check, bool(state)))
 
         self.page_set_label_cfg_rate_limitation_danwei = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_label_cfg_rate_limitation_danwei.setGeometry(QtCore.QRect(470, 1940, 48, 30))
@@ -1415,7 +1393,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_sensitive_word_filter.setFont(font)
         self.page_set_edit_cfg_sensitive_word_filter.setObjectName("page_set_edit_cfg_sensitive_word_filter")
         self.page_set_edit_cfg_sensitive_word_filter.setChecked(self.dict_cfgs[value_cfgs_sensitive_word_filter])
-        self.page_set_edit_cfg_sensitive_word_filter.stateChanged.connect(lambda state: update_value_cfgs(value_cfgs_sensitive_word_filter, bool(state)))
+        self.page_set_edit_cfg_sensitive_word_filter.stateChanged.connect(
+            lambda state: update_value_cfgs(value_cfgs_sensitive_word_filter, bool(state)))
 
         self.page_set_edit_cfg_rate_limitation = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_rate_limitation.setGeometry(QtCore.QRect(410, 1940, 51, 30))
@@ -1424,7 +1403,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_rate_limitation.setMaximum(60)
         self.page_set_edit_cfg_rate_limitation.setObjectName("page_set_edit_cfg_rate_limitation")
         self.page_set_edit_cfg_rate_limitation.setValue(self.dict_cfgs[value_cfgs_rate_limitation])
-        self.page_set_edit_cfg_rate_limitation.valueChanged.connect(lambda new_value: update_value_cfgs(value_cfgs_rate_limitation, new_value))
+        self.page_set_edit_cfg_rate_limitation.valueChanged.connect(
+            lambda new_value: update_value_cfgs(value_cfgs_rate_limitation, new_value))
 
         self.page_set_label_cfg_rate_limit_strategy = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_label_cfg_rate_limit_strategy.setGeometry(QtCore.QRect(260, 1980, 126, 30))
@@ -1479,7 +1459,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_quote_origin.setFont(font)
         self.page_set_edit_cfg_quote_origin.setObjectName("page_set_edit_cfg_quote_origin")
         self.page_set_edit_cfg_quote_origin.setChecked(self.dict_cfgs[value_cfgs_quote_origin])
-        self.page_set_edit_cfg_quote_origin.stateChanged.connect(lambda state: update_value_cfgs(value_cfgs_quote_origin, bool(state)))
+        self.page_set_edit_cfg_quote_origin.stateChanged.connect(
+            lambda state: update_value_cfgs(value_cfgs_quote_origin, bool(state)))
 
         self.page_set_label_cfg_include_image_description = QtWidgets.QCheckBox(self.scrollAreaWidgetContents_5)
         self.page_set_label_cfg_include_image_description.setGeometry(QtCore.QRect(260, 1520, 354, 30))
@@ -1505,7 +1486,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_process_message_timeout.setSingleStep(5)
         self.page_set_edit_cfg_process_message_timeout.setObjectName("page_set_edit_cfg_process_message_timeout")
         self.page_set_edit_cfg_process_message_timeout.setValue(self.dict_cfgs[value_cfgs_process_message_timeout])
-        self.page_set_edit_cfg_process_message_timeout.valueChanged.connect(lambda new_value: update_value_cfgs(value_cfgs_process_message_timeout, new_value))
+        self.page_set_edit_cfg_process_message_timeout.valueChanged.connect(
+            lambda new_value: update_value_cfgs(value_cfgs_process_message_timeout, new_value))
 
         self.page_set_edit_cfg_qiyongduoduixiangmingcheng = QtWidgets.QCheckBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_qiyongduoduixiangmingcheng.setEnabled(False)
@@ -1517,7 +1499,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_qiyongduoduixiangmingcheng.setObjectName("page_set_edit_cfg_qiyongduoduixiangmingcheng")
         # self.page_set_edit_cfg_qiyongduoduixiangmingcheng.setChecked(self.dict_cfgs[x])
         # self.page_set_edit_cfg_qiyongduoduixiangmingcheng.stateChanged.connect(lambda state: update_value_cfgs(x, bool(state)))
-        #暂未实现
+        # 暂未实现
 
         self.page_set_label_cfg_process_message_timeout_danwei = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_label_cfg_process_message_timeout_danwei.setGeometry(QtCore.QRect(490, 1700, 48, 30))
@@ -1539,7 +1521,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_sys_pool_num.setMaximum(30)
         self.page_set_edit_cfg_sys_pool_num.setObjectName("page_set_edit_cfg_sys_pool_num")
         self.page_set_edit_cfg_sys_pool_num.setValue(self.dict_cfgs[value_cfgs_sys_pool_num])
-        self.page_set_edit_cfg_sys_pool_num.valueChanged.connect(lambda new_value: update_value_cfgs(value_cfgs_sys_pool_num, new_value))
+        self.page_set_edit_cfg_sys_pool_num.valueChanged.connect(
+            lambda new_value: update_value_cfgs(value_cfgs_sys_pool_num, new_value))
 
         self.page_set_edit_cfg_show_prefix = QtWidgets.QCheckBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_show_prefix.setGeometry(QtCore.QRect(260, 1600, 354, 30))
@@ -1559,7 +1542,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_retry_times.setMaximum(10)
         self.page_set_edit_cfg_retry_times.setObjectName("page_set_edit_cfg_retry_times")
         self.page_set_edit_cfg_retry_times.setValue(self.dict_cfgs[value_cfgs_retry_times])
-        self.page_set_edit_cfg_retry_times.valueChanged.connect(lambda new_value: update_value_cfgs(value_cfgs_retry_times, new_value))
+        self.page_set_edit_cfg_retry_times.valueChanged.connect(
+            lambda new_value: update_value_cfgs(value_cfgs_retry_times, new_value))
 
         self.page_set_label_cfg_process_message_timeout_left = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_label_cfg_process_message_timeout_left.setGeometry(QtCore.QRect(260, 1700, 166, 30))
@@ -1577,13 +1561,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_image_size.addItem("")
         self.page_set_edit_cfg_image_size.addItem("")
         self.page_set_edit_cfg_image_size.addItem("")
-        self.page_set_edit_cfg_image_size.setItemText(0,  "256x256")
+        self.page_set_edit_cfg_image_size.setItemText(0, "256x256")
         self.page_set_edit_cfg_image_size.setItemText(1, "512x512")
         self.page_set_edit_cfg_image_size.setItemText(2, "1024x1024")
-        self.page_set_edit_cfg_image_size.setCurrentText(self.dict_cfgs[value_cfgs_image_api_params][value_cfgs_image_api_params_size])
+        self.page_set_edit_cfg_image_size.setCurrentText(
+            self.dict_cfgs[value_cfgs_image_api_params][value_cfgs_image_api_params_size])
         self.page_set_edit_cfg_image_size.currentTextChanged.connect(
-            lambda new_value: update_value_cfgs(value_cfgs_image_api_params, {**self.dict_cfgs[value_cfgs_image_api_params],
-                                                                        **{value_cfgs_image_api_params_size: new_value}}))
+            lambda new_value: update_value_cfgs(value_cfgs_image_api_params,
+                                                {**self.dict_cfgs[value_cfgs_image_api_params],
+                                                 **{value_cfgs_image_api_params_size: new_value}}))
 
         self.page_set_label_cfg_ignore_prefix = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_label_cfg_ignore_prefix.setGeometry(QtCore.QRect(260, 1100, 160, 30))
@@ -1605,9 +1591,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_ignore_prefix.setGeometry(QtCore.QRect(430, 1100, 321, 30))
         self.page_set_edit_cfg_ignore_prefix.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_cfg_ignore_prefix.setObjectName("page_set_edit_cfg_ignore_prefix")
+        self.page_set_edit_cfg_ignore_prefix.setStyleSheet("QLineEdit {border: 1px solid rgba(0,0,0, 0.5);}QToolTip { border: none; background-color: white; color: black; } QToolTip QLabel { color: red; }")
+        self.page_set_edit_cfg_ignore_prefix.setToolTip("输入内容以<span style='color:red'>【英文逗号】</span>分隔。比如:关键词1,关键词2,关键词3")
+
         # self.page_set_edit_cfg_ignore_prefix.setValue(self.dict_cfgs[w])
         # self.page_set_edit_cfg_ignore_prefix.valueChanged.connect(lambda new_value: update_value_cfgs(w, new_value))
-        self.page_set_edit_cfg_ignore_prefix.setText(','.join(self.dict_cfgs[value_cfgs_ignore_rules][value_cfgs_ignore_rules_prefix]))
+        self.page_set_edit_cfg_ignore_prefix.setText(
+            ','.join(self.dict_cfgs[value_cfgs_ignore_rules][value_cfgs_ignore_rules_prefix]))
         self.page_set_edit_cfg_ignore_prefix.textChanged.connect(
             lambda new_value: update_value_cfgs(value_cfgs_ignore_rules,
                                                 {**self.dict_cfgs[value_cfgs_ignore_rules],
@@ -1617,6 +1607,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_ignore_regexp.setGeometry(QtCore.QRect(430, 1140, 321, 30))
         self.page_set_edit_cfg_ignore_regexp.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_cfg_ignore_regexp.setObjectName("page_set_edit_cfg_ignore_regexp")
+        self.page_set_edit_cfg_ignore_regexp.setStyleSheet("QLineEdit {border: 1px solid rgba(0,0,0, 0.5);}QToolTip { border: none; background-color: white; color: black; } QToolTip QLabel { color: red; }")
+        self.page_set_edit_cfg_ignore_regexp.setToolTip("输入内容以<span style='color:red'>【英文逗号】</span>分隔。比如:关键词1,关键词2,关键词3")
+
         self.page_set_edit_cfg_ignore_regexp.setText(
             ','.join(self.dict_cfgs[value_cfgs_ignore_rules][value_cfgs_ignore_rules_regexp]))
         self.page_set_edit_cfg_ignore_regexp.textChanged.connect(
@@ -1643,10 +1636,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_api_frequency_penalty.setMaximum(1.0)
         self.page_set_edit_cfg_api_frequency_penalty.setSingleStep(0.1)
         self.page_set_edit_cfg_api_frequency_penalty.setObjectName("page_set_edit_cfg_api_frequency_penalty")
-        self.page_set_edit_cfg_api_frequency_penalty.setValue(self.dict_cfgs[value_cfgs_completion_api_params][value_cfgs_completion_api_params_frequency_penalty])
+        self.page_set_edit_cfg_api_frequency_penalty.setValue(
+            self.dict_cfgs[value_cfgs_completion_api_params][value_cfgs_completion_api_params_frequency_penalty])
         self.page_set_edit_cfg_api_frequency_penalty.valueChanged.connect(
-            lambda new_value: update_value_cfgs(value_cfgs_completion_api_params, {**self.dict_cfgs[value_cfgs_completion_api_params],
-                                                                        **{value_cfgs_completion_api_params_frequency_penalty: new_value}}))
+            lambda new_value: update_value_cfgs(value_cfgs_completion_api_params,
+                                                {**self.dict_cfgs[value_cfgs_completion_api_params],
+                                                 **{value_cfgs_completion_api_params_frequency_penalty: new_value}}))
 
         self.page_set_label_cfg_api_model = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_label_cfg_api_model.setGeometry(QtCore.QRect(260, 1200, 54, 30))
@@ -1700,7 +1695,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_prompt_submit_length.setSingleStep(128)
         self.page_set_edit_cfg_prompt_submit_length.setObjectName("page_set_edit_cfg_prompt_submit_length")
         self.page_set_edit_cfg_prompt_submit_length.setValue(self.dict_cfgs[value_cfgs_prompt_submit_length])
-        self.page_set_edit_cfg_prompt_submit_length.valueChanged.connect(lambda new_value: update_value_cfgs(value_cfgs_prompt_submit_length, new_value))
+        self.page_set_edit_cfg_prompt_submit_length.valueChanged.connect(
+            lambda new_value: update_value_cfgs(value_cfgs_prompt_submit_length, new_value))
 
         self.page_set_label_cfg_api_temperature = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_label_cfg_api_temperature.setGeometry(QtCore.QRect(260, 1240, 54, 30))
@@ -1709,11 +1705,16 @@ class MainWindow(QtWidgets.QMainWindow):
         font.setPointSize(11)
         self.page_set_label_cfg_api_temperature.setFont(font)
         self.page_set_label_cfg_api_temperature.setObjectName("page_set_label_cfg_api_temperature")
+        self.page_set_label_cfg_api_temperature.setToolTip("数值越低得到的回答越理性，取值范围[0, 1]")
+        self.page_set_label_cfg_api_temperature.setStyleSheet(
+            "QLineEdit {border: 1px solid rgba(0,0,0, 0.5);}QToolTip { border: none; background-color: white; color: black; } QToolTip QLabel { color: red; }")
+
 
         self.page_set_edit_cfg_response_regexp = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_response_regexp.setGeometry(QtCore.QRect(430, 1061, 321, 30))
-        self.page_set_edit_cfg_response_regexp.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_cfg_response_regexp.setObjectName("page_set_edit_cfg_response_regexp")
+        self.page_set_edit_cfg_response_regexp.setStyleSheet("QLineEdit {border: 1px solid rgba(0,0,0, 0.5);}QToolTip { border: none; background-color: white; color: black; } QToolTip QLabel { color: red; }")
+        self.page_set_edit_cfg_response_regexp.setToolTip("输入内容以<span style='color:red'>【英文逗号】</span>分隔。比如:关键词1,关键词2,关键词3")
         self.page_set_edit_cfg_response_regexp.setText(
             ','.join(self.dict_cfgs[value_cfgs_response_rules][value_cfgs_response_rules_regexp]))
         self.page_set_edit_cfg_response_regexp.textChanged.connect(
@@ -1722,8 +1723,10 @@ class MainWindow(QtWidgets.QMainWindow):
                                                  **{value_cfgs_response_rules_regexp: new_value.split(',')}}))
         self.page_set_edit_cfg_response_prefix = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_response_prefix.setGeometry(QtCore.QRect(430, 1020, 321, 30))
-        self.page_set_edit_cfg_response_prefix.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_cfg_response_prefix.setObjectName("page_set_edit_cfg_response_prefix")
+        self.page_set_edit_cfg_response_prefix.setStyleSheet("QLineEdit {border: 1px solid rgba(0,0,0, 0.5);}QToolTip { border: none; background-color: white; color: black; } QToolTip QLabel { color: red; }")
+        self.page_set_edit_cfg_response_prefix.setToolTip("输入内容以<span style='color:red'>【英文】逗号</span>分隔。比如关键词1,关键词2,关键词3")
+
         self.page_set_edit_cfg_response_prefix.setText(
             ','.join(self.dict_cfgs[value_cfgs_response_rules][value_cfgs_response_rules_prefix]))
         self.page_set_edit_cfg_response_prefix.textChanged.connect(
@@ -1737,10 +1740,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_api_temperature.setMaximum(1.0)
         self.page_set_edit_cfg_api_temperature.setSingleStep(0.1)
         self.page_set_edit_cfg_api_temperature.setObjectName("page_set_edit_cfg_api_temperature")
-        self.page_set_edit_cfg_api_temperature.setValue(self.dict_cfgs[value_cfgs_completion_api_params][value_cfgs_completion_api_params_temperature])
+        self.page_set_edit_cfg_api_temperature.setValue(
+            self.dict_cfgs[value_cfgs_completion_api_params][value_cfgs_completion_api_params_temperature])
         self.page_set_edit_cfg_api_temperature.valueChanged.connect(
-            lambda new_value: update_value_cfgs(value_cfgs_completion_api_params, {**self.dict_cfgs[value_cfgs_completion_api_params],
-                                                                        **{value_cfgs_completion_api_params_temperature:new_value}}))
+            lambda new_value: update_value_cfgs(value_cfgs_completion_api_params,
+                                                {**self.dict_cfgs[value_cfgs_completion_api_params],
+                                                 **{value_cfgs_completion_api_params_temperature: new_value}}))
 
         self.page_set_edit_cfg_api_model = QtWidgets.QComboBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_api_model.setEnabled(True)
@@ -1772,23 +1777,25 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_api_model.addItem("")
         self.page_set_edit_cfg_api_model.addItem("")
         self.page_set_edit_cfg_api_model.addItem("")
-        self.page_set_edit_cfg_api_model.setItemText(0,  "gpt-4" )
-        self.page_set_edit_cfg_api_model.setItemText(1,  "gpt-4-0314" )
-        self.page_set_edit_cfg_api_model.setItemText(2,  "gpt-4-32k" )
-        self.page_set_edit_cfg_api_model.setItemText(3,  "gpt-4-32k-0314" )
-        self.page_set_edit_cfg_api_model.setItemText(4,  "gpt-3.5-turbo" )
-        self.page_set_edit_cfg_api_model.setItemText(5,  "gpt-3.5-turbo-0301" )
-        self.page_set_edit_cfg_api_model.setItemText(6,  "text-davinci-003" )
-        self.page_set_edit_cfg_api_model.setItemText(7,  "text-davinci-002" )
-        self.page_set_edit_cfg_api_model.setItemText(8,  "code-davinci-002" )
-        self.page_set_edit_cfg_api_model.setItemText(9,  "code-cushman-001" )
-        self.page_set_edit_cfg_api_model.setItemText(10,  "text-curie-001" )
-        self.page_set_edit_cfg_api_model.setItemText(11,  "text-babbage-001" )
-        self.page_set_edit_cfg_api_model.setItemText(12,  "text-ada-001" )
-        self.page_set_edit_cfg_api_model.setCurrentText(self.dict_cfgs[value_cfgs_completion_api_params][value_cfgs_completion_api_params_model])
-        self.page_set_edit_cfg_api_model.currentTextChanged.connect(lambda new_value: update_value_cfgs(value_cfgs_completion_api_params, {**self.dict_cfgs[value_cfgs_completion_api_params],
-                                                                        **{value_cfgs_completion_api_params_model:new_value}} ))
-
+        self.page_set_edit_cfg_api_model.setItemText(0, "gpt-4")
+        self.page_set_edit_cfg_api_model.setItemText(1, "gpt-4-0314")
+        self.page_set_edit_cfg_api_model.setItemText(2, "gpt-4-32k")
+        self.page_set_edit_cfg_api_model.setItemText(3, "gpt-4-32k-0314")
+        self.page_set_edit_cfg_api_model.setItemText(4, "gpt-3.5-turbo")
+        self.page_set_edit_cfg_api_model.setItemText(5, "gpt-3.5-turbo-0301")
+        self.page_set_edit_cfg_api_model.setItemText(6, "text-davinci-003")
+        self.page_set_edit_cfg_api_model.setItemText(7, "text-davinci-002")
+        self.page_set_edit_cfg_api_model.setItemText(8, "code-davinci-002")
+        self.page_set_edit_cfg_api_model.setItemText(9, "code-cushman-001")
+        self.page_set_edit_cfg_api_model.setItemText(10, "text-curie-001")
+        self.page_set_edit_cfg_api_model.setItemText(11, "text-babbage-001")
+        self.page_set_edit_cfg_api_model.setItemText(12, "text-ada-001")
+        self.page_set_edit_cfg_api_model.setCurrentText(
+            self.dict_cfgs[value_cfgs_completion_api_params][value_cfgs_completion_api_params_model])
+        self.page_set_edit_cfg_api_model.currentTextChanged.connect(
+            lambda new_value: update_value_cfgs(value_cfgs_completion_api_params,
+                                                {**self.dict_cfgs[value_cfgs_completion_api_params],
+                                                 **{value_cfgs_completion_api_params_model: new_value}}))
 
         self.page_set_label_cfg_mirai_qq = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_label_cfg_mirai_qq.setGeometry(QtCore.QRect(260, 190, 102, 25))
@@ -1888,18 +1895,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_admin_qq.setText(str(
             self.dict_cfgs[value_cfgs_admin_qq]))
         self.page_set_edit_cfg_admin_qq.textChanged.connect(
-            lambda new_value: update_value_cfgs(value_cfgs_admin_qq,int(new_value)))
+            lambda new_value: update_value_cfgs(value_cfgs_admin_qq, int(new_value)))
 
-        self.page_set_edit_cfg_mirai_adapter = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_cfg_mirai_adapter.setGeometry(QtCore.QRect(370, 50, 142, 25))
-        self.page_set_edit_cfg_mirai_adapter.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.page_set_edit_cfg_mirai_adapter = QtWidgets.QComboBox(self.scrollAreaWidgetContents_5)
+        self.page_set_edit_cfg_mirai_adapter.setGeometry(QtCore.QRect(370, 50, 200, 25))
         self.page_set_edit_cfg_mirai_adapter.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_cfg_mirai_adapter.setObjectName("page_set_edit_cfg_mirai_adapter")
-        self.page_set_edit_cfg_mirai_adapter.setText(
-            self.dict_cfgs[value_cfgs_mirai_http_api_config][value_cfgs_mirai_http_api_config_adapter])
-        self.page_set_edit_cfg_mirai_adapter.textChanged.connect(
+        self.page_set_edit_cfg_mirai_adapter.addItem("")
+        self.page_set_edit_cfg_mirai_adapter.addItem("")
+        self.page_set_edit_cfg_mirai_adapter.setItemText(0, "HTTPAdapter")
+        self.page_set_edit_cfg_mirai_adapter.setItemText(1, "WebSocketAdapter")
+        self.page_set_edit_cfg_mirai_adapter.setCurrentText(self.dict_cfgs[value_cfgs_mirai_http_api_config][value_cfgs_mirai_http_api_config_adapter])
+        self.page_set_edit_cfg_mirai_adapter.currentTextChanged.connect(
             lambda new_value: update_value_cfgs(value_cfgs_mirai_http_api_config,
-                                                {**self.dict_cfgs[value_cfgs_mirai_http_api_config],
+                                                  {**self.dict_cfgs[value_cfgs_mirai_http_api_config],
                                                  **{value_cfgs_mirai_http_api_config_adapter: new_value}}))
 
         self.page_set_edit_cfg_api_http_proxy = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
@@ -1954,10 +1963,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_preset_mode.setObjectName("page_set_edit_cfg_preset_mode")
         self.page_set_edit_cfg_preset_mode.addItem("")
         self.page_set_edit_cfg_preset_mode.addItem("")
-        self.page_set_edit_cfg_preset_mode.setItemText(0,  "normal")
+        self.page_set_edit_cfg_preset_mode.setItemText(0, "normal")
         self.page_set_edit_cfg_preset_mode.setItemText(1, "full_scenario")
         self.page_set_edit_cfg_preset_mode.setCurrentText(self.dict_cfgs[value_cfgs_preset_mode])
-        self.page_set_edit_cfg_preset_mode.currentTextChanged.connect(lambda new_value: update_value_cfgs(value_cfgs_preset_mode, new_value))
+        self.page_set_edit_cfg_preset_mode.currentTextChanged.connect(
+            lambda new_value: update_value_cfgs(value_cfgs_preset_mode, new_value))
 
         self.page_set_label_cfg_response_prefix = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_label_cfg_response_prefix.setGeometry(QtCore.QRect(260, 1020, 90, 29))
@@ -1988,7 +1998,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_baidu_api_key.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_cfg_baidu_api_key.setObjectName("page_set_edit_cfg_baidu_api_key")
         self.page_set_edit_cfg_baidu_api_key.setText(self.dict_cfgs[value_cfgs_baidu_api_key])
-        self.page_set_edit_cfg_baidu_api_key.textChanged.connect(lambda new_value: update_value_cfgs(value_cfgs_baidu_api_key, new_value))
+        self.page_set_edit_cfg_baidu_api_key.textChanged.connect(
+            lambda new_value: update_value_cfgs(value_cfgs_baidu_api_key, new_value))
 
         self.page_set_edit_cfg_encourage_sponsor_at_start = QtWidgets.QCheckBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_encourage_sponsor_at_start.setGeometry(QtCore.QRect(260, 2380, 167, 30))
@@ -1997,8 +2008,10 @@ class MainWindow(QtWidgets.QMainWindow):
         font.setPointSize(11)
         self.page_set_edit_cfg_encourage_sponsor_at_start.setFont(font)
         self.page_set_edit_cfg_encourage_sponsor_at_start.setObjectName("page_set_edit_cfg_encourage_sponsor_at_start")
-        self.page_set_edit_cfg_encourage_sponsor_at_start.setChecked(self.dict_cfgs[value_cfgs_encourage_sponsor_at_start])
-        self.page_set_edit_cfg_encourage_sponsor_at_start.stateChanged.connect(lambda state: update_value_cfgs(value_cfgs_encourage_sponsor_at_start, bool(state)))
+        self.page_set_edit_cfg_encourage_sponsor_at_start.setChecked(
+            self.dict_cfgs[value_cfgs_encourage_sponsor_at_start])
+        self.page_set_edit_cfg_encourage_sponsor_at_start.stateChanged.connect(
+            lambda state: update_value_cfgs(value_cfgs_encourage_sponsor_at_start, bool(state)))
 
         self.page_set_edit_cfg_hide_exce_info_to_user = QtWidgets.QCheckBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_hide_exce_info_to_user.setGeometry(QtCore.QRect(260, 2420, 347, 30))
@@ -2047,91 +2060,91 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_label_cfg_logging_level.setObjectName("page_set_label_cfg_logging_level")
 
         self.page_set_label_cmd_plugin_off = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_plugin_off.setGeometry(QtCore.QRect(520, 2760, 70, 30))
+        self.page_set_label_cmd_plugin_off.setGeometry(QtCore.QRect(510, 2760, 120, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_plugin_off.setFont(font)
         self.page_set_label_cmd_plugin_off.setObjectName("page_set_label_cmd_plugin_off")
 
         self.page_set_label_cmd_plugin = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_plugin.setGeometry(QtCore.QRect(520, 2600, 46, 30))
+        self.page_set_label_cmd_plugin.setGeometry(QtCore.QRect(510, 2600, 120, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_plugin.setFont(font)
         self.page_set_label_cmd_plugin.setObjectName("page_set_label_cmd_plugin")
 
         self.page_set_label_cmd_plugin_get = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_plugin_get.setGeometry(QtCore.QRect(520, 2640, 75, 30))
+        self.page_set_label_cmd_plugin_get.setGeometry(QtCore.QRect(510, 2640, 120, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_plugin_get.setFont(font)
         self.page_set_label_cmd_plugin_get.setObjectName("page_set_label_cmd_plugin_get")
 
         self.page_set_label_cmd_plugin_update = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_plugin_update.setGeometry(QtCore.QRect(520, 2680, 102, 30))
+        self.page_set_label_cmd_plugin_update.setGeometry(QtCore.QRect(510, 2680, 120, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_plugin_update.setFont(font)
         self.page_set_label_cmd_plugin_update.setObjectName("page_set_label_cmd_plugin_update")
 
         self.page_set_label_cmd_plugin_del = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_plugin_del.setGeometry(QtCore.QRect(520, 2720, 73, 30))
+        self.page_set_label_cmd_plugin_del.setGeometry(QtCore.QRect(510, 2720, 120, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_plugin_del.setFont(font)
         self.page_set_label_cmd_plugin_del.setObjectName("page_set_label_cmd_plugin_del")
 
         self.page_set_label_cmd_plugin_on = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_plugin_on.setGeometry(QtCore.QRect(520, 2800, 69, 30))
+        self.page_set_label_cmd_plugin_on.setGeometry(QtCore.QRect(510, 2800, 120, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_plugin_on.setFont(font)
         self.page_set_label_cmd_plugin_on.setObjectName("page_set_label_cmd_plugin_on")
 
         self.page_set_label_cmd_list = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_list.setGeometry(QtCore.QRect(520, 2840, 51, 31))
+        self.page_set_label_cmd_list.setGeometry(QtCore.QRect(510, 2840, 120, 31))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_list.setFont(font)
         self.page_set_label_cmd_list.setObjectName("page_set_label_cmd_list")
 
         self.page_set_label_cmd_next = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_next.setGeometry(QtCore.QRect(520, 2880, 32, 30))
+        self.page_set_label_cmd_next.setGeometry(QtCore.QRect(510, 2880, 120, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_next.setFont(font)
         self.page_set_label_cmd_next.setObjectName("page_set_label_cmd_next")
 
         self.page_set_label_cmd_resend = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_resend.setGeometry(QtCore.QRect(520, 2920, 50, 30))
+        self.page_set_label_cmd_resend.setGeometry(QtCore.QRect(510, 2920, 120, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_resend.setFont(font)
         self.page_set_label_cmd_resend.setObjectName("page_set_label_cmd_resend")
 
         self.page_set_label_cmd_help = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_help.setGeometry(QtCore.QRect(520, 2960, 32, 30))
+        self.page_set_label_cmd_help.setGeometry(QtCore.QRect(510, 2960, 120, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_help.setFont(font)
         self.page_set_label_cmd_help.setObjectName("page_set_label_cmd_help")
 
         self.page_set_label_cmd_update = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_update.setGeometry(QtCore.QRect(520, 3000, 52, 30))
+        self.page_set_label_cmd_update.setGeometry(QtCore.QRect(510, 3000, 120, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_update.setFont(font)
         self.page_set_label_cmd_update.setObjectName("page_set_label_cmd_update")
 
         self.page_set_label_cmd_version = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_version.setGeometry(QtCore.QRect(520, 3040, 53, 30))
+        self.page_set_label_cmd_version.setGeometry(QtCore.QRect(510, 3040, 120, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_version.setFont(font)
         self.page_set_label_cmd_version.setObjectName("page_set_label_cmd_version")
 
         self.page_set_label_tips_command_reset_name_message = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_tips_command_reset_name_message.setGeometry(QtCore.QRect(260, 3420, 162, 30))
+        self.page_set_label_tips_command_reset_name_message.setGeometry(QtCore.QRect(260, 3460, 162, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(11)
@@ -2140,7 +2153,7 @@ class MainWindow(QtWidgets.QMainWindow):
             "page_set_label_tips_command_reset_name_message")
 
         self.page_set_label_tips_alter_tip_message = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_tips_alter_tip_message.setGeometry(QtCore.QRect(260, 3100, 90, 30))
+        self.page_set_label_tips_alter_tip_message.setGeometry(QtCore.QRect(260, 3140, 90, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(11)
@@ -2148,7 +2161,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_label_tips_alter_tip_message.setObjectName("page_set_label_tips_alter_tip_message")
 
         self.page_set_label_tips_rate_limit_drop_tip = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_tips_rate_limit_drop_tip.setGeometry(QtCore.QRect(260, 3140, 180, 30))
+        self.page_set_label_tips_rate_limit_drop_tip.setGeometry(QtCore.QRect(260, 3180, 180, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(11)
@@ -2156,7 +2169,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_label_tips_rate_limit_drop_tip.setObjectName("page_set_label_tips_rate_limit_drop_tip")
 
         self.page_set_label_tips_help_message = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_tips_help_message.setGeometry(QtCore.QRect(260, 3180, 182, 30))
+        self.page_set_label_tips_help_message.setGeometry(QtCore.QRect(260, 3220, 182, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(11)
@@ -2164,7 +2177,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_label_tips_help_message.setObjectName("page_set_label_tips_help_message")
 
         self.page_set_label_tips_reply_message = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_tips_reply_message.setGeometry(QtCore.QRect(260, 3220, 162, 30))
+        self.page_set_label_tips_reply_message.setGeometry(QtCore.QRect(260, 3260, 162, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(11)
@@ -2172,7 +2185,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_label_tips_reply_message.setObjectName("page_set_label_tips_reply_message")
 
         self.page_set_label_tips_replys_message = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_tips_replys_message.setGeometry(QtCore.QRect(260, 3260, 162, 30))
+        self.page_set_label_tips_replys_message.setGeometry(QtCore.QRect(260, 3300, 162, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(11)
@@ -2180,7 +2193,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_label_tips_replys_message.setObjectName("page_set_label_tips_replys_message")
 
         self.page_set_label_tips_command_admin_message = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_tips_command_admin_message.setGeometry(QtCore.QRect(260, 3300, 162, 30))
+        self.page_set_label_tips_command_admin_message.setGeometry(QtCore.QRect(260, 3340, 162, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(11)
@@ -2188,7 +2201,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_label_tips_command_admin_message.setObjectName("page_set_label_tips_command_admin_message")
 
         self.page_set_label_tips_command_err_message = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_tips_command_err_message.setGeometry(QtCore.QRect(260, 3340, 162, 30))
+        self.page_set_label_tips_command_err_message.setGeometry(QtCore.QRect(260, 3380, 162, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(11)
@@ -2196,7 +2209,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_label_tips_command_err_message.setObjectName("page_set_label_tips_command_err_message")
 
         self.page_set_label_tips_command_reset_message = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_tips_command_reset_message.setGeometry(QtCore.QRect(260, 3380, 126, 30))
+        self.page_set_label_tips_command_reset_message.setGeometry(QtCore.QRect(260, 3420, 126, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(11)
@@ -2204,91 +2217,105 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_label_tips_command_reset_message.setObjectName("page_set_label_tips_command_reset_message")
 
         self.page_set_label_cmd_draw = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_draw.setGeometry(QtCore.QRect(260, 2600, 36, 30))
+        self.page_set_label_cmd_draw.setGeometry(QtCore.QRect(260, 2600, 90, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_draw.setFont(font)
         self.page_set_label_cmd_draw.setObjectName("page_set_label_cmd_draw")
 
         self.page_set_label_cmd_default = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_default.setGeometry(QtCore.QRect(260, 2640, 51, 30))
+        self.page_set_label_cmd_default.setGeometry(QtCore.QRect(260, 2640,90, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_default.setFont(font)
         self.page_set_label_cmd_default.setObjectName("page_set_label_cmd_default")
 
         self.page_set_label_cmd_default_set = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_default_set.setGeometry(QtCore.QRect(260, 2680, 77, 30))
+        self.page_set_label_cmd_default_set.setGeometry(QtCore.QRect(260, 2680, 90, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_default_set.setFont(font)
         self.page_set_label_cmd_default_set.setObjectName("page_set_label_cmd_default_set")
 
         self.page_set_label_cmd_del = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_del.setGeometry(QtCore.QRect(260, 2720, 23, 30))
+        self.page_set_label_cmd_del.setGeometry(QtCore.QRect(260, 2720, 90, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_del.setFont(font)
         self.page_set_label_cmd_del.setObjectName("page_set_label_cmd_del")
 
         self.page_set_label_cmd_del_all = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_del_all.setGeometry(QtCore.QRect(260, 2760, 43, 30))
+        self.page_set_label_cmd_del_all.setGeometry(QtCore.QRect(260, 2760, 90, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_del_all.setFont(font)
         self.page_set_label_cmd_del_all.setObjectName("page_set_label_cmd_del_all")
 
         self.page_set_label_cmd_delhst = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_delhst.setGeometry(QtCore.QRect(260, 2800, 45, 30))
+        self.page_set_label_cmd_delhst.setGeometry(QtCore.QRect(260, 2800, 90, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_delhst.setFont(font)
         self.page_set_label_cmd_delhst.setObjectName("page_set_label_cmd_delhst")
 
         self.page_set_label_cmd_delhs_tall = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_delhs_tall.setGeometry(QtCore.QRect(260, 2840, 65, 30))
+        self.page_set_label_cmd_delhs_tall.setGeometry(QtCore.QRect(260, 2840, 90, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_delhs_tall.setFont(font)
         self.page_set_label_cmd_delhs_tall.setObjectName("page_set_label_cmd_delhs_tall")
 
         self.page_set_label_cmd_last = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_last.setGeometry(QtCore.QRect(260, 2880, 25, 30))
+        self.page_set_label_cmd_last.setGeometry(QtCore.QRect(260, 2880, 90, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_last.setFont(font)
         self.page_set_label_cmd_last.setObjectName("page_set_label_cmd_last")
 
         self.page_set_label_cmd_prompt = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_prompt.setGeometry(QtCore.QRect(260, 2920, 56, 30))
+        self.page_set_label_cmd_prompt.setGeometry(QtCore.QRect(260, 2920, 90, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_prompt.setFont(font)
         self.page_set_label_cmd_prompt.setObjectName("page_set_label_cmd_prompt")
 
         self.page_set_label_cmd_reset = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_reset.setGeometry(QtCore.QRect(260, 2960, 37, 30))
+        self.page_set_label_cmd_reset.setGeometry(QtCore.QRect(260, 2960, 90, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_reset.setFont(font)
         self.page_set_label_cmd_reset.setObjectName("page_set_label_cmd_reset")
 
         self.page_set_label_cmd_reload = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_reload.setGeometry(QtCore.QRect(260, 3000, 47, 30))
+        self.page_set_label_cmd_reload.setGeometry(QtCore.QRect(260, 3000, 90, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_reload.setFont(font)
         self.page_set_label_cmd_reload.setObjectName("page_set_label_cmd_reload")
 
         self.page_set_label_cmd_usage = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_usage.setGeometry(QtCore.QRect(260, 3040, 43, 30))
+        self.page_set_label_cmd_usage.setGeometry(QtCore.QRect(260, 3040, 90, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         self.page_set_label_cmd_usage.setFont(font)
         self.page_set_label_cmd_usage.setObjectName("page_set_label_cmd_usage")
 
+        self.page_set_label_cmd_cmd = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
+        self.page_set_label_cmd_cmd.setGeometry(QtCore.QRect(510, 3080, 120, 30))
+        font = QtGui.QFont()
+        font.setFamily("微软雅黑")
+        self.page_set_label_cmd_cmd.setFont(font)
+        self.page_set_label_cmd_cmd.setObjectName("page_set_label_cmd_cmd")
+
+        self.page_set_label_cmd_cfg = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
+        self.page_set_label_cmd_cfg.setGeometry(QtCore.QRect(260, 3080, 120, 30))
+        font = QtGui.QFont()
+        font.setFamily("微软雅黑")
+        self.page_set_label_cmd_cfg.setFont(font)
+        self.page_set_label_cmd_cfg.setObjectName("page_set_label_cmd_cfg")
+
         self.page_set_edit_tips_alter_tip_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_tips_alter_tip_message.setGeometry(QtCore.QRect(442, 3100, 527, 30))
+        self.page_set_edit_tips_alter_tip_message.setGeometry(QtCore.QRect(442, 3140, 527, 30))
         self.page_set_edit_tips_alter_tip_message.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_tips_alter_tip_message.setObjectName("page_set_edit_tips_alter_tip_message")
         self.page_set_edit_tips_alter_tip_message.setText(str(self.dict_tips[value_tips_alter_tip_message]))
@@ -2296,7 +2323,7 @@ class MainWindow(QtWidgets.QMainWindow):
             lambda new_value: update_value_tips(value_tips_alter_tip_message, new_value))
 
         self.page_set_edit_tips_rate_limit_drop_tip = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_tips_rate_limit_drop_tip.setGeometry(QtCore.QRect(442, 3140, 527, 30))
+        self.page_set_edit_tips_rate_limit_drop_tip.setGeometry(QtCore.QRect(442, 3180, 527, 30))
         self.page_set_edit_tips_rate_limit_drop_tip.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_tips_rate_limit_drop_tip.setObjectName("page_set_edit_tips_rate_limit_drop_tip")
         self.page_set_edit_tips_rate_limit_drop_tip.setText(str(self.dict_tips[value_tips_rate_limit_drop_tip]))
@@ -2304,7 +2331,7 @@ class MainWindow(QtWidgets.QMainWindow):
             lambda new_value: update_value_tips(value_tips_rate_limit_drop_tip, new_value))
 
         self.page_set_edit_tips_help_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_tips_help_message.setGeometry(QtCore.QRect(442, 3180, 527, 30))
+        self.page_set_edit_tips_help_message.setGeometry(QtCore.QRect(442, 3220, 527, 30))
         self.page_set_edit_tips_help_message.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_tips_help_message.setObjectName("page_set_edit_tips_help_message")
         self.page_set_edit_tips_help_message.setText(str(self.dict_tips[value_tips_help_message]))
@@ -2312,7 +2339,7 @@ class MainWindow(QtWidgets.QMainWindow):
             lambda new_value: update_value_tips(value_tips_help_message, new_value))
 
         self.page_set_edit_tips_reply_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_tips_reply_message.setGeometry(QtCore.QRect(442, 3220, 527, 30))
+        self.page_set_edit_tips_reply_message.setGeometry(QtCore.QRect(442, 3260, 527, 30))
         self.page_set_edit_tips_reply_message.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_tips_reply_message.setObjectName("page_set_edit_tips_reply_message")
         self.page_set_edit_tips_reply_message.setText(str(self.dict_tips[value_tips_reply_message]))
@@ -2320,7 +2347,7 @@ class MainWindow(QtWidgets.QMainWindow):
             lambda new_value: update_value_tips(value_tips_reply_message, new_value))
 
         self.page_set_edit_tips_replys_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_tips_replys_message.setGeometry(QtCore.QRect(442, 3260, 527, 30))
+        self.page_set_edit_tips_replys_message.setGeometry(QtCore.QRect(442, 3300, 527, 30))
         self.page_set_edit_tips_replys_message.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_tips_replys_message.setObjectName("page_set_edit_tips_replys_message")
         self.page_set_edit_tips_replys_message.setText(str(self.dict_tips[value_tips_replys_message]))
@@ -2328,7 +2355,7 @@ class MainWindow(QtWidgets.QMainWindow):
             lambda new_value: update_value_tips(value_tips_replys_message, new_value))
 
         self.page_set_edit_tips_command_admin_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_tips_command_admin_message.setGeometry(QtCore.QRect(442, 3300, 527, 30))
+        self.page_set_edit_tips_command_admin_message.setGeometry(QtCore.QRect(442, 3340, 527, 30))
         self.page_set_edit_tips_command_admin_message.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_tips_command_admin_message.setObjectName("page_set_edit_tips_command_admin_message")
         self.page_set_edit_tips_command_admin_message.setText(str(self.dict_tips[value_tips_command_admin_message]))
@@ -2336,7 +2363,7 @@ class MainWindow(QtWidgets.QMainWindow):
             lambda new_value: update_value_tips(value_tips_command_admin_message, new_value))
 
         self.page_set_edit_tips_command_err_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_tips_command_err_message.setGeometry(QtCore.QRect(442, 3340, 527, 30))
+        self.page_set_edit_tips_command_err_message.setGeometry(QtCore.QRect(442, 3380, 527, 30))
         self.page_set_edit_tips_command_err_message.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_tips_command_err_message.setObjectName("page_set_edit_tips_command_err_message")
         self.page_set_edit_tips_command_err_message.setText(str(self.dict_tips[value_tips_command_err_message]))
@@ -2344,7 +2371,7 @@ class MainWindow(QtWidgets.QMainWindow):
             lambda new_value: update_value_tips(value_tips_command_err_message, new_value))
 
         self.page_set_edit_tips_command_reset_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_tips_command_reset_message.setGeometry(QtCore.QRect(442, 3380, 527, 30))
+        self.page_set_edit_tips_command_reset_message.setGeometry(QtCore.QRect(442, 3420, 527, 30))
         self.page_set_edit_tips_command_reset_message.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_tips_command_reset_message.setObjectName("page_set_edit_tips_command_reset_message")
         self.page_set_edit_tips_command_reset_message.setText(str(self.dict_tips[value_tips_command_reset_message]))
@@ -2352,11 +2379,12 @@ class MainWindow(QtWidgets.QMainWindow):
             lambda new_value: update_value_tips(value_tips_command_reset_message, new_value))
 
         self.page_set_edit_tips_command_reset_name_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_tips_command_reset_name_message.setGeometry(QtCore.QRect(442, 3420, 527, 30))
+        self.page_set_edit_tips_command_reset_name_message.setGeometry(QtCore.QRect(442, 3460, 527, 30))
         self.page_set_edit_tips_command_reset_name_message.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_tips_command_reset_name_message.setObjectName(
             "page_set_edit_tips_command_reset_name_message")
-        self.page_set_edit_tips_command_reset_name_message.setText(str(self.dict_tips[value_tips_command_reset_name_message]))
+        self.page_set_edit_tips_command_reset_name_message.setText(
+            str(self.dict_tips[value_tips_command_reset_name_message]))
         self.page_set_edit_tips_command_reset_name_message.textChanged.connect(
             lambda new_value: update_value_tips(value_tips_command_reset_name_message, new_value))
 
@@ -2379,6 +2407,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_help_text.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.page_help_text.setAcceptRichText(True)
         self.page_help_text.setObjectName("page_help_text")
+        with open("README.md","r",encoding="utf8") as f:
+            content=f.read()
+        html = markdown2.markdown(content)
+        self.page_help_text.setHtml(html)
 
         self.menu_tab.addTab(self.tab_help, "")
         self.tab_cbout = QtWidgets.QWidget()
@@ -2444,20 +2476,28 @@ class MainWindow(QtWidgets.QMainWindow):
         with open(doc_tips, "w", encoding='utf-8') as f:
             for key, value in self.dict_tips.items():
                 f.write(f"{key} = {repr(value)}\n")
+        with open('tips.py', 'w', encoding="utf-8") as f1, open(doc_tips, 'r', encoding="utf-8") as f2:
 
+            for line in f2:
+                f1.write(line)
     def update_doc_cfgs(self):
         # 将更改后的配置写回到配置文件中
         with open(doc_cfg, "w", encoding='utf-8') as f:
             for key, value in self.dict_cfgs.items():
                 f.write(f"{key} = {repr(value)}\n")
-
+        with open('config.py', 'w', encoding="utf-8") as f1, open(doc_cfg, 'r', encoding="utf-8") as f2:
+             f1.write("import logging\n")
+             for line in f2:
+                f1.write(line)
+             f1.write("logging_level = logging.INFO")
     def update_doc_cmds(self):
         # 将更改后的配置写回到配置文件中
         with open(doc_cmds, "w", encoding='utf-8') as f:
             json.dump(self.dict_cmds, f)
 
-
-
+        with open('cmdpriv.json', 'w', encoding="utf-8") as f1, open(doc_cmds, 'r', encoding="utf-8") as f2:
+            for line in f2:
+                f1.write(line)
     def retranslateUi(self, MainWIndow):
         _translate = QtCore.QCoreApplication.translate
         MainWIndow.setWindowTitle(_translate("MainWIndow", "QChatGPT"))
@@ -2468,7 +2508,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_log_btn_open_log_path.setText(_translate("MainWIndow", "打开日志目录"))
         self.page_log_btn_switch_unicode.setText(_translate("MainWIndow", "发送"))
         self.page_log_btn.setText(_translate("MainWIndow", "PushButton"))
-        self.page_set_title_api_proxy.setText(_translate("MainWIndow", "api代理："))
+        self.page_set_title_api_proxy.setText(_translate("MainWIndow", "API代理："))
         self.page_set_title_api.setText(_translate("MainWIndow", "API设置："))
         self.page_set_title_main.setText(_translate("MainWIndow", "基本设置:"))
         self.label_122.setText(_translate("MainWIndow", "响应参数："))
@@ -2481,39 +2521,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_title_zhilingquanxian.setText(_translate("MainWIndow", "指令权限："))
         self.page_set_title_xiaoxitishiyu.setText(_translate("MainWIndow", "消息提示语："))
         self.page_set_edit_cfg_response_at.setText(_translate("MainWIndow", "响应“at”消息"))
- #       self.page_set_edit_cfg_font_path.setText(_translate("MainWIndow", "value_page_set_edit_cfg_font_path"))
         self.page_set_label_cfg_user_pool_num.setText(_translate("MainWIndow", "执行用户请求和指令的并行线程数量："))
         self.page_set_label_cfg_admin_pool_num.setText(_translate("MainWIndow", "执行管理员请求和指令并行线程数量："))
         self.page_set_label_cfg_font_path.setText(_translate("MainWIndow", "文字转图片时使用的字体文件路径："))
         self.page_set_btn_save.setText(_translate("MainWIndow", "保存设置"))
         self.page_set_label_cfg_default_prompt.setText(_translate("MainWIndow", "普通模式人格："))
         self.page_set_label_cfg_inappropriate_message_tips.setText(_translate("MainWIndow", "不合规消息自定义返回："))
-        # self.page_set_edit_cfg_inappropriate_message_tips.setText(
-        #     _translate("MainWIndow", "value_page_set_edit_cfg_inappropriate_message_tips"))
         self.page_set_label_cfg_prompt_submit_length.setText(_translate("MainWIndow", "发送对话记录上下文的字符数："))
         self.page_set_label_cfg_random_rate.setText(_translate("MainWIndow", "随机响应概率:"))
-        self.page_set_label_cfg_api.setText(_translate("MainWIndow", "选择api："))
-        # self.page_set_edit_cfg_api.setItemText(0, _translate("MainWIndow", "sk-11111111"))
-        # self.page_set_edit_cfg_api.setItemText(1, _translate("MainWIndow", "sk-22222222222"))
-        # self.page_set_edit_cfg_default_prompt.setPlainText(_translate("MainWIndow", "value_value_\n"
-        #                                                                             "value_value_value_\n"
-        #                                                                             "value_\n"
-        #                                                                             "value_\n"
-        #                                                                             "value_\n"
-        #                                                                             "value_page_set_edit_cfg_response_prefix\n"
-        #                                                                             "page_set_edit_cfg_response_prefix\n"
-        #                                                                             "value_page_set_edit_cfg_response_regexp\n"
-        #                                                                             "page_set_edit_cfg_response_regexp"))
-        # # self.page_set_edit_cfg_blob_message_strategy.setItemText(0, _translate("MainWIndow", "image"))
-        # self.page_set_edit_cfg_blob_message_strategy.setItemText(1, _translate("MainWIndow", "forward"))
-        # self.page_set_edit_cfg_rate_limit_strategy.setItemText(0, _translate("MainWIndow", "wait"))
-        # self.page_set_edit_cfg_rate_limit_strategy.setItemText(1, _translate("MainWIndow", "drop"))
-        # self.page_set_edit_cfg_baidu_secret_key.setText(
-        #     _translate("MainWIndow", "value_page_set_edit_cfg_baidu_secret_key"))
+        self.page_set_label_cfg_api.setText(_translate("MainWIndow", "API_KEY："))
         self.page_set_label_cfg_blob_message_threshold.setText(_translate("MainWIndow", "应用长消息处理策略的阈值："))
-        self.page_set_edit_cfg_baidu_check.setText(_translate("MainWIndow", "是否启用百度云内容安全审核"))
+        self.page_set_edit_cfg_baidu_check.setText(_translate("MainWIndow", "启用百度云内容安全审核"))
         self.page_set_label_cfg_baidu_secret_key.setText(_translate("MainWIndow", "百度云SECRET_KEY："))
-        self.page_set_edit_cfg_income_msg_check.setText(_translate("MainWIndow", "是否检查收到的消息中是否包含敏感词"))
+        self.page_set_edit_cfg_income_msg_check.setText(_translate("MainWIndow", "检查收到的消息中是否包含敏感词"))
         self.page_set_label_cfg_rate_limitation_danwei.setText(_translate("MainWIndow", "次"))
         self.page_set_edit_cfg_sensitive_word_filter.setText(_translate("MainWIndow", "以同样数量的*代替敏感词回复"))
         self.page_set_label_cfg_rate_limit_strategy.setText(_translate("MainWIndow", "会话限速策略："))
@@ -2531,67 +2551,29 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_label_cfg_retry_times.setText(_translate("MainWIndow", "消息处理超时重试次数："))
         self.page_set_edit_cfg_show_prefix.setText(_translate("MainWIndow", "回复消息时显示[GPT]前缀"))
         self.page_set_label_cfg_process_message_timeout_left.setText(_translate("MainWIndow", "消息处理的超时时间:"))
-        # self.page_set_edit_cfg_image_size.setItemText(0, _translate("MainWIndow", "256x256"))
-        # self.page_set_edit_cfg_image_size.setItemText(1, _translate("MainWIndow", "512x512"))
-        # self.page_set_edit_cfg_image_size.setItemText(2, _translate("MainWIndow", "1024x1024"))
-        self.page_set_label_cfg_ignore_prefix.setText(_translate("MainWIndow", "前缀匹配："))
-        self.page_set_label_cfg_ignore_regexp.setText(_translate("MainWIndow", "re正则表达式匹配："))
-#        self.page_set_edit_cfg_ignore_prefix.setText(_translate("MainWIndow", "value_page_set_edit_cfg_ignore_prefix"))
-#        self.page_set_edit_cfg_ignore_regexp.setText(_translate("MainWIndow", "value_page_set_edit_cfg_ignore_regexp"))
+        self.page_set_label_cfg_ignore_prefix.setText(_translate("MainWIndow", "忽略前缀："))
+        self.page_set_label_cfg_ignore_regexp.setText(_translate("MainWIndow", "忽略正则表达式："))
         self.page_set_label_cfg_api_model.setText(_translate("MainWIndow", "模型："))
         self.page_set_label_cfg_api_frequency_penalty.setText(_translate("MainWIndow", "frequency_penalty："))
         self.page_set_label_cfg_api_presence_penalty.setText(_translate("MainWIndow", "presence_penalty："))
         self.page_set_label_cfg_api_top_p.setText(_translate("MainWIndow", "生成的文本的文本与要求的符合度："))
         self.page_set_label_cfg_api_temperature.setText(_translate("MainWIndow", "理性："))
-        # self.page_set_edit_cfg_response_regexp.setText(
-        #     _translate("MainWIndow", "value_page_set_edit_cfg_response_regexp"))
-        # self.page_set_edit_cfg_response_prefix.setText(
-        #     _translate("MainWIndow", "value_page_set_edit_cfg_response_prefix"))
-        # self.page_set_edit_cfg_api_model.setItemText(0, _translate("MainWIndow", "gpt-4"))
-        # self.page_set_edit_cfg_api_model.setItemText(1, _translate("MainWIndow", "gpt-4-0314"))
-        # self.page_set_edit_cfg_api_model.setItemText(2, _translate("MainWIndow", "gpt-4-32k"))
-        # self.page_set_edit_cfg_api_model.setItemText(3, _translate("MainWIndow", "gpt-4-32k-0314"))
-        # self.page_set_edit_cfg_api_model.setItemText(4, _translate("MainWIndow", "gpt-3.5-turbo"))
-        # self.page_set_edit_cfg_api_model.setItemText(5, _translate("MainWIndow", "gpt-3.5-turbo-0301"))
-        # self.page_set_edit_cfg_api_model.setItemText(6, _translate("MainWIndow", "text-davinci-003"))
-        # self.page_set_edit_cfg_api_model.setItemText(7, _translate("MainWIndow", "text-davinci-002"))
-        # self.page_set_edit_cfg_api_model.setItemText(8, _translate("MainWIndow", "code-davinci-002"))
-        # self.page_set_edit_cfg_api_model.setItemText(9, _translate("MainWIndow", "code-cushman-001"))
-        # self.page_set_edit_cfg_api_model.setItemText(10, _translate("MainWIndow", "text-curie-001"))
-        # self.page_set_edit_cfg_api_model.setItemText(11, _translate("MainWIndow", "text-babbage-001"))
-        # self.page_set_edit_cfg_api_model.setItemText(12, _translate("MainWIndow", "text-ada-001"))
         self.page_set_label_cfg_mirai_qq.setText(_translate("MainWIndow", "机器人QQ："))
         self.page_set_label_cfg_admin_qq.setText(_translate("MainWIndow", "管理员QQ："))
         self.page_set_label_cfg_mirai_verifyKey.setText(_translate("MainWIndow", "verifyKey："))
         self.page_set_label_cfg_mirai_host.setText(_translate("MainWIndow", "主机地址："))
         self.page_set_label_cfg_mirai_port.setText(_translate("MainWIndow", "端口："))
         self.page_set_label_cfg_mirai_adapter.setText(_translate("MainWIndow", "接入方式："))
-        # self.page_set_edit_cfg_mirai_host.setText(_translate("MainWIndow", "value_page_set_edit_cfg_mirai_host"))
-        # self.page_set_edit_cfg_mirai_port.setText(_translate("MainWIndow", "value_page_set_edit_cfg_mirai_port"))
-        # self.page_set_edit_cfg_mirai_verifyKey.setText(
-        #     _translate("MainWIndow", "value_page_set_edit_cfg_mirai_verifyKey"))
-        # self.page_set_edit_cfg_mirai_qq.setText(_translate("MainWIndow", "value_page_set_edit_cfg_mirai_qq"))
-        # #      self.page_set_edit_cfg_admin_qq.setText(_translate("MainWIndow", "value_page_set_edit_cfg_admin_qq"))
-        # self.page_set_edit_cfg_mirai_adapter.setText(_translate("MainWIndow", "value_page_set_edit_cfg_mirai_adapter"))
-        # self.page_set_edit_cfg_api_http_proxy.setText(
-        #     _translate("MainWIndow", "value_page_set_edit_cfg_api_http_proxy"))
-        # self.page_set_edit_cfg_api_reverse_proxy.setText(
-        #     _translate("MainWIndow", "value_page_set_edit_cfg_api_reverse_proxy"))
         self.page_set_label_cfg_api_reverse_proxy.setText(_translate("MainWIndow", "reverse:"))
         self.page_set_label_cfg_api_http_proxy.setText(_translate("MainWIndow", "http:"))
         self.page_set_label_cfg_preset_mode.setText(_translate("MainWIndow", "人格模式："))
-        # self.page_set_edit_cfg_preset_mode.setItemText(0, _translate("MainWIndow", "normal"))
-        # self.page_set_edit_cfg_preset_mode.setItemText(1, _translate("MainWIndow", "full_scenario"))
-        self.page_set_label_cfg_response_prefix.setText(_translate("MainWIndow", "前缀匹配："))
-        self.page_set_label_cfg_response_regexp.setText(_translate("MainWIndow", "re正则表达式匹配："))
+        self.page_set_label_cfg_response_prefix.setText(_translate("MainWIndow", "响应前缀："))
+        self.page_set_label_cfg_response_regexp.setText(_translate("MainWIndow", "响应正则表达式："))
         self.page_set_label_cfg_baidu_api_key.setText(_translate("MainWIndow", "百度云API_KEY："))
-#        self.page_set_edit_cfg_baidu_api_key.setText(_translate("MainWIndow", "value_page_set_edit_cfg_baidu_api_key"))
         self.page_set_edit_cfg_encourage_sponsor_at_start.setText(_translate("MainWIndow", "启动时发送赞赏码"))
-        self.page_set_edit_cfg_hide_exce_info_to_user.setText(
-            _translate("MainWIndow", "消息处理出错时向用户隐藏错误详细信息"))
+        self.page_set_edit_cfg_hide_exce_info_to_user.setText(_translate("MainWIndow", "消息处理出错时向用户隐藏错误详细信息"))
         self.page_set_edit_cfg_upgrade_dependencies.setText(_translate("MainWIndow", "启动时进行依赖库更新"))
         self.page_set_edit_cfg_report_usage.setText(_translate("MainWIndow", "上报统计信息"))
- #       self.page_set_edit_cfg_logging_level.setText(_translate("MainWIndow", "value_page_set_edit_cfg_logging_level"))
         self.page_set_label_cfg_logging_level.setText(_translate("MainWIndow", "日志级别："))
         self.page_set_label_cmd_plugin_off.setText(_translate("MainWIndow", "plugin.off"))
         self.page_set_label_cmd_plugin.setText(_translate("MainWIndow", "plugin"))
@@ -2626,29 +2608,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_label_cmd_reset.setText(_translate("MainWIndow", "reset"))
         self.page_set_label_cmd_reload.setText(_translate("MainWIndow", "reload"))
         self.page_set_label_cmd_usage.setText(_translate("MainWIndow", "usage"))
-        # self.page_set_edit_tips_alter_tip_message.setText(
-        #     _translate("MainWIndow", "value_page_set_edit_tips_alter_tip_message"))
-        # self.page_set_edit_tips_rate_limit_drop_tip.setText(
-        #     _translate("MainWIndow", "value_page_set_edit_tips_rate_limit_drop_tip"))
-        # self.page_set_edit_tips_help_message.setText(_translate("MainWIndow", "value_page_set_edit_tips_help_message"))
-        # self.page_set_edit_tips_reply_message.setText(
-        #     _translate("MainWIndow", "value_page_set_edit_tips_reply_message"))
-        # self.page_set_edit_tips_replys_message.setText(
-        #     _translate("MainWIndow", "value_page_set_edit_tips_replys_message"))
-        # self.page_set_edit_tips_command_admin_message.setText(
-        #     _translate("MainWIndow", "value_page_set_edit_tips_command_admin_message"))
-        # self.page_set_edit_tips_command_err_message.setText(
-        #     _translate("MainWIndow", "value_page_set_edit_tips_command_err_message"))
-        # self.page_set_edit_tips_command_reset_message.setText(
-        #     _translate("MainWIndow", "value_page_set_edit_tips_command_reset_message"))
-        # self.page_set_edit_tips_command_reset_name_message.setText(
-        #     _translate("MainWIndow", "value_page_set_edit_tips_command_reset_name_message"))
-        self.page_help_text.setHtml(_translate("MainWIndow",
-                                               "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-                                               "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-                                               "p, li { white-space: pre-wrap; }\n"
-                                               "</style></head><body style=\" font-family:\'SimSun\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-                                               "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt;\">[帮助页面]项目仓库：</span><img src=\"file:///C:\\Users\\26751\\AppData\\Roaming\\Tencent\\QQTempSys\\[5UQ[BL(6~BS2JV6W}N6[%S.png\" /><span style=\" font-size:16pt;\">https://github.com/RockChinQ/QChatGPT.git</span></p></body></html>"))
+        self.page_set_label_cmd_cfg.setText(_translate("MainWIndow", "cfg"))
+        self.page_set_label_cmd_cmd.setText(_translate("MainWIndow", "cmd"))
         self.page_about_text.setHtml(_translate("MainWIndow",
                                                 "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                                 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
@@ -2679,16 +2640,15 @@ if __name__ == "__main__":
         QCoreApplication.setAttribute(Qt.AA_UseDesktopOpenGL)
 
     app = QApplication(sys.argv)
+    app.setFont(QFont("微软雅黑",10))
     try:
         window = MainWindow()
         window.show()
 
         if "-debug" in sys.argv:
-            #           argv_debug = 2
             print("using debug mode")
             app.processEvents(QEventLoop.AllEvents)  # 等待窗口事件
             window.setAttribute(Qt.WA_TranslucentBackground)  # 使窗口背景透明
-            #            window.showFullScreen()  # 全屏显示
             app.exec_()
 
             # 输出窗口事件
