@@ -1,7 +1,6 @@
 import atexit
 import os
 import shutil
-import sys
 
 import ast
 import json
@@ -67,7 +66,8 @@ if not os.path.exists('config.py'):
 if not os.path.exists(doc_cfg):
     with open('override-all.json', 'r', encoding="utf-8") as f1, open(doc_cfg, 'w', encoding="utf-8") as f2:
         for line in f1:
-
+            # if "logging_level = logging.INFO" in line or "import logging" in line:
+            #     continue
             f2.write(line)
        # f2.write("logging_level = logging.INFO")
 
@@ -557,9 +557,20 @@ class MainWindow(QtWidgets.QMainWindow):
         # 在内存中保存配置字典
         self.dict_cfgs = cfg_dict.copy()
 
+        def update_mirai_qq(value):
+            if value:
+                new_dict = {**self.dict_cfgs[value_cfgs_mirai_http_api_config],
+                            **{value_cfgs_mirai_http_api_config_qq: int(value)}}
+                update_value_cfgs(value_cfgs_mirai_http_api_config, new_dict)
+        def update_admin_qq(value):
+            if value:
+                update_value_cfgs(value_cfgs_admin_qq, int(value))
         def update_value_cfgs(name, new_value):
-            self.dict_cfgs[name] = new_value
-            self.update_doc_cfgs()
+            try:
+                self.dict_cfgs[name] = new_value
+                self.update_doc_cfgs()
+            except Exception as e:
+                rai_dia(e)
         try:
             with open(doc_cmds, "r", encoding='utf-8') as f:
                 cmd = json.load(f)
@@ -706,7 +717,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_main_edit_current_command = QtWidgets.QLineEdit(self.tab_main)
         self.page_main_edit_current_command.setGeometry(QtCore.QRect(120, 700, 300, 30))
-        self.page_main_edit_current_command.setText("python main.pyw -r")
+        self.page_main_edit_current_command.setText("pythonw main.pyw -r")
         self.page_main_edit_current_command.setObjectName("page_main_edit_current_command")
 
 
@@ -1985,10 +1996,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_mirai_qq.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("[0-9]{1,13}"), self))
         self.page_set_edit_cfg_mirai_qq.setText(str(
             self.dict_cfgs[value_cfgs_mirai_http_api_config][value_cfgs_mirai_http_api_config_qq]))
-        self.page_set_edit_cfg_mirai_qq.textChanged.connect(
-            lambda new_value: update_value_cfgs(value_cfgs_mirai_http_api_config,
-                                                {**self.dict_cfgs[value_cfgs_mirai_http_api_config],
-                                                 **{value_cfgs_mirai_http_api_config_qq: int(new_value)}}))
+        self.page_set_edit_cfg_mirai_qq.textChanged.connect(lambda new_value: update_mirai_qq(new_value))
+        # self.page_set_edit_cfg_mirai_qq.textChanged.connect(
+        #     lambda new_value: update_value_cfgs(value_cfgs_mirai_http_api_config,
+        #                                         {**self.dict_cfgs[value_cfgs_mirai_http_api_config],
+        #                                          **{value_cfgs_mirai_http_api_config_qq: int(new_value)}}))
 
         self.page_set_edit_cfg_admin_qq = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_admin_qq.setGeometry(QtCore.QRect(370, 225, 142, 25))
@@ -1997,8 +2009,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_admin_qq.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("[0-9]{1,13}"), self))
         self.page_set_edit_cfg_admin_qq.setText(str(
             self.dict_cfgs[value_cfgs_admin_qq]))
-        self.page_set_edit_cfg_admin_qq.textChanged.connect(
-            lambda new_value: update_value_cfgs(value_cfgs_admin_qq, int(new_value)))
+        self.page_set_edit_cfg_admin_qq.textChanged.connect(lambda new_value: update_admin_qq(new_value))
+        # self.page_set_edit_cfg_admin_qq.textChanged.connect(
+        #     lambda new_value: update_value_cfgs(value_cfgs_admin_qq, int(new_value)))
+
+
 
         self.page_set_edit_cfg_mirai_adapter = QtWidgets.QComboBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_mirai_adapter.setGeometry(QtCore.QRect(370, 50, 200, 25))
