@@ -13,6 +13,7 @@ import markdown2
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import *
 from PyQt5.QtGui import QTextCursor, QBrush, QColor, QFont
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import QMessageBox, QApplication
 import sys
@@ -533,6 +534,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # 在内存中保存配置字典
         self.dict_tips = tip_dict.copy()
 
+
         # 更新tips字段的值并写回到配置文件中
         def update_value_tips(name, new_value):
             self.dict_tips[name] = new_value
@@ -587,6 +589,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     json.dump(self.dict_cmds, f)
             except Exception as e:
                 rai_dia(e)
+
         self.centralwidget = QtWidgets.QWidget(MainWIndow)
         self.centralwidget.setEnabled(True)
         self.centralwidget.setMinimumSize(QtCore.QSize(1300, 840))
@@ -2520,7 +2523,7 @@ class MainWindow(QtWidgets.QMainWindow):
             " } ")
         self.tab_help.setObjectName("tab_help")
 
-        self.page_help_text = QtWidgets.QTextBrowser(self.tab_help)
+        self.page_help_text =QtWidgets.QTextBrowser(self.tab_help)
         self.page_help_text.setGeometry(QtCore.QRect(0, 0, 1020, 740))
         self.page_help_text.viewport().setProperty("cursor", QtGui.QCursor(QtCore.Qt.IBeamCursor))
         self.page_help_text.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
@@ -2528,10 +2531,24 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_help_text.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.page_help_text.setAcceptRichText(True)
         self.page_help_text.setObjectName("page_help_text")
-        with open("README.md","r",encoding="utf8") as f:
-            content=f.read()
-        html = markdown2.markdown(content)
+        self.page_help_text.setOpenExternalLinks(True)
+        self.page_help_text.setOpenLinks(True)
+        markdown_dir_path = 'res/wiki'
+        # 读取Markdown目录中的所有文件并将它们合并为一个HTML字符串
+        html = ''
+        for filename in os.listdir(markdown_dir_path):
+            if filename.endswith('.md'):
+                filepath = os.path.join(markdown_dir_path, filename)
+                with open(filepath, 'r', encoding='utf8') as f:
+                    content = f.read()
+                    html += markdown2.markdown(content)
         self.page_help_text.setHtml(html)
+
+        # self.page_help_back_button = QtWidgets.QPushButton("返回", self)
+        # self.page_help_back_button.setGeometry(QtCore.QRect(920, 100, 100, 30))
+        # self.page_help_back_button.clicked.connect(self.page_help_text.backward)
+
+
 
         self.menu_tab.addTab(self.tab_help, "")
         self.tab_cbout = QtWidgets.QWidget()
@@ -2546,6 +2563,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_about_text.setGeometry(QtCore.QRect(0, 0, 1021, 741))
         self.page_about_text.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
         self.page_about_text.setObjectName("page_about_text")
+        self.page_about_text.setStyleSheet(" ")
+        self.page_about_text.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self.page_about_text.setAcceptRichText(True)
+        self.page_about_text.setObjectName("page_help_text")
+        self.page_about_text.setOpenExternalLinks(True)
+        self.page_about_text.setOpenLinks(True)
+        html = ''
+        with open('README.md', 'r', encoding='utf8') as f:
+            content = f.read()
+            html += markdown2.markdown(content)
+        self.page_about_text.setHtml(html)
 
         self.menu_tab.addTab(self.tab_cbout, "")
         self.back_center = QtWidgets.QLabel(self.centralwidget)
@@ -2592,6 +2620,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.menu_tab.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWIndow)
 
+
     def update_doc_tips(self):
         # 将更改后的配置写回到配置文件中
         try:
@@ -2634,7 +2663,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #         f1.write(line)
     def retranslateUi(self, MainWIndow):
         _translate = QtCore.QCoreApplication.translate
-        MainWIndow.setWindowTitle(_translate("MainWIndow", "QChatGPT beta 1.0"))
+        MainWIndow.setWindowTitle(_translate("MainWIndow", "QChatGPT beta 1.1"))
         self.page_log_label_time.setText(_translate("MainWIndow", "时间"))
         self.page_log_label_jiluqi.setText(_translate("MainWIndow", "记录器"))
         self.page_log_label_level.setText(_translate("MainWIndow", "级别"))
@@ -2743,12 +2772,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_label_cmd_usage.setText(_translate("MainWIndow", "usage"))
         self.page_set_label_cmd_cfg.setText(_translate("MainWIndow", "cfg"))
         self.page_set_label_cmd_cmd.setText(_translate("MainWIndow", "cmd"))
-        self.page_about_text.setHtml(_translate("MainWIndow",
-                                                "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-                                                "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-                                                "p, li { white-space: pre-wrap; }\n"
-                                                "</style></head><body style=\" font-family:\'SimSun\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-                                                "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt;\">[关于页面]项目仓库：</span><img src=\"file:///C:\\Users\\26751\\AppData\\Roaming\\Tencent\\QQTempSys\\[5UQ[BL(6~BS2JV6W}N6[%S.png\" /><span style=\" font-size:16pt;\">https://github.com/2675hujilo/QChatGPT-win.git</span></p></body></html>"))
+        # self.page_about_text.setHtml(_translate("MainWIndow",
+        #                                         "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+        #                                         "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+        #                                         "p, li { white-space: pre-wrap; }\n"
+        #                                         "</style></head><body style=\" font-family:\'SimSun\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+        #                                         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt;\">[关于页面]项目仓库：</span><img src=\"file:///C:\\Users\\26751\\AppData\\Roaming\\Tencent\\QQTempSys\\[5UQ[BL(6~BS2JV6W}N6[%S.png\" /><span style=\" font-size:16pt;\">https://github.com/2675hujilo/QChatGPT-win.git</span></p></body></html>"))
         self.textBrowser.setHtml(_translate("MainWIndow",
                                             "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                             "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
