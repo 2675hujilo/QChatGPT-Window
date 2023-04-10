@@ -1,6 +1,4 @@
-import atexit
 import os
-import platform
 import shutil
 
 import ast
@@ -14,7 +12,6 @@ import markdown2
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import *
 from PyQt5.QtGui import QTextCursor, QBrush, QColor, QFont
-from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import QMessageBox, QApplication
 import sys
