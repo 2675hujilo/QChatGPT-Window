@@ -1,13 +1,10 @@
+import atexit
 import os
+import shutil
 import sys
-if not os.path.exists('main.py') :
-    print("未找到项目文件，检查目录！")
-    print("请把此文件放在项目文件根目录下！")
-    sys.exit(0)
-import main
+
 import ast
 import json
-
 import re
 import subprocess
 import threading
@@ -30,29 +27,62 @@ log_colors_config = {
     'CRITICAL': 'cyan',
 }
 
-doc_cfg = "config-win.py"
-doc_cmds = "cmdpriv-win.json"
+doc_cfg = "override.json"
+doc_cmds = "cmdpriv.json"
 doc_tips = "tips-win.py"
 
+if not os.path.exists('banlist.py'):
+    shutil.copy('res/templates/banlist-template.py', 'banlist.py')
 
-main.check_file()
+# 检查是否有sensitive.json
+if not os.path.exists("sensitive.json"):
+    shutil.copy("res/templates/sensitive-template.json", "sensitive.json")
 
-with open('config.py', 'r', encoding="utf-8") as f1, open(doc_cfg, 'w', encoding="utf-8") as f2:
-    for line in f1:
-        if 'logging_level' in line and 'logging.INFO' in line:
-            # 去掉该行中的 logging_level = logging.INFO
-            # 因为ast节点读不出这句
-            continue
-        f2.write(line)
+# 检查是否有scenario/default.json
+if not os.path.exists("scenario/default.json"):
+    shutil.copy("scenario/default-template.json", "scenario/default.json")
+
+# 检查cmdpriv.json
+if not os.path.exists("cmdpriv.json"):
+    shutil.copy("res/templates/cmdpriv-template.json", "cmdpriv.json")
+
+# 检查tips_custom
+if not os.path.exists("tips.py"):
+    shutil.copy("tips-custom-template.py", "tips.py")
+
+# 检查temp目录
+if not os.path.exists("temp/"):
+    os.mkdir("temp/")
+
+# 检查并创建plugins、prompts目录
+check_path = ["plugins", "prompts"]
+for path in check_path:
+    if not os.path.exists(path):
+        os.mkdir(path)
+
+# 配置文件存在性校验
+if not os.path.exists('config.py'):
+    shutil.copy('config-template.py', 'config.py')
+
+if not os.path.exists(doc_cfg):
+    with open('override-all.json', 'r', encoding="utf-8") as f1, open(doc_cfg, 'w', encoding="utf-8") as f2:
+        for line in f1:
+
+            f2.write(line)
+       # f2.write("logging_level = logging.INFO")
 
 with open('tips.py', 'r', encoding="utf-8") as f1, open(doc_tips, 'w', encoding="utf-8") as f2:
     for line in f1:
         f2.write(line)
 
-with open('cmdpriv.json', 'r', encoding="utf-8") as f1, open(doc_cmds, 'w', encoding="utf-8") as f2:
-    for line in f1:
-        f2.write(line)
-
+if not os.path.exists(doc_cmds):
+    with open('cmdpriv.json', 'r', encoding="utf-8") as f1, open(doc_cmds, 'w', encoding="utf-8") as f2:
+        for line in f1:
+            f2.write(line)
+if not os.path.exists("main.pyw"):
+    with open('main.py', 'r', encoding="utf-8") as f1,open ("main.pyw", 'w', encoding="utf-8") as f2:
+        for line in f1:
+            f2.write(line)
 # 文本框对应字段的值
 # doc_cfg = "config.py"的值
 value_cfgs_mirai_http_api_config = "mirai_http_api_config"
@@ -128,6 +158,7 @@ value_cfgs_hide_exce_info_to_user = "hide_exce_info_to_user"
 value_cfgs_upgrade_dependencies = "upgrade_dependencies"
 value_cfgs_report_usage = "report_usage"
 value_cfgs_inappropriate_message_tips = "inappropriate_message_tips"
+value_cfgs_logging_level="logging_level"
 
 # doc_cmds = "cmdpriv.json"的值
 value_cmds_draw = "draw"
@@ -176,14 +207,41 @@ value_tips_command_reset_name_message = "command_reset_name_message"
 class Bot(QObject):
     output_signal = pyqtSignal(str)
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    def __init__(self, MainWindow):
+        super().__init__(MainWindow)
+        self.main_window = MainWindow
         self.process = None
         self.running = False
+        self.check_running_timer = QTimer()
+        self.check_running_timer.timeout.connect(self.check_running)
+        self.check_running_timer.start(1000)
+        # atexit.register(self.exit_handler)  # 注册退出函数
+    #     self.hook = win32api.SetConsoleCtrlHandler(self.handle_exit, True)
+    #
+    # def handle_exit(self, event):
+    #     if event == win32con.CTRL_CLOSE_EVENT:
+    #         self.main_window.update_status_buttons()
+    #         self.update_status_buttons()
+    #         return True  # 返回True表示已处理该事件
+    def check_running(self):
+        if self.process is not None and self.process.poll() is None:
+            if not self.running:
+                self.running = True
+                self.output_signal.emit("程序已经在运行中。\n")
+        else:
+            if self.running:
+                self.running = False
+                self.output_signal.emit("程序已经停止。\n")
+                self.main_window.update_status_buttons()
 
+    # def exit_handler(self):
+    #     if self.running:
+    #         self.running = False
+    #         self.output_signal.emit(" 程序已经停止。\n")
+    #         self.update_status_buttons()
     def start(self):
         if self.running:
-            self.output_signal.emit("程序已经在运行中。")
+            self.output_signal.emit("程序已经在运行中。\n")
             return
         self.running = True
 
@@ -192,15 +250,21 @@ class Bot(QObject):
         # 当从pycharm中有--debug参数启动时，编码为gbk
         # 当从cmd中无参数启动时，编码为gbk
         # 当从cmd中有--debug参数启动时，编码为gbk
-        self.process = subprocess.Popen(
-            ["..\python\python.exe", "main.py"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            encoding="UTF-8",
-            universal_newlines=True,
-            bufsize=1,
-            errors="ignore",
-        )
+        try:
+            cmd=self.main_window.page_main_edit_current_command.text()
+            self.process = subprocess.Popen(
+                cmd.split(),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                encoding="gbk",
+                universal_newlines=True,
+                bufsize=1,
+                errors="ignore",
+
+            )
+        except Exception as e:
+            self.running = False
+            rai_dia(e)
 
         def output_reader():
             while self.running:
@@ -213,9 +277,9 @@ class Bot(QObject):
 
     def stop(self):
         if not self.running:
-            self.output_signal.emit("程序已经停止。")
+            self.output_signal.emit("程序已经停止。\n")
             return
-
+        # win32api.SetConsoleCtrlHandler(self.hook, False)
         self.running = False
         self.process.terminate()
         self.process.wait()
@@ -228,7 +292,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.bot = Bot()
+        self.bot = Bot(self)
         self.bot.output_signal.connect(self.log_output)
         self.value_cfgs_default_prompt = "default_prompt"
         self.update_status_buttons()
@@ -252,14 +316,19 @@ class MainWindow(QtWidgets.QMainWindow):
             self.page_main_edit_bot_status_off.setHidden(False)
 
     def bot_start_clicked(self):
-        self.bot.start()
+        if len(str(self.dict_cfgs[value_cfgs_admin_qq]))<2:
+            QtWidgets.QMessageBox.warning(self,"第一次启动","请在配置页面输入管理员QQ后，再启动！")
 
-        self.update_status_buttons()
+        else:
+            self.bot.start()
+
+            self.update_status_buttons()
 
     def bot_stop_clicked(self):
         self.bot.stop()
-        self.update_status_buttons()
 
+        self.bot.check_running_timer.stop()
+        self.update_status_buttons()
     def closeEvent(self, event):
         self.bot.stop()
         while self.bot.is_running():
@@ -274,7 +343,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def switchEncoding(self):
         print("a")
 
-
+    # def log_btn_send_clicked(self):
+    #
+    #     self.bot.process.stdin.write(self.page_main_edit_current_command.text() + '\n')
+    #     print("a")
     def open_log_path(self):
         log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
         try:
@@ -377,9 +449,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_api.removeItem(self.page_set_edit_cfg_api.currentIndex())
 
         # 写回文件
-        with open(doc_cfg, "w", encoding='utf-8') as f:
-            for key, value in self.dict_cfgs.items():
-                f.write(f"{key} = {repr(value)}\n")
+        try:
+            with open(doc_cfg, "w", encoding='utf-8') as f:
+                for key, value in self.dict_cfgs.items():
+                    f.write(f"{key} = {repr(value)}\n")
+        except Exception as e:
+            rai_dia(e)
     def add_default_prompt(self):
         new_key, ok = QtWidgets.QInputDialog.getText(self, "添加普通人格", "请输入人格名:")
         if ok:
@@ -407,9 +482,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.dict_cfgs[value_cfgs_default_prompt].pop(self.page_set_edit_cfg_default_prompt_choose.currentText(), None)
             self.page_set_edit_cfg_default_prompt_choose.removeItem(
                 self.page_set_edit_cfg_default_prompt_choose.currentIndex())
-            with open(doc_cfg, "w", encoding='utf-8') as f:
-                for key, value in self.dict_cfgs.items():
-                    f.write(f"{key} = {repr(value)}\n")
+            try:
+                with open(doc_cfg, "w", encoding='utf-8') as f:
+                    for key, value in self.dict_cfgs.items():
+                        f.write(f"{key} = {repr(value)}\n")
+            except Exception as e:
+                rai_dia(e)
 
     def update_default_prompt(self):
         current_text = self.page_set_edit_cfg_default_prompt_choose.currentText()
@@ -422,7 +500,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def setupUi(self, MainWIndow):
         MainWIndow.setObjectName("MainWIndow")
-        MainWIndow.setWindowIcon( QtGui.QIcon("images/icon.png"))
+        MainWIndow.setWindowIcon( QtGui.QIcon("images/icon.ico"))
         MainWIndow.resize(1160, 840)
         MainWIndow.setMinimumSize(QtCore.QSize(1160, 840))
         MainWIndow.setMaximumSize(QtCore.QSize(1300, 840))
@@ -461,15 +539,20 @@ class MainWindow(QtWidgets.QMainWindow):
             self.update_doc_tips()
 
         # 读取cfg.py文件并将其解析为Python对象
-        with open(doc_cfg, "r", encoding='utf-8') as f:
-            cfg_str = f.read()
-        cfg_ast = ast.parse(cfg_str)
-        cfg_dict = {}
-        for node in cfg_ast.body:
-            if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name):
-                key = node.targets[0].id
-                value = ast.literal_eval(node.value)
-                cfg_dict[key] = value
+        try:
+            with open(doc_cfg, "r", encoding='utf-8') as f:
+                cfg_dict = json.load(f)
+        except Exception as e:
+            rai_dia(e)
+        # with open(doc_cfg, "r", encoding='utf-8') as f:
+        #     cfg_str = f.read()
+        # cfg_ast = ast.parse(cfg_str)
+        # cfg_dict = {}
+        # for node in cfg_ast.body:
+        #     if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name):
+        #         key = node.targets[0].id
+        #         value = ast.literal_eval(node.value)
+        #         cfg_dict[key] = value
 
         # 在内存中保存配置字典
         self.dict_cfgs = cfg_dict.copy()
@@ -477,19 +560,22 @@ class MainWindow(QtWidgets.QMainWindow):
         def update_value_cfgs(name, new_value):
             self.dict_cfgs[name] = new_value
             self.update_doc_cfgs()
-
-        with open(doc_cmds, "r", encoding='utf-8') as f:
-            cmd = json.load(f)
-
+        try:
+            with open(doc_cmds, "r", encoding='utf-8') as f:
+                cmd = json.load(f)
+        except Exception as e:
+            rai_dia(e)
         # 在内存中保存配置字典
         self.dict_cmds = cmd.copy()
 
         # 更新cmdpriv.json文件中的数据
         def update_value_cmds(name, new_value):
             self.dict_cmds[name] = new_value
-            with open(doc_cmds, "w", encoding='utf-8') as f:
-                json.dump(self.dict_cmds, f)
-
+            try:
+                with open(doc_cmds, "w", encoding='utf-8') as f:
+                    json.dump(self.dict_cmds, f)
+            except Exception as e:
+                rai_dia(e)
         self.centralwidget = QtWidgets.QWidget(MainWIndow)
         self.centralwidget.setEnabled(True)
         self.centralwidget.setMinimumSize(QtCore.QSize(1300, 840))
@@ -612,6 +698,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_main_label_bot_stop.setProperty("label_bot_stop", QtGui.QPixmap("images/bot_stop.png"))
         self.page_main_label_bot_stop.setObjectName("page_main_label_bot_stop")
         self.page_main_label_bot_stop.clicked.connect(self.bot_stop_clicked)
+
+        self.page_main_label_current_command = QtWidgets.QLabel(self.tab_main)
+        self.page_main_label_current_command.setGeometry(QtCore.QRect(0, 700,120, 30))
+        self.page_main_label_current_command.setText("当前启动命令：")
+        self.page_main_label_current_command.setObjectName("page_main_label_current_command")
+
+        self.page_main_edit_current_command = QtWidgets.QLineEdit(self.tab_main)
+        self.page_main_edit_current_command.setGeometry(QtCore.QRect(120, 700, 300, 30))
+        self.page_main_edit_current_command.setText("python main.pyw -r")
+        self.page_main_edit_current_command.setObjectName("page_main_edit_current_command")
+
+
         self.page_main_label_bot_status_2 = QtWidgets.QCommandLinkButton(self.tab_main)
         self.page_main_label_bot_status_2.setGeometry(QtCore.QRect(210, 380, 361, 121))
         self.page_main_label_bot_status_2.setText("")
@@ -655,28 +753,29 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_log_text.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.page_log_text.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.page_log_text.setLineWrapMode(QPlainTextEdit.NoWrap)
+
         self.page_log_label_time = QtWidgets.QLabel(self.tab_log)
-        self.page_log_label_time.setGeometry(QtCore.QRect(0, 0, 131, 25))
+        self.page_log_label_time.setGeometry(QtCore.QRect(0, 0, 217, 25))
         self.page_log_label_time.setStyleSheet("background-color:rgba(255,255,255,0.5)")
         self.page_log_label_time.setAlignment(QtCore.Qt.AlignCenter)
         self.page_log_label_time.setObjectName("page_log_label_time")
         self.page_log_label_jiluqi = QtWidgets.QLabel(self.tab_log)
-        self.page_log_label_jiluqi.setGeometry(QtCore.QRect(140, 0, 111, 25))
+        self.page_log_label_jiluqi.setGeometry(QtCore.QRect(220, 0, 120, 26))
         self.page_log_label_jiluqi.setStyleSheet("background-color: rgba(255, 255, 255, 0.5);")
         self.page_log_label_jiluqi.setAlignment(QtCore.Qt.AlignCenter)
         self.page_log_label_jiluqi.setObjectName("page_log_label_jiluqi")
         self.page_log_label_level = QtWidgets.QLabel(self.tab_log)
-        self.page_log_label_level.setGeometry(QtCore.QRect(260, 0, 121, 25))
+        self.page_log_label_level.setGeometry(QtCore.QRect(343, 0, 68, 25))
         self.page_log_label_level.setStyleSheet("background-color: rgba(255, 255, 255, 0.5);")
         self.page_log_label_level.setAlignment(QtCore.Qt.AlignCenter)
         self.page_log_label_level.setObjectName("page_log_label_level")
         self.page_log_label_message = QtWidgets.QLabel(self.tab_log)
-        self.page_log_label_message.setGeometry(QtCore.QRect(390, 0, 471, 25))
+        self.page_log_label_message.setGeometry(QtCore.QRect(415, 0, 471, 25))
         self.page_log_label_message.setStyleSheet("background-color: rgba(255, 255, 255, 0.5);")
         self.page_log_label_message.setAlignment(QtCore.Qt.AlignCenter)
         self.page_log_label_message.setObjectName("page_log_label_message")
         self.page_log_btn_open_log_path = QtWidgets.QPushButton(self.tab_log)
-        self.page_log_btn_open_log_path.setGeometry(QtCore.QRect(880, 0, 131, 25))
+        self.page_log_btn_open_log_path.setGeometry(QtCore.QRect(863, 0, 131, 25))
         self.page_log_btn_open_log_path.setStyleSheet("background-color:rgb(85, 255, 255)")
         self.page_log_btn_open_log_path.setObjectName("page_log_btn_open_log_path")
         self.page_log_btn_open_log_path.clicked.connect(self.open_log_path)
@@ -684,20 +783,24 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_log_btn_switch_unicode.setGeometry(QtCore.QRect(900, 660, 93, 28))
         self.page_log_btn_switch_unicode.setObjectName("page_log_btn_switch_unicode")
         self.page_log_btn_switch_unicode.clicked.connect(self.switchEncoding)
-        self.page_log_btn = QtWidgets.QPushButton(self.tab_log)
-        self.page_log_btn.setGeometry(QtCore.QRect(900, 690, 93, 28))
-        self.page_log_btn.setObjectName("page_log_btn")
-        self.page_log_btn.clicked.connect(self.test1)
+        self.page_log_btn_switch_unicode.setHidden(True)
+        self.page_log_btn_cmd_send = QtWidgets.QPushButton(self.tab_log)
+        self.page_log_btn_cmd_send.setGeometry(QtCore.QRect(900, 690, 93, 28))
+        self.page_log_btn_cmd_send.setObjectName("page_log_btn_cmd_send")
+        self.page_log_btn_cmd_send.setHidden(True)
+       # self.page_log_btn_cmd_send.clicked.connect(self.log_btn_send_clicked)
         self.page_log_cmd_input = QtWidgets.QLineEdit(self.tab_log)
-        self.page_log_cmd_input.setGeometry(QtCore.QRect(10, 680, 871, 41))
+        self.page_log_cmd_input.setGeometry(QtCore.QRect(10, 680, 871, 35))
         self.page_log_cmd_input.setObjectName("page_log_cmd_input")
+        self.page_log_cmd_input.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_log_cmd_input.setHidden(True)
         self.page_log_text.raise_()
         self.page_log_label_time.raise_()
         self.page_log_label_jiluqi.raise_()
         self.page_log_label_level.raise_()
         self.page_log_label_message.raise_()
         self.page_log_btn_switch_unicode.raise_()
-        self.page_log_btn.raise_()
+        self.page_log_btn_cmd_send.raise_()
         self.page_log_cmd_input.raise_()
         self.page_log_btn_open_log_path.raise_()
         self.menu_tab.addTab(self.tab_log, "")
@@ -908,7 +1011,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_btn_save.setGeometry(QtCore.QRect(870, 3510, 101, 41))
         self.page_set_btn_save.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_btn_save.setObjectName("page_set_btn_save")
-
+        self.page_set_btn_save.setHidden(True)
         self.page_set_label_cfg_default_prompt = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_label_cfg_default_prompt.setGeometry(QtCore.QRect(260, 470, 151, 30))
         font = QtGui.QFont()
@@ -2046,10 +2149,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_report_usage.stateChanged.connect(
             lambda state: update_value_cfgs(value_cfgs_report_usage, bool(state)))
 
-        self.page_set_edit_cfg_logging_level = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
+        self.page_set_edit_cfg_logging_level = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_logging_level.setGeometry(QtCore.QRect(360, 2540, 142, 30))
         self.page_set_edit_cfg_logging_level.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_cfg_logging_level.setObjectName("page_set_edit_cfg_logging_level")
+        self.page_set_edit_cfg_logging_level.setValue(self.dict_cfgs[value_cfgs_logging_level])
+        self.page_set_edit_cfg_logging_level.valueChanged.connect(
+            lambda new_value: update_value_cfgs(value_cfgs_logging_level, new_value))
 
         self.page_set_label_cfg_logging_level = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_label_cfg_logging_level.setGeometry(QtCore.QRect(260, 2540, 90, 30))
@@ -2473,41 +2579,54 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def update_doc_tips(self):
         # 将更改后的配置写回到配置文件中
-        with open(doc_tips, "w", encoding='utf-8') as f:
-            for key, value in self.dict_tips.items():
-                f.write(f"{key} = {repr(value)}\n")
-        with open('tips.py', 'w', encoding="utf-8") as f1, open(doc_tips, 'r', encoding="utf-8") as f2:
+        try:
+            with open(doc_tips, "w", encoding='utf-8') as f:
+                for key, value in self.dict_tips.items():
+                    f.write(f"{key} = {repr(value)}\n")
+            with open('tips.py', 'w', encoding="utf-8") as f1, open(doc_tips, 'r', encoding="utf-8") as f2:
 
-            for line in f2:
-                f1.write(line)
+                for line in f2:
+                    f1.write(line)
+        except Exception as e:
+            rai_dia(e)
     def update_doc_cfgs(self):
+        try:
+            with open(doc_cfg, "w", encoding='utf-8') as f:
+                json.dump(self.dict_cfgs, f)
+        except Exception as e:
+            rai_dia(e)
+        # with open('cmdpriv.json', 'w', encoding="utf-8") as f1, open(doc_cmds, 'r', encoding="utf-8") as f2:
+        #     for line in f2:
+        #         f1.write(line)
         # 将更改后的配置写回到配置文件中
-        with open(doc_cfg, "w", encoding='utf-8') as f:
-            for key, value in self.dict_cfgs.items():
-                f.write(f"{key} = {repr(value)}\n")
-        with open('config.py', 'w', encoding="utf-8") as f1, open(doc_cfg, 'r', encoding="utf-8") as f2:
-             f1.write("import logging\n")
-             for line in f2:
-                f1.write(line)
-             f1.write("logging_level = logging.INFO")
+        # with open(doc_cfg, "w", encoding='utf-8') as f:
+        #     for key, value in self.dict_cfgs.items():
+        #         f.write(f"{key} = {repr(value)}\n")
+        # with open('config.py', 'w', encoding="utf-8") as f1, open(doc_cfg, 'r', encoding="utf-8") as f2:
+        #      f1.write("import logging\n")
+        #      for line in f2:
+        #         f1.write(line)
+        #      f1.write("logging_level = logging.INFO")
     def update_doc_cmds(self):
         # 将更改后的配置写回到配置文件中
-        with open(doc_cmds, "w", encoding='utf-8') as f:
-            json.dump(self.dict_cmds, f)
-
-        with open('cmdpriv.json', 'w', encoding="utf-8") as f1, open(doc_cmds, 'r', encoding="utf-8") as f2:
-            for line in f2:
-                f1.write(line)
+        try:
+            with open(doc_cmds, "w", encoding='utf-8') as f:
+                json.dump(self.dict_cmds, f)
+        except Exception as e:
+            rai_dia(e)
+        # with open('cmdpriv.json', 'w', encoding="utf-8") as f1, open(doc_cmds, 'r', encoding="utf-8") as f2:
+        #     for line in f2:
+        #         f1.write(line)
     def retranslateUi(self, MainWIndow):
         _translate = QtCore.QCoreApplication.translate
-        MainWIndow.setWindowTitle(_translate("MainWIndow", "QChatGPT"))
+        MainWIndow.setWindowTitle(_translate("MainWIndow", "QChatGPT beta 1.0"))
         self.page_log_label_time.setText(_translate("MainWIndow", "时间"))
         self.page_log_label_jiluqi.setText(_translate("MainWIndow", "记录器"))
         self.page_log_label_level.setText(_translate("MainWIndow", "级别"))
         self.page_log_label_message.setText(_translate("MainWIndow", "信息"))
         self.page_log_btn_open_log_path.setText(_translate("MainWIndow", "打开日志目录"))
-        self.page_log_btn_switch_unicode.setText(_translate("MainWIndow", "发送"))
-        self.page_log_btn.setText(_translate("MainWIndow", "PushButton"))
+        self.page_log_btn_switch_unicode.setText(_translate("MainWIndow", "编码"))
+        self.page_log_btn_cmd_send.setText(_translate("MainWIndow", "发送"))
         self.page_set_title_api_proxy.setText(_translate("MainWIndow", "API代理："))
         self.page_set_title_api.setText(_translate("MainWIndow", "API设置："))
         self.page_set_title_main.setText(_translate("MainWIndow", "基本设置:"))
@@ -2545,8 +2664,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_quote_origin.setText(_translate("MainWIndow", "群内回复消息时引用原消息"))
         self.page_set_label_cfg_include_image_description.setText(_translate("MainWIndow", "回复绘图时包含图片描述"))
         self.page_set_label_cfg_sys_pool_num.setText(_translate("MainWIndow", "程序运行本身线程池："))
-        self.page_set_edit_cfg_qiyongduoduixiangmingcheng.setText(
-            _translate("MainWIndow", "群内会话启用多对象名称(暂未实现)"))
+        self.page_set_edit_cfg_qiyongduoduixiangmingcheng.setText(_translate("MainWIndow", "群内会话启用多对象名称(暂未实现)"))
         self.page_set_label_cfg_process_message_timeout_danwei.setText(_translate("MainWIndow", "秒"))
         self.page_set_label_cfg_retry_times.setText(_translate("MainWIndow", "消息处理超时重试次数："))
         self.page_set_edit_cfg_show_prefix.setText(_translate("MainWIndow", "回复消息时显示[GPT]前缀"))
@@ -2615,7 +2733,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                                 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                                 "p, li { white-space: pre-wrap; }\n"
                                                 "</style></head><body style=\" font-family:\'SimSun\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-                                                "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt;\">[关于页面]项目仓库：</span><img src=\"file:///C:\\Users\\26751\\AppData\\Roaming\\Tencent\\QQTempSys\\[5UQ[BL(6~BS2JV6W}N6[%S.png\" /><span style=\" font-size:16pt;\">https://github.com/RockChinQ/QChatGPT.git</span></p></body></html>"))
+                                                "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt;\">[关于页面]项目仓库：</span><img src=\"file:///C:\\Users\\26751\\AppData\\Roaming\\Tencent\\QQTempSys\\[5UQ[BL(6~BS2JV6W}N6[%S.png\" /><span style=\" font-size:16pt;\">https://github.com/2675hujilo/QChatGPT-win.git</span></p></body></html>"))
         self.textBrowser.setHtml(_translate("MainWIndow",
                                             "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                             "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
@@ -2633,7 +2751,7 @@ def rai_dia(message):
 
 
 if __name__ == "__main__":
-    if "-debug" in sys.argv:
+    if "--debug" in sys.argv:
         # 设置Qt属性
         from PyQt5.QtCore import QCoreApplication, Qt
 
@@ -2645,7 +2763,7 @@ if __name__ == "__main__":
         window = MainWindow()
         window.show()
 
-        if "-debug" in sys.argv:
+        if "--debug" in sys.argv:
             print("using debug mode")
             app.processEvents(QEventLoop.AllEvents)  # 等待窗口事件
             window.setAttribute(Qt.WA_TranslucentBackground)  # 使窗口背景透明
