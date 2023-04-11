@@ -189,8 +189,11 @@ if not os.path.exists(doc_cfg):
         for line in f1:
             if "logging_level = logging.INFO" in line or "import logging" in line:
                 continue
+            if "session_expire_time" in line:
+                continue
             f2.write(line)
-        f2.write("logging_level = 20")
+        f2.write("logging_level = 20\n")
+        f2.write("session_expire_time = 86400")
     # 把从config.py导入的数据转换为节点树
     with open(doc_cfg, "r", encoding='utf-8') as f:
         cfg_str = f.read()
@@ -205,6 +208,7 @@ if not os.path.exists(doc_cfg):
     with open(doc_cfg, "w", encoding='utf-8') as f:
         json.dump(cfg_dict, f)
 
+
 # ************************************这是目前无用的字段，但以后可能有用************************************
 # with open('tips.py', 'r', encoding="utf-8") as f1, open(doc_tips, 'w', encoding="utf-8") as f2:
 #     for line in f1:
@@ -217,7 +221,6 @@ if not os.path.exists(doc_cfg):
 # ************************************这是目前无用的字段，但以后可能有用************************************
 
 # pyw后缀运行无控制台
-
 
 
 class Bot(QObject):
@@ -370,13 +373,17 @@ class MainWindow(QtWidgets.QMainWindow):
     #     self.bot.process.stdin.write(self.page_main_edit_current_command.text() + '\n')
     #     print("a")
     def open_log_path(self):
-        log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
         try:
-            os.startfile(log_path)
+            path = os.path.join(os.getcwd(), 'logs')
+            if os.path.exists(path):
+                subprocess.run(['explorer', path])
+            else:
+                QtWidgets.QMessageBox.warning(self, "打开日志目录", "找不到目录:" + path)
         except Exception as e:
             rai_dia(e)
+
     def change_bg_all(self):
-        QtWidgets.QMessageBox.information(self,"更换背景","由于填充等因素，图片像素以1300*840最佳。")
+        QtWidgets.QMessageBox.information(self, "更换背景", "由于填充等因素，图片像素以1300*840最佳。")
         try:
             # 获取当前脚本所在目录
             script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -396,11 +403,14 @@ class MainWindow(QtWidgets.QMainWindow):
                 rai_dia(e)
 
     def open_scenario_path(self):
-        scenario_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scenario')
         try:
-            os.startfile(scenario_path)
+            path = os.path.join(os.getcwd(), 'scenario')
+            if os.path.exists(path):
+                subprocess.run(['explorer', path])
+            else:
+                QtWidgets.QMessageBox.warning(self, "打开情景预设目录", "找不到目录:" + path)
         except Exception as e:
-            QtWidgets.QMessageBox.warning(self, "我", "最少保留一个人格！")
+            rai_dia(e)
 
     def page_log_text_appendText(self, text):
         # 获取当前的光标位置
@@ -585,6 +595,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 cfg_dict = json.load(f)
         except Exception as e:
             rai_dia(e)
+
         # ************************************这是目前无用的字段，但以后可能有用************************************
         # try:
         #     with open(doc_cfg, "r", encoding='utf-8') as f:
@@ -654,7 +665,9 @@ class MainWindow(QtWidgets.QMainWindow):
                                         background-attachment: fixed;""")
         self.back_all.setText("")
         self.back_all.setScaledContents(True)
-        self.back_all.setPixmap(QtGui.QPixmap("images/bg_all.png").scaled(self.back_all.size(), Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation))
+        self.back_all.setPixmap(
+            QtGui.QPixmap("images/bg_all.png").scaled(self.back_all.size(), Qt.KeepAspectRatioByExpanding,
+                                                      Qt.SmoothTransformation))
         self.back_all.setObjectName("back_all")
         self.back_top = QtWidgets.QLabel(self.centralwidget)
         self.back_top.setGeometry(QtCore.QRect(0, 0, 1300, 100))
@@ -801,7 +814,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_main_edit_current_command = QtWidgets.QLineEdit(self.tab_main)
         self.page_main_edit_current_command.setGeometry(QtCore.QRect(120, 700, 300, 30))
-        self.page_main_edit_current_command.setText("../python/pythonw main.pyw -r")
+        self.page_main_edit_current_command.setText("pythonw main.pyw -r")
         self.page_main_edit_current_command.setObjectName("page_main_edit_current_command")
         self.page_main_edit_current_command.setStyleSheet("""
                  
@@ -871,7 +884,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_log_label_level.setAlignment(QtCore.Qt.AlignCenter)
         self.page_log_label_level.setObjectName("page_log_label_level")
         self.page_log_label_message = QtWidgets.QLabel(self.tab_log)
-        self.page_log_label_message.setGeometry(QtCore.QRect(415, 0, 471, 25))
+        self.page_log_label_message.setGeometry(QtCore.QRect(415, 0, 580, 25))
         self.page_log_label_message.setStyleSheet("background-color: rgba(255, 255, 255, 0.5);")
         self.page_log_label_message.setAlignment(QtCore.Qt.AlignCenter)
         self.page_log_label_message.setObjectName("page_log_label_message")
@@ -880,6 +893,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_log_btn_open_log_path.setStyleSheet("background-color:rgb(85, 255, 255)")
         self.page_log_btn_open_log_path.setObjectName("page_log_btn_open_log_path")
         self.page_log_btn_open_log_path.clicked.connect(self.open_log_path)
+        self.page_log_btn_open_log_path.setHidden(False)
         self.page_log_btn_switch_unicode = QtWidgets.QPushButton(self.tab_log)
         self.page_log_btn_switch_unicode.setGeometry(QtCore.QRect(900, 660, 93, 28))
         self.page_log_btn_switch_unicode.setObjectName("page_log_btn_switch_unicode")
@@ -1008,10 +1022,11 @@ class MainWindow(QtWidgets.QMainWindow):
                }""")
         self.page_set_btn_cfg_open_path_full_scenario.setObjectName("page_set_btn_cfg_open_path_full_scenario")
         self.page_set_btn_cfg_open_path_full_scenario.clicked.connect(self.open_scenario_path)
+        self.page_set_btn_cfg_open_path_full_scenario.setHidden(False)
 
         self.page_set_btn_cfg_change_bg_all = QtWidgets.QPushButton(self.scrollAreaWidgetContents_5)
         self.page_set_btn_cfg_change_bg_all.setText("更换主题背景")
-        self.page_set_btn_cfg_change_bg_all.setGeometry(QtCore.QRect(270, 10, 181, 31))
+        self.page_set_btn_cfg_change_bg_all.setGeometry(QtCore.QRect(260, 10, 181, 31))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(11)
@@ -1028,7 +1043,7 @@ class MainWindow(QtWidgets.QMainWindow):
                }""")
         self.page_set_btn_cfg_change_bg_all.setObjectName("page_set_btn_cfg_change_bg_all")
         self.page_set_btn_cfg_change_bg_all.clicked.connect(self.change_bg_all)
-        
+
         self.page_set_title_moxingshezhi = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_title_moxingshezhi.setGeometry(QtCore.QRect(60, 1190, 131, 51))
         font = QtGui.QFont()
@@ -1171,7 +1186,7 @@ class MainWindow(QtWidgets.QMainWindow):
             "page_set_label_cfg_inappropriate_message_tips")
 
         self.page_set_edit_cfg_inappropriate_message_tips = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_cfg_inappropriate_message_tips.setGeometry(QtCore.QRect(460, 2340, 142, 30))
+        self.page_set_edit_cfg_inappropriate_message_tips.setGeometry(QtCore.QRect(460, 2340, 400, 30))
         self.page_set_edit_cfg_inappropriate_message_tips.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_cfg_inappropriate_message_tips.setObjectName("page_set_edit_cfg_inappropriate_message_tips")
         self.page_set_edit_cfg_inappropriate_message_tips.setText(self.dict_cfgs[value_cfgs_inappropriate_message_tips])
@@ -1606,7 +1621,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_session_expire_time.setGeometry(QtCore.QRect(430, 1900, 60, 30))
         self.page_set_edit_cfg_session_expire_time.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_cfg_session_expire_time.setMinimum(1)
-        self.page_set_edit_cfg_session_expire_time.setMaximum(86400)
+        self.page_set_edit_cfg_session_expire_time.setMaximum(86400000)
         self.page_set_edit_cfg_session_expire_time.setSingleStep(60)
         self.page_set_edit_cfg_session_expire_time.setObjectName("page_set_edit_cfg_session_expire_time")
         self.page_set_edit_cfg_session_expire_time.setValue(self.dict_cfgs[value_cfgs_session_expire_time])
@@ -1904,7 +1919,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_ignore_prefix.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_cfg_ignore_prefix.setObjectName("page_set_edit_cfg_ignore_prefix")
         self.page_set_edit_cfg_ignore_prefix.setStyleSheet(
-            "QLineEdit {border: 1px solid rgba(0,0,0, 0.5);}QToolTip { border: none; background-color: white; color: black; } QToolTip QLabel { color: red; }")
+            "QLineEdit {border: 1px solid rgba(0,0,0, 0.5);}QToolTip { border: none; background-color: white; color: black; }")
         self.page_set_edit_cfg_ignore_prefix.setToolTip(
             "输入内容以<span style='color:red'>【英文逗号】</span>分隔。比如:关键词1,关键词2,关键词3")
 
@@ -2827,6 +2842,8 @@ class MainWindow(QtWidgets.QMainWindow):
             path = os.path.join(os.getcwd(), 'sensitive.json')
             if os.path.exists(path):
                 subprocess.run(['explorer', '/select,', path])
+            else:
+                QtWidgets.QMessageBox.warning(self, "打开敏感词文件", "找不到文件:" + path)
         except Exception as e:
             rai_dia(e)
 
@@ -2835,6 +2852,8 @@ class MainWindow(QtWidgets.QMainWindow):
             path = os.path.join(os.getcwd(), 'banlist.py')
             if os.path.exists(path):
                 subprocess.run(['explorer', '/select,', path])
+            else:
+                QtWidgets.QMessageBox.warning(self, "打开禁用列表文件", "找不到文件:" + path)
         except Exception as e:
             rai_dia(e)
 
