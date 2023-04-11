@@ -7,8 +7,10 @@ import re
 import subprocess
 import threading
 import time
-
+from tkinter import filedialog, Image
+from PIL import Image
 import markdown2
+from PIL import UnidentifiedImageError
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import *
 from PyQt5.QtGui import QTextCursor, QBrush, QColor, QFont
@@ -144,6 +146,9 @@ value_tips_command_err_message = "command_err_message"
 value_tips_command_reset_message = "command_reset_message"
 value_tips_command_reset_name_message = "command_reset_name_message"
 
+if not os.path.exists("main.pyw"):
+    shutil.copy('main.py', 'main.pyw')
+
 if not os.path.exists('banlist.py'):
     shutil.copy('res/templates/banlist-template.py', 'banlist.py')
 
@@ -212,10 +217,7 @@ if not os.path.exists(doc_cfg):
 # ************************************这是目前无用的字段，但以后可能有用************************************
 
 # pyw后缀运行无控制台
-if not os.path.exists("main.pyw"):
-    with open('main.py', 'r', encoding="utf-8") as f1, open("main.pyw", 'w', encoding="utf-8") as f2:
-        for line in f1:
-            f2.write(line)
+
 
 
 class Bot(QObject):
@@ -373,6 +375,25 @@ class MainWindow(QtWidgets.QMainWindow):
             os.startfile(log_path)
         except Exception as e:
             rai_dia(e)
+    def change_bg_all(self):
+        QtWidgets.QMessageBox.information(self,"更换背景","由于填充等因素，图片像素以1300*840最佳。")
+        try:
+            # 获取当前脚本所在目录
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            # 用文件管理器选择png文件
+            file_path = filedialog.askopenfilename(initialdir=script_dir, title="Select PNG file",
+                                                   filetypes=[("PNG files", "*.png")])
+        except Exception as e:
+            rai_dia(e)
+        if file_path:
+            # 读取选定的图片
+            try:
+                new_bg = Image.open(file_path)
+                bg_all_path = os.path.join(script_dir, "images", "bg_all.png")
+                new_bg.save(bg_all_path)
+                self.back_all.setPixmap(QtGui.QPixmap("images/bg_all.png"))
+            except Exception as e:
+                rai_dia(e)
 
     def open_scenario_path(self):
         scenario_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scenario')
@@ -626,12 +647,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.back_all.setGeometry(QtCore.QRect(0, 0, 1300, 840))
         self.back_all.setMinimumSize(QtCore.QSize(1300, 840))
         self.back_all.setMaximumSize(QtCore.QSize(1300, 840))
-        self.back_all.setAutoFillBackground(False)
+        self.back_all.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+        self.back_all.setAutoFillBackground(True)
         self.back_all.setStyleSheet("""background-repeat: no-repeat;
                                         background-position: center center;
                                         background-attachment: fixed;""")
         self.back_all.setText("")
-        self.back_all.setPixmap(QtGui.QPixmap("images/bg_all.png"))
+        self.back_all.setScaledContents(True)
+        self.back_all.setPixmap(QtGui.QPixmap("images/bg_all.png").scaled(self.back_all.size(), Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation))
         self.back_all.setObjectName("back_all")
         self.back_top = QtWidgets.QLabel(self.centralwidget)
         self.back_top.setGeometry(QtCore.QRect(0, 0, 1300, 100))
@@ -642,12 +665,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.back_top.setText("")
         self.back_top.setPixmap(QtGui.QPixmap("images/bg_top.png"))
         self.back_top.setObjectName("back_top")
+        self.back_top.setHidden(True)
         self.back_left = QtWidgets.QLabel(self.centralwidget)
         self.back_left.setGeometry(QtCore.QRect(0, 100, 140, 740))
         self.back_left.setMinimumSize(QtCore.QSize(140, 740))
         self.back_left.setMaximumSize(QtCore.QSize(140, 740))
         self.back_left.setText("")
-        self.back_left.setPixmap(QtGui.QPixmap("images/bg_left - 副本.png"))
+        self.back_left.setPixmap(QtGui.QPixmap("images/bg_left.png"))
         self.back_left.setObjectName("back_left")
         self.back_right = QtWidgets.QLabel(self.centralwidget)
         self.back_right.setEnabled(True)
@@ -657,6 +681,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.back_right.setText("")
         self.back_right.setPixmap(QtGui.QPixmap("images/bg_right.png"))
         self.back_right.setObjectName("back_right")
+        self.back_right.setHidden(True)
         self.menu_tab = QtWidgets.QTabWidget(self.centralwidget)
         self.menu_tab.setGeometry(QtCore.QRect(0, 100, 1160, 740))
         self.menu_tab.setMinimumSize(QtCore.QSize(1020, 740))
@@ -776,7 +801,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_main_edit_current_command = QtWidgets.QLineEdit(self.tab_main)
         self.page_main_edit_current_command.setGeometry(QtCore.QRect(120, 700, 300, 30))
-        self.page_main_edit_current_command.setText("pythonw main.pyw -r")
+        self.page_main_edit_current_command.setText("../python/pythonw main.pyw -r")
         self.page_main_edit_current_command.setObjectName("page_main_edit_current_command")
         self.page_main_edit_current_command.setStyleSheet("""
                  
@@ -983,6 +1008,27 @@ class MainWindow(QtWidgets.QMainWindow):
                }""")
         self.page_set_btn_cfg_open_path_full_scenario.setObjectName("page_set_btn_cfg_open_path_full_scenario")
         self.page_set_btn_cfg_open_path_full_scenario.clicked.connect(self.open_scenario_path)
+
+        self.page_set_btn_cfg_change_bg_all = QtWidgets.QPushButton(self.scrollAreaWidgetContents_5)
+        self.page_set_btn_cfg_change_bg_all.setText("更换主题背景")
+        self.page_set_btn_cfg_change_bg_all.setGeometry(QtCore.QRect(270, 10, 181, 31))
+        font = QtGui.QFont()
+        font.setFamily("微软雅黑")
+        font.setPointSize(11)
+        self.page_set_btn_cfg_change_bg_all.setFont(font)
+        self.page_set_btn_cfg_change_bg_all.setStyleSheet(
+            """QPushButton {
+                   border: 1px solid rgba(0,0,0, 0.5);
+               }
+               QPushButton:hover {
+                   background-color: rgba(255, 255, 255, 0.4);
+               }
+               QPushButton:pressed {
+                   background-color: rgba(255, 255, 255,6);
+               }""")
+        self.page_set_btn_cfg_change_bg_all.setObjectName("page_set_btn_cfg_change_bg_all")
+        self.page_set_btn_cfg_change_bg_all.clicked.connect(self.change_bg_all)
+        
         self.page_set_title_moxingshezhi = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_title_moxingshezhi.setGeometry(QtCore.QRect(60, 1190, 131, 51))
         font = QtGui.QFont()
@@ -2742,6 +2788,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.back_center.setText("")
         self.back_center.setPixmap(QtGui.QPixmap("images/bg_center.png"))
         self.back_center.setObjectName("back_center")
+        self.back_center.setHidden(True)
 
         self.textBrowser = QtWidgets.QTextBrowser(self.centralwidget)
         self.textBrowser.setGeometry(QtCore.QRect(300, 10, 661, 91))
@@ -2841,7 +2888,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def retranslateUi(self, MainWIndow):
         _translate = QtCore.QCoreApplication.translate
-        MainWIndow.setWindowTitle(_translate("MainWIndow", "QChatGPT beta 1.1"))
+        MainWIndow.setWindowTitle(_translate("MainWIndow", "QChatGPT beta 1.2"))
         self.page_log_label_time.setText(_translate("MainWIndow", "时间"))
         self.page_log_label_jiluqi.setText(_translate("MainWIndow", "记录器"))
         self.page_log_label_level.setText(_translate("MainWIndow", "级别"))
