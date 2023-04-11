@@ -23,66 +23,13 @@ log_colors_config = {
     'ERROR': 'red',
     'CRITICAL': 'cyan',
 }
-
+# 这是图形界面运行项目时的配置文件
 doc_cfg = "override.json"
 doc_cmds = "cmdpriv.json"
-doc_tips = "tips-win.py"
+doc_tips = "tips.py"
 
-if not os.path.exists('banlist.py'):
-    shutil.copy('res/templates/banlist-template.py', 'banlist.py')
-
-# 检查是否有sensitive.json
-if not os.path.exists("sensitive.json"):
-    shutil.copy("res/templates/sensitive-template.json", "sensitive.json")
-
-# 检查是否有scenario/default.json
-if not os.path.exists("scenario/default.json"):
-    shutil.copy("scenario/default-template.json", "scenario/default.json")
-
-# 检查cmdpriv.json
-if not os.path.exists("cmdpriv.json"):
-    shutil.copy("res/templates/cmdpriv-template.json", "cmdpriv.json")
-
-# 检查tips_custom
-if not os.path.exists("tips.py"):
-    shutil.copy("tips-custom-template.py", "tips.py")
-
-# 检查temp目录
-if not os.path.exists("temp/"):
-    os.mkdir("temp/")
-
-# 检查并创建plugins、prompts目录
-check_path = ["plugins", "prompts"]
-for path in check_path:
-    if not os.path.exists(path):
-        os.mkdir(path)
-
-# 配置文件存在性校验
-if not os.path.exists('config.py'):
-    shutil.copy('config-template.py', 'config.py')
-
-if not os.path.exists(doc_cfg):
-    with open('override-all.json', 'r', encoding="utf-8") as f1, open(doc_cfg, 'w', encoding="utf-8") as f2:
-        for line in f1:
-            # if "logging_level = logging.INFO" in line or "import logging" in line:
-            #     continue
-            f2.write(line)
-    # f2.write("logging_level = logging.INFO")
-
-with open('tips.py', 'r', encoding="utf-8") as f1, open(doc_tips, 'w', encoding="utf-8") as f2:
-    for line in f1:
-        f2.write(line)
-
-if not os.path.exists(doc_cmds):
-    with open('cmdpriv.json', 'r', encoding="utf-8") as f1, open(doc_cmds, 'w', encoding="utf-8") as f2:
-        for line in f1:
-            f2.write(line)
-if not os.path.exists("main.pyw"):
-    with open('main.py', 'r', encoding="utf-8") as f1, open("main.pyw", 'w', encoding="utf-8") as f2:
-        for line in f1:
-            f2.write(line)
-# 文本框对应字段的值
-# doc_cfg = "config.py"的值
+# 节点树对应字典字段
+# doc_cfg的值
 value_cfgs_mirai_http_api_config = "mirai_http_api_config"
 value_cfgs_mirai_http_api_config_adapter = "adapter"
 value_cfgs_mirai_http_api_config_host = "host"
@@ -196,6 +143,79 @@ value_tips_command_admin_message = "command_admin_message"
 value_tips_command_err_message = "command_err_message"
 value_tips_command_reset_message = "command_reset_message"
 value_tips_command_reset_name_message = "command_reset_name_message"
+
+if not os.path.exists('banlist.py'):
+    shutil.copy('res/templates/banlist-template.py', 'banlist.py')
+
+# 检查是否有sensitive.json
+if not os.path.exists("sensitive.json"):
+    shutil.copy("res/templates/sensitive-template.json", "sensitive.json")
+
+# 检查是否有scenario/default.json
+if not os.path.exists("scenario/default.json"):
+    shutil.copy("scenario/default-template.json", "scenario/default.json")
+
+# 检查cmdpriv.json
+if not os.path.exists("cmdpriv.json"):
+    shutil.copy("res/templates/cmdpriv-template.json", "cmdpriv.json")
+
+# 检查tips_custom
+if not os.path.exists("tips.py"):
+    shutil.copy("tips-custom-template.py", "tips.py")
+
+# 检查temp目录
+if not os.path.exists("temp/"):
+    os.mkdir("temp/")
+
+# 检查并创建plugins、prompts目录
+check_path = ["plugins", "prompts"]
+for path in check_path:
+    if not os.path.exists(path):
+        os.mkdir(path)
+
+# 配置文件存在性校验
+if not os.path.exists('config.py'):
+    shutil.copy('config-template.py', 'config.py')
+
+# 初始化override.json
+if not os.path.exists(doc_cfg):
+    # 导入config.py数据到override.json
+    with open('confi2g.py', 'r', encoding="utf-8") as f1, open(doc_cfg, 'w', encoding="utf-8") as f2:
+        for line in f1:
+            if "logging_level = logging.INFO" in line or "import logging" in line:
+                continue
+            f2.write(line)
+        f2.write("logging_level = 20")
+    # 把从config.py导入的数据转换为节点树
+    with open(doc_cfg, "r", encoding='utf-8') as f:
+        cfg_str = f.read()
+    cfg_ast = ast.parse(cfg_str)
+    cfg_dict = {}
+    for node in cfg_ast.body:
+        if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name):
+            key = node.targets[0].id
+            value = ast.literal_eval(node.value)
+            cfg_dict[key] = value
+    # 把节点树写入override.json
+    with open(doc_cfg, "w", encoding='utf-8') as f:
+        json.dump(cfg_dict, f)
+
+# ************************************这是目前无用的字段，但以后可能有用************************************
+# with open('tips.py', 'r', encoding="utf-8") as f1, open(doc_tips, 'w', encoding="utf-8") as f2:
+#     for line in f1:
+#         f2.write(line)
+
+# if not os.path.exists(doc_cmds):
+#     with open('cmdpriv.json', 'r', encoding="utf-8") as f1, open(doc_cmds, 'w', encoding="utf-8") as f2:
+#         for line in f1:
+#             f2.write(line)
+# ************************************这是目前无用的字段，但以后可能有用************************************
+
+# pyw后缀运行无控制台
+if not os.path.exists("main.pyw"):
+    with open('main.py', 'r', encoding="utf-8") as f1, open("main.pyw", 'w', encoding="utf-8") as f2:
+        for line in f1:
+            f2.write(line)
 
 
 class Bot(QObject):
@@ -515,16 +535,18 @@ class MainWindow(QtWidgets.QMainWindow):
                                  "QStatusBar {\n"
                                  "    height: 30px;\n"
                                  "}")
-        with open(doc_tips, "r", encoding='utf-8') as f:
-            tip_str = f.read()
-        tip_ast = ast.parse(tip_str)
-        tip_dict = {}
-        for node in tip_ast.body:
-            if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name):
-                key = node.targets[0].id
-                value = ast.literal_eval(node.value)
-                tip_dict[key] = value
-
+        try:
+            with open(doc_tips, "r", encoding='utf-8') as f:
+                tip_str = f.read()
+            tip_ast = ast.parse(tip_str)
+            tip_dict = {}
+            for node in tip_ast.body:
+                if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name):
+                    key = node.targets[0].id
+                    value = ast.literal_eval(node.value)
+                    tip_dict[key] = value
+        except Exception as e:
+            rai_dia(e)
         # 在内存中保存配置字典
         self.dict_tips = tip_dict.copy()
 
@@ -539,17 +561,21 @@ class MainWindow(QtWidgets.QMainWindow):
                 cfg_dict = json.load(f)
         except Exception as e:
             rai_dia(e)
-        # with open(doc_cfg, "r", encoding='utf-8') as f:
-        #     cfg_str = f.read()
-        # cfg_ast = ast.parse(cfg_str)
-        # cfg_dict = {}
-        # for node in cfg_ast.body:
-        #     if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name):
-        #         key = node.targets[0].id
-        #         value = ast.literal_eval(node.value)
-        #         cfg_dict[key] = value
-
+        # ************************************这是目前无用的字段，但以后可能有用************************************
+        # try:
+        #     with open(doc_cfg, "r", encoding='utf-8') as f:
+        #         cfg_str = f.read()
+        #     cfg_ast = ast.parse(cfg_str)
+        #     cfg_dict = {}
+        #     for node in cfg_ast.body:
+        #         if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name):
+        #             key = node.targets[0].id
+        #             value = ast.literal_eval(node.value)
+        #             cfg_dict[key] = value
+        # except Exception as e:
+        #     rai_dia(e)
         # 在内存中保存配置字典
+        # ************************************这是目前无用的字段，但以后可能有用************************************
         self.dict_cfgs = cfg_dict.copy()
 
         def update_mirai_qq(value):
@@ -2640,10 +2666,10 @@ class MainWindow(QtWidgets.QMainWindow):
             with open(doc_tips, "w", encoding='utf-8') as f:
                 for key, value in self.dict_tips.items():
                     f.write(f"{key} = {repr(value)}\n")
-            with open('tips.py', 'w', encoding="utf-8") as f1, open(doc_tips, 'r', encoding="utf-8") as f2:
-
-                for line in f2:
-                    f1.write(line)
+            # with open('tips.py', 'w', encoding="utf-8") as f1, open(doc_tips, 'r', encoding="utf-8") as f2:
+            #
+            #     for line in f2:
+            #         f1.write(line)
         except Exception as e:
             rai_dia(e)
 
@@ -2653,6 +2679,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 json.dump(self.dict_cfgs, f)
         except Exception as e:
             rai_dia(e)
+
+        # ************************************这是目前无用的字段，但以后可能有用************************************
         # with open('cmdpriv.json', 'w', encoding="utf-8") as f1, open(doc_cmds, 'r', encoding="utf-8") as f2:
         #     for line in f2:
         #         f1.write(line)
@@ -2665,6 +2693,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #      for line in f2:
         #         f1.write(line)
         #      f1.write("logging_level = logging.INFO")
+        # ************************************这是目前无用的字段，但以后可能有用************************************
 
     def update_doc_cmds(self):
         # 将更改后的配置写回到配置文件中
@@ -2673,9 +2702,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 json.dump(self.dict_cmds, f)
         except Exception as e:
             rai_dia(e)
+        # ************************************这是目前无用的字段，但以后可能有用************************************
         # with open('cmdpriv.json', 'w', encoding="utf-8") as f1, open(doc_cmds, 'r', encoding="utf-8") as f2:
         #     for line in f2:
         #         f1.write(line)
+        # ************************************这是目前无用的字段，但以后可能有用************************************
 
     def retranslateUi(self, MainWIndow):
         _translate = QtCore.QCoreApplication.translate
@@ -2830,7 +2861,7 @@ if __name__ == "__main__":
             app.processEvents(QEventLoop.AllEvents)  # 等待窗口事件
             window.setAttribute(Qt.WA_TranslucentBackground)  # 使窗口背景透明
             app.exec_()
-
+            # ************************************这是目前无用的字段，但以后可能有用************************************
             # 输出窗口事件
             # for event in app.allWidgets():
             #     print(event.objectName(), event.metaObject().className())
@@ -2838,6 +2869,7 @@ if __name__ == "__main__":
             #         print(" ", child.objectName(), child.metaObject().className())
             #         for grandchild in child.children():
             #             print("   ", grandchild.objectName(), grandchild.metaObject().className())
+            # ************************************这是目前无用的字段，但以后可能有用************************************
         else:
             app.exec_()
 
