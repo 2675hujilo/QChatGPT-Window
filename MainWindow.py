@@ -180,7 +180,7 @@ if not os.path.exists('config.py'):
 # 初始化override.json
 if not os.path.exists(doc_cfg):
     # 导入config.py数据到override.json
-    with open('confi2g.py', 'r', encoding="utf-8") as f1, open(doc_cfg, 'w', encoding="utf-8") as f2:
+    with open('config.py', 'r', encoding="utf-8") as f1, open(doc_cfg, 'w', encoding="utf-8") as f2:
         for line in f1:
             if "logging_level = logging.INFO" in line or "import logging" in line:
                 continue
@@ -243,6 +243,7 @@ class Bot(QObject):
             if not self.running:
                 self.running = True
                 self.output_signal.emit("程序已经在运行中。\n")
+
         else:
             if self.running:
                 self.running = False
@@ -330,19 +331,23 @@ class MainWindow(QtWidgets.QMainWindow):
             self.page_main_edit_bot_status_off.setHidden(False)
 
     def bot_start_clicked(self):
-        if len(str(self.dict_cfgs[value_cfgs_admin_qq])) < 2:
-            QtWidgets.QMessageBox.warning(self, "第一次启动", "请在配置页面输入管理员QQ后，再启动！")
-
+        if self.bot.is_running():
+            QtWidgets.QMessageBox.warning(self, "启动程序", "程序已经在运行中！")
         else:
-            self.bot.start()
+            if len(str(self.dict_cfgs[value_cfgs_admin_qq])) < 2:
+                QtWidgets.QMessageBox.warning(self, "第一次启动", "请在配置页面输入管理员QQ后，再启动！")
 
-            self.update_status_buttons()
+            else:
+                self.bot.start()
+                self.update_status_buttons()
 
     def bot_stop_clicked(self):
-        self.bot.stop()
-
-        self.bot.check_running_timer.stop()
-        self.update_status_buttons()
+        if self.bot.is_running():
+            self.bot.stop()
+            self.bot.check_running_timer.stop()
+            self.update_status_buttons()
+        else:
+            QtWidgets.QMessageBox.warning(self, "停止程序", "程序已经停止！")
 
     def closeEvent(self, event):
         self.bot.stop()
@@ -520,21 +525,19 @@ class MainWindow(QtWidgets.QMainWindow):
         MainWIndow.setMinimumSize(QtCore.QSize(1160, 840))
         MainWIndow.setMaximumSize(QtCore.QSize(1300, 840))
         MainWIndow.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
-        MainWIndow.setStyleSheet(" border:0px;\n"
-                                 "/*background-color:  rgba(106, 160, 217, 0.5) \n"
-                                 "background-image:   url(\'back.png\')*/\n"
-                                 "QMainWindow::separator {\n"
-                                 "    height: 0;\n"
-                                 "}\n"
-                                 "\n"
-                                 "QWidget#centralWidget { \n"
-                                 "    border: none;\n"
-                                 "    margin-top: 1px;\n"
-                                 "}\n"
-                                 "\n"
-                                 "QStatusBar {\n"
-                                 "    height: 30px;\n"
-                                 "}")
+        MainWIndow.setStyleSheet("""
+                                border: 0px;
+                                QMainWindow::separator {
+                                    height: 0;
+                                }
+                                QWidget#centralWidget {
+                                    border: none;
+                                    margin-top: 1px;
+                                }
+                                QStatusBar {
+                                    height: 30px;
+                                }
+                            """)
         try:
             with open(doc_tips, "r", encoding='utf-8') as f:
                 tip_str = f.read()
@@ -624,10 +627,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.back_all.setMinimumSize(QtCore.QSize(1300, 840))
         self.back_all.setMaximumSize(QtCore.QSize(1300, 840))
         self.back_all.setAutoFillBackground(False)
-        self.back_all.setStyleSheet("/*background-image: url(images/bg_all.png);*/\n"
-                                    "background-repeat: no-repeat;\n"
-                                    "background-position: center center;\n"
-                                    "background-attachment: fixed;")
+        self.back_all.setStyleSheet("""background-repeat: no-repeat;
+                                        background-position: center center;
+                                        background-attachment: fixed;""")
         self.back_all.setText("")
         self.back_all.setPixmap(QtGui.QPixmap("images/bg_all.png"))
         self.back_all.setObjectName("back_all")
@@ -660,33 +662,32 @@ class MainWindow(QtWidgets.QMainWindow):
         self.menu_tab.setMinimumSize(QtCore.QSize(1020, 740))
         self.menu_tab.setMaximumSize(QtCore.QSize(1160, 740))
         self.menu_tab.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
-        self.menu_tab.setStyleSheet("/* This is argv_debug comment in argv_debug CSS stylesheet */\n"
-                                    "QTabBar::tab {background-color: rgba(255, 255, 255, 0.001); } \n"
-                                    "QTabBar::tab {\n"
-                                    "                \n"
-                                    "                text-align: left;\n"
-                                    "            }\n"
-                                    "QTabBar::tab {\n"
-                                    "                height: 80px;\n"
-                                    "                width: 140px;\n"
-                                    "                font-size: 20px;\n"
-                                    "                padding-left: 0px;\n"
-                                    "                padding-right: 0px; \n"
-                                    "    padding: 0px 0px 0px 0px;   /* 分别指定上、右、下、左四个方向的内边距大小 */\n"
-                                    "            }\n"
-                                    "            QTabBar::tab:selected {     \n"
-                                    "            background-color: rgba(255, 255, 255, 0.6);\n"
-                                    "            }\n"
-                                    "QTabBar::tab:hover {\n"
-                                    " background-color: rgba(255, 255, 255, 0.4);\n"
-                                    "                 \n"
-                                    "            }\n"
-                                    "\n"
-                                    "QTabWidget::pane { border-image: url(images/back_center.png) 0 0 0 0 stretch stretch;"
-                                    "background-repeat: no-repeat;\n"
-                                    "background-position: center center;\n"
-                                    "background-attachment: fixed;}\n"
-                                    "background-color: rgba(255, 255, 255,0.25); ")
+        self.menu_tab.setStyleSheet("""QTabBar::tab {background-color: rgba(255, 255, 255, 0.001);}
+                                        QTabBar::tab {
+                                            text-align: left;
+                                        }
+                                        QTabBar::tab {
+                                            height: 80px;
+                                            width: 140px;
+                                            font-size: 20px;
+                                            padding-left: 0px;
+                                            padding-right: 0px; 
+                                            padding: 0px 0px 0px 0px; 
+                                        }
+                                        QTabBar::tab:selected {     
+                                            background-color: rgba(255, 255, 255, 0.6);
+                                        }
+                                        QTabBar::tab:hover {
+                                            background-color: rgba(255, 255, 255, 0.4);
+                                        }
+                                        QTabWidget::pane { 
+                                            border-image: url(images/back_center.png) 0 0 0 0 stretch stretch;
+                                            background-repeat: no-repeat;
+                                            background-position: center center;
+                                            background-attachment: fixed;
+                                        }
+                                        background-color: rgba(255, 255, 255,0.25);""")
+
         self.menu_tab.setTabPosition(QtWidgets.QTabWidget.West)
         self.menu_tab.setTabShape(QtWidgets.QTabWidget.Rounded)
         self.menu_tab.setTabsClosable(False)
@@ -695,10 +696,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tab_main = QtWidgets.QWidget()
         self.tab_main.setMinimumSize(QtCore.QSize(1020, 740))
         self.tab_main.setMaximumSize(QtCore.QSize(1160, 740))
-        self.tab_main.setStyleSheet(
-            "background-color: rgba(255, 255, 255,0.025);QMenu {background-color:rgb(233, 190, 203);}\n"
-            "QComboBox QAbstractItemView {background-color:  rgb(185, 208, 230);\n"
-            " } ")
+        self.tab_main.setStyleSheet("""
+            background-color: rgba(255, 255, 255,0.025);
+            QMenu {background-color:rgb(233, 190, 203);}
+            QComboBox QAbstractItemView {
+                background-color:  rgb(185, 208, 230);
+            }
+        """)
+
         self.tab_main.setObjectName("tab_main")
         self.page_main_label_bot_start = QtWidgets.QCommandLinkButton(self.tab_main)
         self.page_main_label_bot_start.setGeometry(QtCore.QRect(270, 590, 149, 85))
@@ -707,13 +712,17 @@ class MainWindow(QtWidgets.QMainWindow):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.page_main_label_bot_start.sizePolicy().hasHeightForWidth())
         self.page_main_label_bot_start.setSizePolicy(sizePolicy)
-        self.page_main_label_bot_start.setStyleSheet("QPushButton::CommandLinkButton {\"\n"
-                                                     " \"    background-color: #f1f1f1; /* 背景颜色 */\"\n"
-                                                     " \"    border: none; /* 去除边框 */\"\n"
-                                                     " \"    padding-left: 16px; /* 左侧缩排 */\"\n"
-                                                     " \"}\"\n"
-                                                     " \"QPushButton::CommandLinkButton:hover {\"\n"
-                                                     " \"    background-color: #e1e1e1; /* 鼠标悬浮背景颜色 */\"}")
+        self.page_main_label_bot_start.setStyleSheet(
+            """QPushButton::CommandLinkButton {
+                background-color: #f1f1f1;
+                border: none;
+                padding-left: 16px;
+            }
+            QPushButton::CommandLinkButton:hover {
+                background-color: #e1e1e1;
+            }"""
+        )
+
         self.page_main_label_bot_start.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("images/bot_start.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -721,7 +730,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_main_label_bot_start.setIconSize(QtCore.QSize(250, 75))
         self.page_main_label_bot_start.setProperty("label_bot_start", QtGui.QPixmap("images/bot_start.png"))
         self.page_main_label_bot_start.setObjectName("page_main_label_bot_start")
-        # 启动bot
+        self.page_main_label_bot_start.setStyleSheet('''
+                                        QCommandLinkButton {
+                                            background-color: rgba(255, 255, 255, 0.025);
+                                            color: white;
+                                            border: none;
+                                            text-decoration: underline;
+                                        }
+                                        QCommandLinkButton:hover {
+                                            background-color: rgba(255, 255, 255, 0.4);
+                                        }
+                                        QCommandLinkButton:pressed {
+                                            background-color: rgba(255, 255, 255, 0.5);
+                                        }''')
         self.page_main_label_bot_start.clicked.connect(self.bot_start_clicked)
 
         self.page_main_label_bot_stop = QtWidgets.QCommandLinkButton(self.tab_main)
@@ -733,6 +754,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_main_label_bot_stop.setIconSize(QtCore.QSize(250, 75))
         self.page_main_label_bot_stop.setProperty("label_bot_stop", QtGui.QPixmap("images/bot_stop.png"))
         self.page_main_label_bot_stop.setObjectName("page_main_label_bot_stop")
+        self.page_main_label_bot_stop.setStyleSheet('''
+                                QCommandLinkButton {
+                                    background-color: rgba(255, 255, 255, 0.025);
+                                    color: white;
+                                    border: none;
+                                    text-decoration: underline;
+                                }
+                                QCommandLinkButton:hover {
+                                    background-color: rgba(255, 255, 255, 0.4);
+                                }
+                                QCommandLinkButton:pressed {
+                                    background-color: rgba(255, 255, 255, 0.5);
+                                }''')
         self.page_main_label_bot_stop.clicked.connect(self.bot_stop_clicked)
 
         self.page_main_label_current_command = QtWidgets.QLabel(self.tab_main)
@@ -744,7 +778,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_main_edit_current_command.setGeometry(QtCore.QRect(120, 700, 300, 30))
         self.page_main_edit_current_command.setText("pythonw main.pyw -r")
         self.page_main_edit_current_command.setObjectName("page_main_edit_current_command")
+        self.page_main_edit_current_command.setStyleSheet("""
+                 
+                QLineEdit:hover {
+                    background-color: rgba(255, 255, 255, 0.2);
+                     border: 1px solid rgba(0, 0, 0, 0.5);
+                }
 
+                """)
         self.page_main_label_bot_status_2 = QtWidgets.QCommandLinkButton(self.tab_main)
         self.page_main_label_bot_status_2.setGeometry(QtCore.QRect(210, 380, 361, 121))
         self.page_main_label_bot_status_2.setText("")
@@ -780,7 +821,7 @@ class MainWindow(QtWidgets.QMainWindow):
             " } ")
         self.tab_log.setObjectName("tab_log")
         self.page_log_text = QtWidgets.QPlainTextEdit(self.tab_log)
-        self.page_log_text.setGeometry(QtCore.QRect(0, 0, 1020, 651))
+        self.page_log_text.setGeometry(QtCore.QRect(0, 0, 1020, 740))
         self.page_log_text.setMaximumSize(QtCore.QSize(1020, 740))
         self.page_log_text.setStyleSheet("background-color:rgba(255,255,255,0.025)")
         self.page_log_text.setReadOnly(True)
@@ -847,7 +888,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tab_set.setStyleSheet(
             "background-color: rgba(255, 255, 255,0.025);QMenu {background-color:rgb(233, 190, 203);}\n"
             "QComboBox QAbstractItemView {background-color:  rgb(185, 208, 230);\n"
-            " } ")
+            " } "
+        )
         self.tab_set.setObjectName("tab_set")
         self.page_set_scroll_area = QtWidgets.QScrollArea(self.tab_set)
         self.page_set_scroll_area.setGeometry(QtCore.QRect(0, 0, 1020, 740))
@@ -929,7 +971,16 @@ class MainWindow(QtWidgets.QMainWindow):
         font.setFamily("微软雅黑")
         font.setPointSize(11)
         self.page_set_btn_cfg_open_path_full_scenario.setFont(font)
-        self.page_set_btn_cfg_open_path_full_scenario.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_btn_cfg_open_path_full_scenario.setStyleSheet(
+            """QPushButton {
+                   border: 1px solid rgba(0,0,0, 0.5);
+               }
+               QPushButton:hover {
+                   background-color: rgba(255, 255, 255, 0.4);
+               }
+               QPushButton:pressed {
+                   background-color: rgba(255, 255, 255,6);
+               }""")
         self.page_set_btn_cfg_open_path_full_scenario.setObjectName("page_set_btn_cfg_open_path_full_scenario")
         self.page_set_btn_cfg_open_path_full_scenario.clicked.connect(self.open_scenario_path)
         self.page_set_title_moxingshezhi = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
@@ -1044,7 +1095,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_btn_save = QtWidgets.QPushButton(self.scrollAreaWidgetContents_5)
         self.page_set_btn_save.setGeometry(QtCore.QRect(870, 3510, 101, 41))
-        self.page_set_btn_save.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_btn_save.setStyleSheet(
+            """QPushButton {
+                   border: 1px solid rgba(0,0,0, 0.5);
+               }
+               QPushButton:hover {
+                   background-color: rgba(255, 255, 255, 0.4);
+               }
+               QPushButton:pressed {
+                   background-color: rgba(255, 255, 255,6);
+               }""")
         self.page_set_btn_save.setObjectName("page_set_btn_save")
         self.page_set_btn_save.setHidden(True)
         self.page_set_label_cfg_default_prompt = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
@@ -1384,13 +1444,31 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_api_add = QtWidgets.QPushButton(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_api_add.setGeometry(QtCore.QRect(620, 290, 50, 30))
         self.page_set_edit_cfg_api_add.setText("添加")
-        self.page_set_edit_cfg_api_add.setStyleSheet("border: 1px solid rgba(0,0,0,0.5);")
+        self.page_set_edit_cfg_api_add.setStyleSheet(
+            """QPushButton {
+                   border: 1px solid rgba(0,0,0, 0.5);
+               }
+               QPushButton:hover {
+                   background-color: rgba(255, 255, 255, 0.4);
+               }
+               QPushButton:pressed {
+                   background-color: rgba(255, 255, 255,6);
+               }""")
         self.page_set_edit_cfg_api_add.clicked.connect(self.add_api_key)
 
         self.page_set_edit_cfg_api_del = QtWidgets.QPushButton(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_api_del.setGeometry(QtCore.QRect(690, 290, 50, 30))
         self.page_set_edit_cfg_api_del.setText("删除")
-        self.page_set_edit_cfg_api_del.setStyleSheet("border: 1px solid rgba(0,0,0,0.5);")
+        self.page_set_edit_cfg_api_del.setStyleSheet(
+            """QPushButton {
+                   border: 1px solid rgba(0,0,0, 0.5);
+               }
+               QPushButton:hover {
+                   background-color: rgba(255, 255, 255, 0.4);
+               }
+               QPushButton:pressed {
+                   background-color: rgba(255, 255, 255,6);
+               }""")
         self.page_set_edit_cfg_api_del.clicked.connect(self.del_api_key)
 
         self.page_set_edit_cfg_default_prompt = QtWidgets.QPlainTextEdit(self.scrollAreaWidgetContents_5)
@@ -1419,13 +1497,31 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_prompt_add = QtWidgets.QPushButton(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_prompt_add.setGeometry(QtCore.QRect(620, 472, 50, 30))
         self.page_set_edit_cfg_prompt_add.setText("添加")
-        self.page_set_edit_cfg_prompt_add.setStyleSheet("border: 1px solid rgba(0,0,0,0.5);")
+        self.page_set_edit_cfg_prompt_add.setStyleSheet(
+            """QPushButton {
+                   border: 1px solid rgba(0,0,0, 0.5);
+               }
+               QPushButton:hover {
+                   background-color: rgba(255, 255, 255, 0.4);
+               }
+               QPushButton:pressed {
+                   background-color: rgba(255, 255, 255,6);
+               }""")
         self.page_set_edit_cfg_prompt_add.clicked.connect(self.add_default_prompt)
 
         self.page_set_edit_cfg_prompt_del = QtWidgets.QPushButton(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_prompt_del.setGeometry(QtCore.QRect(690, 472, 50, 30))
         self.page_set_edit_cfg_prompt_del.setText("删除")
-        self.page_set_edit_cfg_prompt_del.setStyleSheet("border: 1px solid rgba(0,0,0,0.5);")
+        self.page_set_edit_cfg_prompt_del.setStyleSheet(
+            """QPushButton {
+                   border: 1px solid rgba(0,0,0, 0.5);
+               }
+               QPushButton:hover {
+                   background-color: rgba(255, 255, 255, 0.4);
+               }
+               QPushButton:pressed {
+                   background-color: rgba(255, 255, 255,6);
+               }""")
         self.page_set_edit_cfg_prompt_del.clicked.connect(self.del_default_prompt)
 
         self.page_set_edit_cfg_blob_message_strategy = QtWidgets.QComboBox(self.scrollAreaWidgetContents_5)
@@ -1521,10 +1617,35 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_btn_open_income_msg_check_file = QtWidgets.QPushButton(self.scrollAreaWidgetContents_5)
         self.page_set_btn_open_income_msg_check_file.setGeometry(QtCore.QRect(580, 2143, 131, 25))
-        self.page_set_btn_open_income_msg_check_file.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_btn_open_income_msg_check_file.setStyleSheet(
+            """QPushButton {
+                   border: 1px solid rgba(0,0,0, 0.5);
+               }
+               QPushButton:hover {
+                   background-color: rgba(255, 255, 255, 0.4);
+               }
+               QPushButton:pressed {
+                   background-color: rgba(255, 255, 255,6);
+               }""")
         self.page_set_btn_open_income_msg_check_file.setObjectName("page_set_btn_open_income_msg_check_file")
         self.page_set_btn_open_income_msg_check_file.clicked.connect(self.open_income_msg_check_file)
         self.page_set_btn_open_income_msg_check_file.setText("打开敏感词文件")
+
+        self.page_set_btn_open_banlist_file = QtWidgets.QPushButton(self.scrollAreaWidgetContents_5)
+        self.page_set_btn_open_banlist_file.setGeometry(QtCore.QRect(770, 1100, 131, 30))
+        self.page_set_btn_open_banlist_file.setStyleSheet(
+            """QPushButton {
+                   border: 1px solid rgba(0,0,0, 0.5);
+               }
+               QPushButton:hover {
+                   background-color: rgba(255, 255, 255, 0.4);
+               }
+               QPushButton:pressed {
+                   background-color: rgba(255, 255, 255,6);
+               }""")
+        self.page_set_btn_open_banlist_file.setObjectName("page_set_btn_open_banlist_file")
+        self.page_set_btn_open_banlist_file.clicked.connect(self.open_banlist_file)
+        self.page_set_btn_open_banlist_file.setText("打开禁用列表")
 
         self.page_set_label_cfg_rate_limitation_danwei = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_label_cfg_rate_limitation_danwei.setGeometry(QtCore.QRect(470, 1940, 48, 30))
@@ -2067,9 +2188,10 @@ class MainWindow(QtWidgets.QMainWindow):
                                                  **{value_cfgs_mirai_http_api_config_adapter: new_value}}))
 
         self.page_set_edit_cfg_api_http_proxy = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_cfg_api_http_proxy.setGeometry(QtCore.QRect(450, 335, 142, 22))
+        self.page_set_edit_cfg_api_http_proxy.setGeometry(QtCore.QRect(450, 335, 300, 22))
         self.page_set_edit_cfg_api_http_proxy.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_cfg_api_http_proxy.setObjectName("page_set_edit_cfg_api_http_proxy")
+        self.page_set_edit_cfg_api_http_proxy.setPlaceholderText("http://example.com:12345/v1")
         self.page_set_edit_cfg_api_http_proxy.setText(
             self.dict_cfgs[value_cfgs_openai_config][value_cfgs_openai_config_http_proxy])
         self.page_set_edit_cfg_api_http_proxy.textChanged.connect(
@@ -2078,9 +2200,10 @@ class MainWindow(QtWidgets.QMainWindow):
                                                  **{value_cfgs_openai_config_http_proxy: new_value}}))
 
         self.page_set_edit_cfg_api_reverse_proxy = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_cfg_api_reverse_proxy.setGeometry(QtCore.QRect(450, 370, 142, 22))
+        self.page_set_edit_cfg_api_reverse_proxy.setGeometry(QtCore.QRect(450, 370, 300, 22))
         self.page_set_edit_cfg_api_reverse_proxy.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_cfg_api_reverse_proxy.setObjectName("page_set_edit_cfg_api_reverse_proxy")
+        self.page_set_edit_cfg_api_reverse_proxy.setPlaceholderText("http://example.com:12345/v1")
         self.page_set_edit_cfg_api_reverse_proxy.setText(
             self.dict_cfgs[value_cfgs_openai_config][value_cfgs_openai_config_reverse_proxy])
         self.page_set_edit_cfg_api_reverse_proxy.textChanged.connect(
@@ -2655,6 +2778,14 @@ class MainWindow(QtWidgets.QMainWindow):
     def open_income_msg_check_file(self):
         try:
             path = os.path.join(os.getcwd(), 'sensitive.json')
+            if os.path.exists(path):
+                subprocess.run(['explorer', '/select,', path])
+        except Exception as e:
+            rai_dia(e)
+
+    def open_banlist_file(self):
+        try:
+            path = os.path.join(os.getcwd(), 'banlist.py')
             if os.path.exists(path):
                 subprocess.run(['explorer', '/select,', path])
         except Exception as e:
