@@ -1,6 +1,5 @@
 import os
 import shutil
-
 import ast
 import json
 import re
@@ -10,13 +9,14 @@ import time
 from tkinter import filedialog, Image
 from PIL import Image
 import markdown2
-from PIL import UnidentifiedImageError
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets, QtMultimedia
 from PyQt5.QtCore import *
 from PyQt5.QtGui import QTextCursor, QBrush, QColor, QFont
 from PyQt5.QtWidgets import *
-from PyQt5.QtWidgets import QMessageBox, QApplication
 import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox
+from PyQt5 import QtCore, QtGui, QtWidgets, QtMultimedia
+from PyQt5.QtMultimediaWidgets import QVideoWidget
 
 log_colors_config = {
     'DEBUG': 'green',
@@ -25,6 +25,7 @@ log_colors_config = {
     'ERROR': 'red',
     'CRITICAL': 'cyan',
 }
+
 # 这是图形界面运行项目时的配置文件
 doc_cfg = "override.json"
 doc_cmds = "cmdpriv.json"
@@ -107,7 +108,7 @@ value_cfgs_report_usage = "report_usage"
 value_cfgs_inappropriate_message_tips = "inappropriate_message_tips"
 value_cfgs_logging_level = "logging_level"
 
-# doc_cmds = "cmdpriv.json"的值
+# doc_cmds的值
 value_cmds_draw = "draw"
 value_cmds_plugin = "plugin"
 value_cmds_plugin_get = "plugin.get"
@@ -135,7 +136,7 @@ value_cmds_update = "update"
 value_cmds_usage = "usage"
 value_cmds_version = "version"
 
-# doc_tips = "tips.py"的值
+# doc_tips的值
 value_tips_alter_tip_message = "alter_tip_message"
 value_tips_rate_limit_drop_tip = "rate_limit_drop_tip"
 value_tips_help_message = "help_message"
@@ -145,68 +146,6 @@ value_tips_command_admin_message = "command_admin_message"
 value_tips_command_err_message = "command_err_message"
 value_tips_command_reset_message = "command_reset_message"
 value_tips_command_reset_name_message = "command_reset_name_message"
-
-if not os.path.exists("main.pyw"):
-    shutil.copy('main.py', 'main.pyw')
-
-if not os.path.exists('banlist.py'):
-    shutil.copy('res/templates/banlist-template.py', 'banlist.py')
-
-# 检查是否有sensitive.json
-if not os.path.exists("sensitive.json"):
-    shutil.copy("res/templates/sensitive-template.json", "sensitive.json")
-
-# 检查是否有scenario/default.json
-if not os.path.exists("scenario/default.json"):
-    shutil.copy("scenario/default-template.json", "scenario/default.json")
-
-# 检查cmdpriv.json
-if not os.path.exists("cmdpriv.json"):
-    shutil.copy("res/templates/cmdpriv-template.json", "cmdpriv.json")
-
-# 检查tips_custom
-if not os.path.exists("tips.py"):
-    shutil.copy("tips-custom-template.py", "tips.py")
-
-# 检查temp目录
-if not os.path.exists("temp/"):
-    os.mkdir("temp/")
-
-# 检查并创建plugins、prompts目录
-check_path = ["plugins", "prompts"]
-for path in check_path:
-    if not os.path.exists(path):
-        os.mkdir(path)
-
-# 配置文件存在性校验
-if not os.path.exists('config.py'):
-    shutil.copy('config-template.py', 'config.py')
-
-# 初始化override.json
-if not os.path.exists(doc_cfg):
-    # 导入config.py数据到override.json
-    with open('config.py', 'r', encoding="utf-8") as f1, open(doc_cfg, 'w', encoding="utf-8") as f2:
-        for line in f1:
-            if "logging_level = logging.INFO" in line or "import logging" in line:
-                continue
-            if "session_expire_time" in line:
-                continue
-            f2.write(line)
-        f2.write("logging_level = 20\n")
-        f2.write("session_expire_time = 86400")
-    # 把从config.py导入的数据转换为节点树
-    with open(doc_cfg, "r", encoding='utf-8') as f:
-        cfg_str = f.read()
-    cfg_ast = ast.parse(cfg_str)
-    cfg_dict = {}
-    for node in cfg_ast.body:
-        if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name):
-            key = node.targets[0].id
-            value = ast.literal_eval(node.value)
-            cfg_dict[key] = value
-    # 把节点树写入override.json
-    with open(doc_cfg, "w", encoding='utf-8') as f:
-        json.dump(cfg_dict, f)
 
 
 # ************************************这是目前无用的字段，但以后可能有用************************************
@@ -219,8 +158,6 @@ if not os.path.exists(doc_cfg):
 #         for line in f1:
 #             f2.write(line)
 # ************************************这是目前无用的字段，但以后可能有用************************************
-
-# pyw后缀运行无控制台
 
 
 class Bot(QObject):
@@ -272,16 +209,19 @@ class Bot(QObject):
         # 当从cmd中有--debug参数启动时，编码为gbk
         try:
             cmd = self.main_window.page_main_edit_current_command.text()
-            self.process = subprocess.Popen(
+            process = subprocess.Popen(
                 cmd.split(),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
-                encoding="gbk",
+                encoding="utf-8",
                 universal_newlines=True,
                 bufsize=1,
                 errors="ignore",
 
             )
+            if process.poll() is not None:
+                raise RuntimeError(f"Failed to start process: {cmd}")
+            self.process = process
         except Exception as e:
             self.running = False
             rai_dia(e)
@@ -311,10 +251,10 @@ class Bot(QObject):
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
+        self.check(self)
         self.setupUi(self)
         self.bot = Bot(self)
         self.bot.output_signal.connect(self.log_output)
-        self.value_cfgs_default_prompt = "default_prompt"
         self.update_status_buttons()
 
     # def mousePressEvent(self, event):
@@ -324,6 +264,54 @@ class MainWindow(QtWidgets.QMainWindow):
     #         print("Right button clicked")
     #     elif event.button() == Qt.MiddleButton:
     #         print("Middle button clicked")
+
+    def check(self, event):
+        try:
+            if not os.path.exists("main.pyw"):
+                shutil.copy('main.py', 'main.pyw')
+
+            if not os.path.exists('banlist.py'):
+                shutil.copy('res/templates/banlist-template.py', 'banlist.py')
+
+            # 检查是否有sensitive.json
+            if not os.path.exists("sensitive.json"):
+                shutil.copy("res/templates/sensitive-template.json", "sensitive.json")
+
+            # 检查是否有scenario/default.json
+            if not os.path.exists("scenario/default.json"):
+                shutil.copy("scenario/default-template.json", "scenario/default.json")
+
+            # 检查cmdpriv.json
+            if not os.path.exists("cmdpriv.json"):
+                shutil.copy("res/templates/cmdpriv-template.json", "cmdpriv.json")
+
+            # 检查tips_custom
+            if not os.path.exists("tips.py"):
+                shutil.copy("tips-custom-template.py", "tips.py")
+
+            # 检查temp目录
+            if not os.path.exists("temp/"):
+                os.mkdir("temp/")
+
+            # 检查并创建plugins、prompts目录
+            check_path = ["plugins", "prompts"]
+            for path in check_path:
+                if not os.path.exists(path):
+                    os.mkdir(path)
+
+            # 配置文件存在性校验
+            if not os.path.exists('config.py'):
+                shutil.copy('config-template.py', 'config.py')
+
+            # 初始化override.json
+            if not os.path.exists(doc_cfg):
+                shutil.copy('override-all.json', 'override.json')
+
+        except Exception as e:
+            mes = "找不到配置文件，请把此程序移动至机器人程序根目录下或者更新机器人！" + str(e)
+            if QtWidgets.QMessageBox.critical(self, "错误", mes, QMessageBox.Ok):
+                exit()
+
     def log_output(self, line):
         self.page_log_text_appendText(line)
 
@@ -345,6 +333,15 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 self.bot.start()
                 self.update_status_buttons()
+
+    def btn_caidan_youshangjiao_clicked(self):
+        file_path = "images/secret"
+        player = QtMultimedia.QMediaPlayer(self)
+        content = QtMultimedia.QMediaContent(QtCore.QUrl.fromLocalFile(file_path))
+        player.setMedia(content)
+        player.setVideoOutput(QtWidgets.QVideoWidget(self))
+        player.setVolume(100)
+        player.play()
 
     def bot_stop_clicked(self):
         if self.bot.is_running():
@@ -368,10 +365,16 @@ class MainWindow(QtWidgets.QMainWindow):
     def switchEncoding(self):
         print("a")
 
-    # def log_btn_send_clicked(self):
-    #
-    #     self.bot.process.stdin.write(self.page_main_edit_current_command.text() + '\n')
-    #     print("a")
+    def log_btn_send_clicked(self):
+        print(self.bot.running)
+        print(self.bot.is_running)
+        if self.bot.process is None:
+            # 如果 self.bot.process 为空，给出提示并返回
+            print("请先启动程序！")
+            return
+        cmd = self.page_log_cmd_input.text()
+        self.bot.process.stdin.write(cmd + '\n')
+
     def open_log_path(self):
         try:
             path = os.path.join(os.getcwd(), 'logs')
@@ -382,25 +385,73 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             rai_dia(e)
 
-    def change_bg_all(self):
-        QtWidgets.QMessageBox.information(self, "更换背景", "由于填充等因素，图片像素以1300*840最佳。")
+    def about_plug(self):
+        QtWidgets.QMessageBox.information(self, "关于插件设置", "由于插件相关配置会在机器人主程序运行后更改，且每个插件的配置文件格式"
+        "并不统一，所以此界面仅提供启用功能。其他设置请请前往相应文件进行更改。（绝对不是因为我懒）(๑>؂<๑）")
+
+    def open_path_plug(self):
         try:
-            # 获取当前脚本所在目录
-            script_dir = os.path.dirname(os.path.abspath(__file__))
-            # 用文件管理器选择png文件
-            file_path = filedialog.askopenfilename(initialdir=script_dir, title="Select PNG file",
-                                                   filetypes=[("PNG files", "*.png")])
+            path = os.path.join(os.getcwd(), 'plugins')
+            if os.path.exists(path):
+                subprocess.run(['explorer', path])
+            else:
+                QtWidgets.QMessageBox.warning(self, "打开日志目录", "找不到目录:" + path)
         except Exception as e:
             rai_dia(e)
-        if file_path:
-            # 读取选定的图片
+
+    def import_config(self):
+        reply = QtWidgets.QMessageBox.warning(self, "导入config.py配置",
+                                              "注意，由于config.py内容的兼容性问题，导入后大概率图形界面无法正常启动，若图形界面启动失败，删除“override.json”即可正常启动",
+                                              QMessageBox.Ok | QMessageBox.Cancel)
+        if reply == QMessageBox.Ok:
             try:
-                new_bg = Image.open(file_path)
-                bg_all_path = os.path.join(script_dir, "images", "bg_all.png")
-                new_bg.save(bg_all_path)
-                self.back_all.setPixmap(QtGui.QPixmap("images/bg_all.png"))
+                # 导入config.py数据到override.json
+                with open('config.py', 'r', encoding="utf-8") as f1, open(doc_cfg, 'w', encoding="utf-8") as f2:
+                    for line in f1:
+                        if "logging_level = logging.INFO" in line or "import logging" in line:
+                            continue
+                        if "session_expire_time" in line:
+                            continue
+                        f2.write(line)
+                    f2.write("logging_level = 20\n")
+                    f2.write("session_expire_time = 86400")
+                # 把从config.py导入的数据转换为节点树
+                with open(doc_cfg, "r", encoding='utf-8') as f:
+                    cfg_str = f.read()
+                cfg_ast = ast.parse(cfg_str)
+                cfg_dict = {}
+                for node in cfg_ast.body:
+                    if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name):
+                        key = node.targets[0].id
+                        value = ast.literal_eval(node.value)
+                        cfg_dict[key] = value
+                # 把节点树写入override.json
+                with open(doc_cfg, "w", encoding='utf-8') as f:
+                    json.dump(cfg_dict, f)
             except Exception as e:
                 rai_dia(e)
+            QtWidgets.QMessageBox.information(self, "导入config.py配置", "导入成功，重启后生效。")
+
+    def change_bg_all(self):
+        if QtWidgets.QMessageBox.information(self, "更换背景", "由于填充等因素，图片像素以1300*840最佳。",
+                                             QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Ok:
+            try:
+                # 获取当前脚本所在目录
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+                # 用文件管理器选择png文件
+                file_path = filedialog.askopenfilename(initialdir=script_dir, title="选择图片背景",
+                                                       filetypes=[("PNG files", "*.png")])
+            except Exception as e:
+                rai_dia(e)
+            if file_path:
+                # 读取选定的图片
+                try:
+                    new_bg = Image.open(file_path)
+                    bg_all_path = os.path.join(script_dir, "images", "bg_all.png")
+                    new_bg.save(bg_all_path)
+                    self.back_all.setPixmap(QtGui.QPixmap("images/bg_all.png"))
+                except Exception as e:
+                    rai_dia(e)
 
     def open_scenario_path(self):
         try:
@@ -815,6 +866,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_main_edit_current_command = QtWidgets.QLineEdit(self.tab_main)
         self.page_main_edit_current_command.setGeometry(QtCore.QRect(120, 700, 300, 30))
         self.page_main_edit_current_command.setText("pythonw main.pyw -r")
+        # self.page_main_edit_current_command.setText("../mirai/java/bin/java.exe -jar ../mirai/mcl.jar")
         self.page_main_edit_current_command.setObjectName("page_main_edit_current_command")
         self.page_main_edit_current_command.setStyleSheet("""
                  
@@ -903,7 +955,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_log_btn_cmd_send.setGeometry(QtCore.QRect(900, 690, 93, 28))
         self.page_log_btn_cmd_send.setObjectName("page_log_btn_cmd_send")
         self.page_log_btn_cmd_send.setHidden(True)
-        # self.page_log_btn_cmd_send.clicked.connect(self.log_btn_send_clicked)
+        self.page_log_btn_cmd_send.clicked.connect(self.log_btn_send_clicked)
         self.page_log_cmd_input = QtWidgets.QLineEdit(self.tab_log)
         self.page_log_cmd_input.setGeometry(QtCore.QRect(10, 680, 871, 35))
         self.page_log_cmd_input.setObjectName("page_log_cmd_input")
@@ -1026,7 +1078,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_btn_cfg_change_bg_all = QtWidgets.QPushButton(self.scrollAreaWidgetContents_5)
         self.page_set_btn_cfg_change_bg_all.setText("更换主题背景")
-        self.page_set_btn_cfg_change_bg_all.setGeometry(QtCore.QRect(260, 10, 181, 31))
+        self.page_set_btn_cfg_change_bg_all.setGeometry(QtCore.QRect(790, 10, 180, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(11)
@@ -1043,6 +1095,66 @@ class MainWindow(QtWidgets.QMainWindow):
                }""")
         self.page_set_btn_cfg_change_bg_all.setObjectName("page_set_btn_cfg_change_bg_all")
         self.page_set_btn_cfg_change_bg_all.clicked.connect(self.change_bg_all)
+
+        self.page_set_btn_cfg_import_config = QtWidgets.QPushButton(self.scrollAreaWidgetContents_5)
+        self.page_set_btn_cfg_import_config.setText("从config.py导入配置")
+        self.page_set_btn_cfg_import_config.setGeometry(QtCore.QRect(790, 50, 180, 30))
+        font = QtGui.QFont()
+        font.setFamily("微软雅黑")
+        font.setPointSize(11)
+        self.page_set_btn_cfg_import_config.setFont(font)
+        self.page_set_btn_cfg_import_config.setStyleSheet(
+            """QPushButton {
+                   border: 1px solid rgba(0,0,0, 0.5);
+               }
+               QPushButton:hover {
+                   background-color: rgba(255, 255, 255, 0.4);
+               }
+               QPushButton:pressed {
+                   background-color: rgba(255, 255, 255,6);
+               }""")
+        self.page_set_btn_cfg_import_config.setObjectName("page_set_btn_cfg_import_config")
+        self.page_set_btn_cfg_import_config.clicked.connect(self.import_config)
+
+        self.page_set_btn_pulg_about_plug = QtWidgets.QPushButton(self.scrollAreaWidgetContents_5)
+        self.page_set_btn_pulg_about_plug.setText("关于插件设置")
+        self.page_set_btn_pulg_about_plug.setGeometry(QtCore.QRect(790, 3570, 180, 31))
+        font = QtGui.QFont()
+        font.setFamily("微软雅黑")
+        font.setPointSize(11)
+        self.page_set_btn_pulg_about_plug.setFont(font)
+        self.page_set_btn_pulg_about_plug.setStyleSheet(
+            """QPushButton {
+                   border: 1px solid rgba(0,0,0, 0.5);
+               }
+               QPushButton:hover {
+                   background-color: rgba(255, 255, 255, 0.4);
+               }
+               QPushButton:pressed {
+                   background-color: rgba(255, 255, 255,6);
+               }""")
+        self.page_set_btn_pulg_about_plug.setObjectName("page_set_btn_pulg_about_plug")
+        self.page_set_btn_pulg_about_plug.clicked.connect(self.about_plug)
+
+        self.page_set_btn_pulg_open_path_plug = QtWidgets.QPushButton(self.scrollAreaWidgetContents_5)
+        self.page_set_btn_pulg_open_path_plug.setText("打开插件目录")
+        self.page_set_btn_pulg_open_path_plug.setGeometry(QtCore.QRect(790, 3530, 180, 31))
+        font = QtGui.QFont()
+        font.setFamily("微软雅黑")
+        font.setPointSize(11)
+        self.page_set_btn_pulg_open_path_plug.setFont(font)
+        self.page_set_btn_pulg_open_path_plug.setStyleSheet(
+            """QPushButton {
+                   border: 1px solid rgba(0,0,0, 0.5);
+               }
+               QPushButton:hover {
+                   background-color: rgba(255, 255, 255, 0.4);
+               }
+               QPushButton:pressed {
+                   background-color: rgba(255, 255, 255,6);
+               }""")
+        self.page_set_btn_pulg_open_path_plug.setObjectName("page_set_btn_pulg_open_path_plug")
+        self.page_set_btn_pulg_open_path_plug.clicked.connect(self.open_path_plug)
 
         self.page_set_title_moxingshezhi = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_title_moxingshezhi.setGeometry(QtCore.QRect(60, 1190, 131, 51))
@@ -1089,6 +1201,15 @@ class MainWindow(QtWidgets.QMainWindow):
         font.setWeight(75)
         self.page_set_title_xiaoxitishiyu.setFont(font)
         self.page_set_title_xiaoxitishiyu.setObjectName("page_set_title_xiaoxitishiyu")
+        self.page_set_title_plugins = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
+        self.page_set_title_plugins.setGeometry(QtCore.QRect(60, 3530, 161, 31))
+        font = QtGui.QFont()
+        font.setFamily("楷体")
+        font.setPointSize(16)
+        font.setBold(True)
+        font.setWeight(75)
+        self.page_set_title_plugins.setFont(font)
+        self.page_set_title_plugins.setObjectName("page_set_title_plugins")
         self.page_set_edit_cfg_response_at = QtWidgets.QCheckBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_response_at.setGeometry(QtCore.QRect(260, 940, 171, 30))
         font = QtGui.QFont()
@@ -2730,6 +2851,60 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_tips_command_reset_name_message.textChanged.connect(
             lambda new_value: update_value_tips(value_tips_command_reset_name_message, new_value))
 
+        # self.page_set_label_plugin_1 = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
+        # self.page_set_label_plugin_1.setGeometry(QtCore.QRect(260, 3530, 306, 30))
+        # font = QtGui.QFont()
+        # font.setFamily("微软雅黑")
+        # font.setPointSize(11)
+        # self.page_set_label_plugin_1.setFont(font)
+        # self.page_set_label_plugin_1.setObjectName("page_set_label_plugin_1")
+        # self.page_set_label_plugin_1.setText("插件样式")
+        # self.page_set_edit__plugin_1 = QtWidgets.QCheckBox(self.scrollAreaWidgetContents_5)
+        # self.page_set_edit__plugin_1.setGeometry(QtCore.QRect(480, 3530, 171, 30))
+        # font = QtGui.QFont()
+        # font.setFamily("微软雅黑")
+        # font.setPointSize(11)
+        # self.page_set_edit__plugin_1.setFont(font)
+        # self.page_set_edit__plugin_1.setObjectName("page_set_edit_plugin_1")
+        # self.page_set_edit__plugin_1.setText("启用")
+
+        # 加载switch.json
+        with open("plugins/switch.json", "r", encoding="utf-8") as f:
+            switch = json.load(f)
+        plugin_index = 0
+        for key, value in switch.items():
+            label = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
+            font = QtGui.QFont()
+            font.setFamily("微软雅黑")
+            font.setPointSize(11)
+            label.setFont(font)
+            label.setObjectName(f"page_set_label_plugin_{plugin_index}")
+            label.setText(key)
+            label.setGeometry(QtCore.QRect(260, 3530 + plugin_index * 40, 200, 30))
+
+            checkbox = QtWidgets.QCheckBox(self.scrollAreaWidgetContents_5)
+            font = QtGui.QFont()
+            font.setFamily("微软雅黑")
+            font.setPointSize(11)
+            checkbox.setFont(font)
+            checkbox.setObjectName(f"page_set_edit_plugin_{plugin_index}")
+            checkbox.setText("启用")
+            checkbox.setChecked(value["enabled"])
+            checkbox.setGeometry(QtCore.QRect(480, 3530 + plugin_index * 40, 60, 30))
+
+            def save_checkbox_state(state, key=key):
+                try:
+
+                    switch[key]["enabled"] = bool(int(state))
+                    with open("plugins/switch.json", "w", encoding="utf-8") as f:
+                        json.dump(switch, f, indent=4, ensure_ascii=False)
+                except Exception as e:
+                    rai_dia(e)
+
+            checkbox.stateChanged.connect(save_checkbox_state)
+
+            plugin_index += 1
+ 
         self.page_set_scroll_area.setWidget(self.scrollAreaWidgetContents_5)
         self.menu_tab.addTab(self.tab_set, "")
         self.tab_help = QtWidgets.QWidget()
@@ -2761,11 +2936,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     content = f.read()
                     html += markdown2.markdown(content)
         self.page_help_text.setHtml(html)
-
-        # self.page_help_back_button = QtWidgets.QPushButton("返回", self)
-        # self.page_help_back_button.setGeometry(QtCore.QRect(920, 100, 100, 30))
-        # self.page_help_back_button.clicked.connect(self.page_help_text.backward)
-
+  
         self.menu_tab.addTab(self.tab_help, "")
         self.tab_cbout = QtWidgets.QWidget()
         self.tab_cbout.setMinimumSize(QtCore.QSize(1020, 740))
@@ -2818,6 +2989,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_caidan_youshangjiao.setGeometry(QtCore.QRect(1280, 10, 21, 61))
         self.btn_caidan_youshangjiao.setText("")
         self.btn_caidan_youshangjiao.setObjectName("btn_caidan_youshangjiao")
+        #self.btn_caidan_youshangjiao.clicked.connect(self.btn_caidan_youshangjiao_clicked)
         self.back_all.raise_()
         self.back_top.raise_()
         self.back_center.raise_()
@@ -2907,7 +3079,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def retranslateUi(self, MainWIndow):
         _translate = QtCore.QCoreApplication.translate
-        MainWIndow.setWindowTitle(_translate("MainWIndow", "QChatGPT beta 1.2"))
+        MainWIndow.setWindowTitle(_translate("MainWIndow", "QChatGPT beta 1.3"))
         self.page_log_label_time.setText(_translate("MainWIndow", "时间"))
         self.page_log_label_jiluqi.setText(_translate("MainWIndow", "记录器"))
         self.page_log_label_level.setText(_translate("MainWIndow", "级别"))
@@ -2927,6 +3099,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_title_kaifazheshezhi.setText(_translate("MainWIndow", "开发者设置："))
         self.page_set_title_zhilingquanxian.setText(_translate("MainWIndow", "指令权限："))
         self.page_set_title_xiaoxitishiyu.setText(_translate("MainWIndow", "消息提示语："))
+        self.page_set_title_plugins.setText(_translate("MainWIndow", "插件设置："))
         self.page_set_edit_cfg_response_at.setText(_translate("MainWIndow", "响应“at”消息"))
         self.page_set_label_cfg_user_pool_num.setText(_translate("MainWIndow", "执行用户请求和指令的并行线程数量："))
         self.page_set_label_cfg_admin_pool_num.setText(_translate("MainWIndow", "执行管理员请求和指令并行线程数量："))
@@ -3039,36 +3212,36 @@ def rai_dia(message):
     msg_box.setText(str(message))
     msg_box.exec_()
 
+    # ************************************这是目前无用的字段，但以后可能有用************************************
+    # 输出窗口事件
+    # for event in app.allWidgets():
+    #     print(event.objectName(), event.metaObject().className())
+    #     for child in event.children():
+    #         print(" ", child.objectName(), child.metaObject().className())
+    #         for grandchild in child.children():
+    #             print("   ", grandchild.objectName(), grandchild.metaObject().className())
+    # ************************************这是目前无用的字段，但以后可能有用************************************
+
 
 if __name__ == "__main__":
     if "--debug" in sys.argv:
-        # 设置Qt属性
-        from PyQt5.QtCore import QCoreApplication, Qt
-
+        print("Using debug mode")
         QCoreApplication.setAttribute(Qt.AA_UseDesktopOpenGL)
 
     app = QApplication(sys.argv)
     app.setFont(QFont("微软雅黑", 10))
-    try:
+
+    if "--debug" in sys.argv:
         window = MainWindow()
+        window.setAttribute(Qt.WA_TranslucentBackground)
         window.show()
+        app.processEvents(QEventLoop.AllEvents)
+        app.exec_()
 
-        if "--debug" in sys.argv:
-            print("using debug mode")
-            app.processEvents(QEventLoop.AllEvents)  # 等待窗口事件
-            window.setAttribute(Qt.WA_TranslucentBackground)  # 使窗口背景透明
+    else:
+        try:
+            window = MainWindow()
+            window.show()
             app.exec_()
-            # ************************************这是目前无用的字段，但以后可能有用************************************
-            # 输出窗口事件
-            # for event in app.allWidgets():
-            #     print(event.objectName(), event.metaObject().className())
-            #     for child in event.children():
-            #         print(" ", child.objectName(), child.metaObject().className())
-            #         for grandchild in child.children():
-            #             print("   ", grandchild.objectName(), grandchild.metaObject().className())
-            # ************************************这是目前无用的字段，但以后可能有用************************************
-        else:
-            app.exec_()
-
-    except Exception as e:
-        raise e
+        except Exception as e:
+            raise e
