@@ -1,22 +1,21 @@
-import os
-import shutil
 import ast
 import json
+import os
 import re
+import shutil
 import subprocess
+import sys
 import threading
 import time
 from tkinter import filedialog, Image
-from PIL import Image
+
 import markdown2
+from PIL import Image
 from PyQt5 import QtCore, QtGui, QtWidgets, QtMultimedia
 from PyQt5.QtCore import *
 from PyQt5.QtGui import QTextCursor, QBrush, QColor, QFont
 from PyQt5.QtWidgets import *
-import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox
-from PyQt5 import QtCore, QtGui, QtWidgets, QtMultimedia
-from PyQt5.QtMultimediaWidgets import QVideoWidget
+from PyQt5.QtWidgets import QApplication, QMessageBox
 
 log_colors_config = {
     'DEBUG': 'green',
@@ -171,15 +170,7 @@ class Bot(QObject):
         self.check_running_timer = QTimer()
         self.check_running_timer.timeout.connect(self.check_running)
         self.check_running_timer.start(1000)
-        # atexit.register(self.exit_handler)  # 注册退出函数
 
-    #     self.hook = win32api.SetConsoleCtrlHandler(self.handle_exit, True)
-    #
-    # def handle_exit(self, event):
-    #     if event == win32con.CTRL_CLOSE_EVENT:
-    #         self.main_window.update_status_buttons()
-    #         self.update_status_buttons()
-    #         return True  # 返回True表示已处理该事件
     def check_running(self):
         if self.process is not None and self.process.poll() is None:
             if not self.running:
@@ -192,11 +183,6 @@ class Bot(QObject):
                 self.output_signal.emit("程序已经停止。\n")
                 self.main_window.update_status_buttons()
 
-    # def exit_handler(self):
-    #     if self.running:
-    #         self.running = False
-    #         self.output_signal.emit(" 程序已经停止。\n")
-    #         self.update_status_buttons()
     def start(self):
         if self.running:
             self.output_signal.emit("程序已经在运行中。\n")
@@ -213,7 +199,7 @@ class Bot(QObject):
                 cmd.split(),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
-                encoding="utf-8",
+                encoding="gbk",
                 universal_newlines=True,
                 bufsize=1,
                 errors="ignore",
@@ -239,7 +225,6 @@ class Bot(QObject):
         if not self.running:
             self.output_signal.emit("程序已经停止。\n")
             return
-        # win32api.SetConsoleCtrlHandler(self.hook, False)
         self.running = False
         self.process.terminate()
         self.process.wait()
@@ -256,14 +241,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.bot = Bot(self)
         self.bot.output_signal.connect(self.log_output)
         self.update_status_buttons()
-
-    # def mousePressEvent(self, event):
-    #     if event.button() == Qt.LeftButton:
-    #         print("Left button clicked")
-    #     elif event.button() == Qt.RightButton:
-    #         print("Right button clicked")
-    #     elif event.button() == Qt.MiddleButton:
-    #         print("Middle button clicked")
 
     def check(self, event):
         try:
@@ -386,8 +363,8 @@ class MainWindow(QtWidgets.QMainWindow):
             rai_dia(e)
 
     def about_plug(self):
-        QtWidgets.QMessageBox.information(self, "关于插件设置", "由于插件相关配置会在机器人主程序运行后更改，且每个插件的配置文件格式"
-        "并不统一，所以此界面仅提供启用功能。其他设置请请前往相应文件进行更改。（绝对不是因为我懒）(๑>؂<๑）")
+        QtWidgets.QMessageBox.information(self, "关于插件设置",
+                                          "由于每个插件的配置文件格式并不统一，且插件相关配置会在机器人主程序运行后更改，所以此界面仅提供启用功能。其他设置请请前往相应文件进行更改。（绝对不是因为我懒）(๑>؂<๑）")
 
     def open_path_plug(self):
         try:
@@ -430,7 +407,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     json.dump(cfg_dict, f)
             except Exception as e:
                 rai_dia(e)
-            QtWidgets.QMessageBox.information(self, "导入config.py配置", "导入成功，重启后生效。")
+            QtWidgets.QMessageBox.information(self, "导入config.py配置", "已导入，重启后生效。")
 
     def change_bg_all(self):
         if QtWidgets.QMessageBox.information(self, "更换背景", "由于填充等因素，图片像素以1300*840最佳。",
@@ -535,8 +512,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
                             # 写回文件
                             with open(doc_cfg, "w", encoding='utf-8') as f:
-                                for key, value in self.dict_cfgs.items():
-                                    f.write(f"{key} = {repr(value)}\n")
+                                json.dump(self.dict_cfgs, f)
+                                # for key, value in self.dict_cfgs.items():
+                                #     f.write(f"{key} = {repr(value)}\n")
                             break
                         else:
                             QtWidgets.QMessageBox.warning(self, "添加 API Key", "API 值格式不正确，请重新输入！")
@@ -552,8 +530,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # 写回文件
         try:
             with open(doc_cfg, "w", encoding='utf-8') as f:
-                for key, value in self.dict_cfgs.items():
-                    f.write(f"{key} = {repr(value)}\n")
+                json.dump(self.dict_cfgs, f)
+                # for key, value in self.dict_cfgs.items():
+                #     f.write(f"{key} = {repr(value)}\n")
         except Exception as e:
             rai_dia(e)
 
@@ -569,8 +548,9 @@ class MainWindow(QtWidgets.QMainWindow):
                     # 将新键值对插入字典
                     self.dict_cfgs[value_cfgs_default_prompt][new_key] = new_value
                     with open(doc_cfg, "w", encoding='utf-8') as f:
-                        for key, value in self.dict_cfgs.items():
-                            f.write(f"{key} = {repr(value)}\n")
+                        json.dump(self.dict_cfgs, f)
+                        # for key, value in self.dict_cfgs.items():
+                        #     f.write(f"{key} = {repr(value)}\n")
                     # # 更新下拉框
                     self.page_set_edit_cfg_default_prompt_choose.clear()
                     self.page_set_edit_cfg_default_prompt_choose.addItems(
@@ -586,8 +566,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.page_set_edit_cfg_default_prompt_choose.currentIndex())
             try:
                 with open(doc_cfg, "w", encoding='utf-8') as f:
-                    for key, value in self.dict_cfgs.items():
-                        f.write(f"{key} = {repr(value)}\n")
+                    json.dump(self.dict_cfgs, f)
+                    # for key, value in self.dict_cfgs.items():
+                    #     f.write(f"{key} = {repr(value)}\n")
             except Exception as e:
                 rai_dia(e)
 
@@ -730,6 +711,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.back_top.setPixmap(QtGui.QPixmap("images/bg_top.png"))
         self.back_top.setObjectName("back_top")
         self.back_top.setHidden(True)
+        self.back_top.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.back_left = QtWidgets.QLabel(self.centralwidget)
         self.back_left.setGeometry(QtCore.QRect(0, 100, 140, 740))
         self.back_left.setMinimumSize(QtCore.QSize(140, 740))
@@ -737,6 +719,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.back_left.setText("")
         self.back_left.setPixmap(QtGui.QPixmap("images/bg_left.png"))
         self.back_left.setObjectName("back_left")
+        self.back_left.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.back_right = QtWidgets.QLabel(self.centralwidget)
         self.back_right.setEnabled(True)
         self.back_right.setGeometry(QtCore.QRect(1160, 100, 140, 740))
@@ -746,6 +729,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.back_right.setPixmap(QtGui.QPixmap("images/bg_right.png"))
         self.back_right.setObjectName("back_right")
         self.back_right.setHidden(True)
+        self.back_right.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.menu_tab = QtWidgets.QTabWidget(self.centralwidget)
         self.menu_tab.setGeometry(QtCore.QRect(0, 100, 1160, 740))
         self.menu_tab.setMinimumSize(QtCore.QSize(1020, 740))
@@ -801,17 +785,6 @@ class MainWindow(QtWidgets.QMainWindow):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.page_main_label_bot_start.sizePolicy().hasHeightForWidth())
         self.page_main_label_bot_start.setSizePolicy(sizePolicy)
-        self.page_main_label_bot_start.setStyleSheet(
-            """QPushButton::CommandLinkButton {
-                background-color: #f1f1f1;
-                border: none;
-                padding-left: 16px;
-            }
-            QPushButton::CommandLinkButton:hover {
-                background-color: #e1e1e1;
-            }"""
-        )
-
         self.page_main_label_bot_start.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("images/bot_start.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -819,19 +792,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_main_label_bot_start.setIconSize(QtCore.QSize(250, 75))
         self.page_main_label_bot_start.setProperty("label_bot_start", QtGui.QPixmap("images/bot_start.png"))
         self.page_main_label_bot_start.setObjectName("page_main_label_bot_start")
-        self.page_main_label_bot_start.setStyleSheet('''
-                                        QCommandLinkButton {
-                                            background-color: rgba(255, 255, 255, 0.025);
-                                            color: white;
-                                            border: none;
-                                            text-decoration: underline;
-                                        }
-                                        QCommandLinkButton:hover {
-                                            background-color: rgba(255, 255, 255, 0.4);
-                                        }
-                                        QCommandLinkButton:pressed {
-                                            background-color: rgba(255, 255, 255, 0.5);
-                                        }''')
+        self.page_main_label_bot_start.setStyleSheet(
+            """QPushButton {
+                   border: 0px solid rgba(0,0,0, 0.5);
+                   border-radius: 5px;
+               }
+               QPushButton:hover {
+                   background-color: rgba(255, 255, 255, 0.7);
+                   border-radius: 5px;
+               }
+               QPushButton:pressed {
+                   background-color: rgba(255, 255, 255,1);
+                   border-radius: 5px;
+               }""")
         self.page_main_label_bot_start.clicked.connect(self.bot_start_clicked)
 
         self.page_main_label_bot_stop = QtWidgets.QCommandLinkButton(self.tab_main)
@@ -843,19 +816,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_main_label_bot_stop.setIconSize(QtCore.QSize(250, 75))
         self.page_main_label_bot_stop.setProperty("label_bot_stop", QtGui.QPixmap("images/bot_stop.png"))
         self.page_main_label_bot_stop.setObjectName("page_main_label_bot_stop")
-        self.page_main_label_bot_stop.setStyleSheet('''
-                                QCommandLinkButton {
-                                    background-color: rgba(255, 255, 255, 0.025);
-                                    color: white;
-                                    border: none;
-                                    text-decoration: underline;
-                                }
-                                QCommandLinkButton:hover {
-                                    background-color: rgba(255, 255, 255, 0.4);
-                                }
-                                QCommandLinkButton:pressed {
-                                    background-color: rgba(255, 255, 255, 0.5);
-                                }''')
+        self.page_main_label_bot_stop.setStyleSheet(
+            """QPushButton {
+                   border: 0px solid rgba(0,0,0, 0.5);
+                   border-radius: 5px;
+               }
+               QPushButton:hover {
+                   background-color: rgba(255, 255, 255, 0.7);
+                   border-radius: 5px;
+               }
+               QPushButton:pressed {
+                   background-color: rgba(255, 255, 255,1);
+                   border-radius: 5px;
+               }""")
         self.page_main_label_bot_stop.clicked.connect(self.bot_stop_clicked)
 
         self.page_main_label_current_command = QtWidgets.QLabel(self.tab_main)
@@ -865,17 +838,28 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_main_edit_current_command = QtWidgets.QLineEdit(self.tab_main)
         self.page_main_edit_current_command.setGeometry(QtCore.QRect(120, 700, 300, 30))
-        self.page_main_edit_current_command.setText("pythonw main.pyw -r")
+        #self.page_main_edit_current_command.setText("pythonw main.pyw -r")
+        self.page_main_edit_current_command.setText("../python/pythonw.exe main.pyw -r")
         # self.page_main_edit_current_command.setText("../mirai/java/bin/java.exe -jar ../mirai/mcl.jar")
         self.page_main_edit_current_command.setObjectName("page_main_edit_current_command")
         self.page_main_edit_current_command.setStyleSheet("""
-                 
-                QLineEdit:hover {
-                    background-color: rgba(255, 255, 255, 0.2);
-                     border: 1px solid rgba(0, 0, 0, 0.5);
-                }
-
-                """)
+            background-color: rgba(246, 247, 248, 0.3);
+            border: none;
+            border-radius: 5px;
+            padding: 2px;
+            border: 0px solid rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            padding: 2px;
+            opacity: 0.3;
+        }
+        QLineEdit:hover {
+            border: 1px solid rgba(0, 0, 0, 1);
+            background-color: white;
+            border-radius: 5px;
+            padding: 2px;
+            opacity: 1;
+        }
+        """)
         self.page_main_label_bot_status_2 = QtWidgets.QCommandLinkButton(self.tab_main)
         self.page_main_label_bot_status_2.setGeometry(QtCore.QRect(210, 380, 361, 121))
         self.page_main_label_bot_status_2.setText("")
@@ -942,10 +926,46 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_log_label_message.setObjectName("page_log_label_message")
         self.page_log_btn_open_log_path = QtWidgets.QPushButton(self.tab_log)
         self.page_log_btn_open_log_path.setGeometry(QtCore.QRect(863, 0, 131, 25))
-        self.page_log_btn_open_log_path.setStyleSheet("background-color:rgb(85, 255, 255)")
+        self.page_log_btn_open_log_path.setStyleSheet(
+            """QPushButton {
+                   border: 1px solid rgba(0,0,0, 0.5);
+                   border-radius: 5px;
+               }
+               QPushButton:hover {
+                   background-color: rgba(255, 255, 255, 0.4);
+               }
+               QPushButton:pressed {
+                   background-color: rgba(255, 255, 255,6);
+               }""")
         self.page_log_btn_open_log_path.setObjectName("page_log_btn_open_log_path")
         self.page_log_btn_open_log_path.clicked.connect(self.open_log_path)
         self.page_log_btn_open_log_path.setHidden(False)
+        
+        # self.page_log_btn_change_encode = QtWidgets.QLineEdit(self.tab_log)
+        # self.page_log_btn_change_encode.setGeometry(QtCore.QRect(863, 40, 131, 25))
+        # self.page_log_btn_change_encode.setStyleSheet("""
+        #     background-color: rgba(246, 247, 248, 0.3);
+        #     border: none;
+        #     border-radius: 5px;
+        #     padding: 2px;
+        #     border: 1px solid rgba(0, 0, 0, 0.5);
+        #     border-radius: 5px;
+        #     padding: 2px;
+        #     opacity: 0.3;
+        # }
+        # QLineEdit:hover {
+        #     border: 1px solid rgba(0, 0, 0, 1);
+        #     background-color: white;
+        #     border-radius: 5px;
+        #     padding: 2px;
+        #     opacity: 1;
+        # }e
+        # """)
+        #
+        # self.page_log_btn_change_encode.setObjectName("page_log_btn_change_encode")
+        # self.page_log_btn_change_encode.setHidden(False)
+        # self.page_log_btn_change_encode.setText("gbk")
+
         self.page_log_btn_switch_unicode = QtWidgets.QPushButton(self.tab_log)
         self.page_log_btn_switch_unicode.setGeometry(QtCore.QRect(900, 660, 93, 28))
         self.page_log_btn_switch_unicode.setObjectName("page_log_btn_switch_unicode")
@@ -959,7 +979,26 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_log_cmd_input = QtWidgets.QLineEdit(self.tab_log)
         self.page_log_cmd_input.setGeometry(QtCore.QRect(10, 680, 871, 35))
         self.page_log_cmd_input.setObjectName("page_log_cmd_input")
-        self.page_log_cmd_input.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+
+        self.page_log_cmd_input.setStyleSheet("""
+            background-color: rgba(246, 247, 248, 0.3);
+            border: none;
+            border-radius: 5px;
+            padding: 2px;
+            border: 1px solid rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            padding: 2px;
+            opacity: 0.3;
+        }
+        QLineEdit:hover {
+            border: 1px solid rgba(0, 0, 0, 1);
+            background-color: white;
+            border-radius: 5px;
+            padding: 2px;
+            opacity: 1;
+        }
+        """)
+
         self.page_log_cmd_input.setHidden(True)
         self.page_log_text.raise_()
         self.page_log_label_time.raise_()
@@ -1065,6 +1104,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_btn_cfg_open_path_full_scenario.setStyleSheet(
             """QPushButton {
                    border: 1px solid rgba(0,0,0, 0.5);
+                   border-radius: 5px;
                }
                QPushButton:hover {
                    background-color: rgba(255, 255, 255, 0.4);
@@ -1086,6 +1126,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_btn_cfg_change_bg_all.setStyleSheet(
             """QPushButton {
                    border: 1px solid rgba(0,0,0, 0.5);
+                   border-radius: 5px;
                }
                QPushButton:hover {
                    background-color: rgba(255, 255, 255, 0.4);
@@ -1106,6 +1147,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_btn_cfg_import_config.setStyleSheet(
             """QPushButton {
                    border: 1px solid rgba(0,0,0, 0.5);
+                   border-radius: 5px;
                }
                QPushButton:hover {
                    background-color: rgba(255, 255, 255, 0.4);
@@ -1126,6 +1168,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_btn_pulg_about_plug.setStyleSheet(
             """QPushButton {
                    border: 1px solid rgba(0,0,0, 0.5);
+                   border-radius: 5px;
                }
                QPushButton:hover {
                    background-color: rgba(255, 255, 255, 0.4);
@@ -1146,6 +1189,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_btn_pulg_open_path_plug.setStyleSheet(
             """QPushButton {
                    border: 1px solid rgba(0,0,0, 0.5);
+                   border-radius: 5px;
                }
                QPushButton:hover {
                    background-color: rgba(255, 255, 255, 0.4);
@@ -1225,7 +1269,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_font_path = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_font_path.setGeometry(QtCore.QRect(544, 2100, 142, 30))
-        self.page_set_edit_cfg_font_path.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_font_path.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_font_path.setObjectName("page_set_edit_cfg_font_path")
         self.page_set_edit_cfg_font_path.setText(self.dict_cfgs[value_cfgs_font_path])
         self.page_set_edit_cfg_font_path.textChanged.connect(
@@ -1233,7 +1294,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_user_pool_num = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_user_pool_num.setGeometry(QtCore.QRect(560, 1860, 61, 30))
-        self.page_set_edit_cfg_user_pool_num.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_user_pool_num.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_user_pool_num.setMinimum(1)
         self.page_set_edit_cfg_user_pool_num.setMaximum(30)
         self.page_set_edit_cfg_user_pool_num.setObjectName("page_set_edit_cfg_user_pool_num")
@@ -1251,7 +1329,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_admin_pool_num = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_admin_pool_num.setGeometry(QtCore.QRect(560, 1820, 61, 30))
-        self.page_set_edit_cfg_admin_pool_num.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_admin_pool_num.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_admin_pool_num.setMinimum(1)
         self.page_set_edit_cfg_admin_pool_num.setMaximum(30)
         self.page_set_edit_cfg_admin_pool_num.setObjectName("page_set_edit_cfg_admin_pool_num")
@@ -1280,6 +1375,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_btn_save.setStyleSheet(
             """QPushButton {
                    border: 1px solid rgba(0,0,0, 0.5);
+                   border-radius: 5px;
                }
                QPushButton:hover {
                    background-color: rgba(255, 255, 255, 0.4);
@@ -1308,7 +1404,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_inappropriate_message_tips = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_inappropriate_message_tips.setGeometry(QtCore.QRect(460, 2340, 400, 30))
-        self.page_set_edit_cfg_inappropriate_message_tips.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_inappropriate_message_tips.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_inappropriate_message_tips.setObjectName("page_set_edit_cfg_inappropriate_message_tips")
         self.page_set_edit_cfg_inappropriate_message_tips.setText(self.dict_cfgs[value_cfgs_inappropriate_message_tips])
         self.page_set_edit_cfg_inappropriate_message_tips.textChanged.connect(
@@ -1332,7 +1445,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_random_rate = QtWidgets.QDoubleSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_random_rate.setGeometry(QtCore.QRect(390, 980, 60, 30))
-        self.page_set_edit_cfg_random_rate.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_random_rate.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_random_rate.setMaximum(1.0)
         self.page_set_edit_cfg_random_rate.setSingleStep(0.1)
         self.page_set_edit_cfg_random_rate.setObjectName("page_set_edit_cfg_random_rate")
@@ -1345,7 +1475,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_draw = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_draw.setGeometry(QtCore.QRect(350, 2600, 36, 30))
-        self.page_set_edit_cmd_draw.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_draw.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_draw.setMinimum(1)
         self.page_set_edit_cmd_draw.setMaximum(2)
         self.page_set_edit_cmd_draw.setObjectName("page_set_edit_cmd_draw")
@@ -1355,7 +1502,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_default = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_default.setGeometry(QtCore.QRect(350, 2640, 36, 30))
-        self.page_set_edit_cmd_default.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_default.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_default.setMinimum(1)
         self.page_set_edit_cmd_default.setMaximum(2)
         self.page_set_edit_cmd_default.setObjectName("page_set_edit_cmd_default")
@@ -1365,7 +1529,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_default_set = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_default_set.setGeometry(QtCore.QRect(350, 2680, 36, 30))
-        self.page_set_edit_cmd_default_set.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_default_set.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_default_set.setMinimum(1)
         self.page_set_edit_cmd_default_set.setMaximum(2)
         self.page_set_edit_cmd_default_set.setObjectName("page_set_edit_cmd_default_set")
@@ -1375,7 +1556,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_del = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_del.setGeometry(QtCore.QRect(350, 2720, 36, 30))
-        self.page_set_edit_cmd_del.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_del.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_del.setMinimum(1)
         self.page_set_edit_cmd_del.setMaximum(2)
         self.page_set_edit_cmd_del.setObjectName("page_set_edit_cmd_del")
@@ -1384,7 +1582,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_del_all = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_del_all.setGeometry(QtCore.QRect(350, 2760, 36, 30))
-        self.page_set_edit_cmd_del_all.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_del_all.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_del_all.setMinimum(1)
         self.page_set_edit_cmd_del_all.setMaximum(2)
         self.page_set_edit_cmd_del_all.setObjectName("page_set_edit_cmd_del_all")
@@ -1394,7 +1609,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_delhst = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_delhst.setGeometry(QtCore.QRect(350, 2800, 36, 30))
-        self.page_set_edit_cmd_delhst.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_delhst.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_delhst.setMinimum(1)
         self.page_set_edit_cmd_delhst.setMaximum(2)
         self.page_set_edit_cmd_delhst.setObjectName("page_set_edit_cmd_delhst")
@@ -1404,7 +1636,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_delhst_all = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_delhst_all.setGeometry(QtCore.QRect(350, 2840, 36, 30))
-        self.page_set_edit_cmd_delhst_all.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_delhst_all.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_delhst_all.setMinimum(1)
         self.page_set_edit_cmd_delhst_all.setMaximum(2)
         self.page_set_edit_cmd_delhst_all.setObjectName("page_set_edit_cmd_delhst_all")
@@ -1414,7 +1663,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_last = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_last.setGeometry(QtCore.QRect(350, 2880, 36, 30))
-        self.page_set_edit_cmd_last.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_last.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_last.setMinimum(1)
         self.page_set_edit_cmd_last.setMaximum(2)
         self.page_set_edit_cmd_last.setObjectName("page_set_edit_cmd_last")
@@ -1424,7 +1690,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_prompt = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_prompt.setGeometry(QtCore.QRect(350, 2920, 36, 30))
-        self.page_set_edit_cmd_prompt.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_prompt.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_prompt.setMinimum(1)
         self.page_set_edit_cmd_prompt.setMaximum(2)
         self.page_set_edit_cmd_prompt.setObjectName("page_set_edit_cmd_prompt")
@@ -1434,7 +1717,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_reset = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_reset.setGeometry(QtCore.QRect(350, 2960, 36, 30))
-        self.page_set_edit_cmd_reset.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_reset.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_reset.setMinimum(1)
         self.page_set_edit_cmd_reset.setMaximum(2)
         self.page_set_edit_cmd_reset.setObjectName("page_set_edit_cmd_reset")
@@ -1444,7 +1744,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_reload = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_reload.setGeometry(QtCore.QRect(350, 3000, 36, 30))
-        self.page_set_edit_cmd_reload.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_reload.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_reload.setMinimum(1)
         self.page_set_edit_cmd_reload.setMaximum(2)
         self.page_set_edit_cmd_reload.setObjectName("page_set_edit_cmd_reload")
@@ -1454,7 +1771,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_usage = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_usage.setGeometry(QtCore.QRect(350, 3040, 36, 30))
-        self.page_set_edit_cmd_usage.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_usage.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_usage.setMinimum(1)
         self.page_set_edit_cmd_usage.setMaximum(2)
         self.page_set_edit_cmd_usage.setObjectName("page_set_edit_cmd_usage")
@@ -1464,7 +1798,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_version = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_version.setGeometry(QtCore.QRect(629, 3040, 36, 30))
-        self.page_set_edit_cmd_version.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_version.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_version.setMinimum(1)
         self.page_set_edit_cmd_version.setMaximum(2)
         self.page_set_edit_cmd_version.setObjectName("page_set_edit_cmd_version")
@@ -1474,7 +1825,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_cmd = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_cmd.setGeometry(QtCore.QRect(629, 3080, 36, 30))
-        self.page_set_edit_cmd_cmd.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_cmd.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_cmd.setMinimum(1)
         self.page_set_edit_cmd_cmd.setMaximum(2)
         self.page_set_edit_cmd_cmd.setObjectName("page_set_edit_cmd_cmd")
@@ -1484,7 +1852,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_cfg = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_cfg.setGeometry(QtCore.QRect(350, 3080, 36, 30))
-        self.page_set_edit_cmd_cfg.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_cfg.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_cfg.setMinimum(1)
         self.page_set_edit_cmd_cfg.setMaximum(2)
         self.page_set_edit_cmd_cfg.setObjectName("page_set_edit_cmd_cfg")
@@ -1494,7 +1879,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_update = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_update.setGeometry(QtCore.QRect(629, 3000, 36, 30))
-        self.page_set_edit_cmd_update.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_update.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_update.setMinimum(1)
         self.page_set_edit_cmd_update.setMaximum(2)
         self.page_set_edit_cmd_update.setObjectName("page_set_edit_cmd_update")
@@ -1504,7 +1906,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_help = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_help.setGeometry(QtCore.QRect(629, 2960, 36, 30))
-        self.page_set_edit_cmd_help.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_help.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_help.setMinimum(1)
         self.page_set_edit_cmd_help.setMaximum(2)
         self.page_set_edit_cmd_help.setObjectName("page_set_edit_cmd_help")
@@ -1514,7 +1933,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_resend = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_resend.setGeometry(QtCore.QRect(629, 2920, 36, 30))
-        self.page_set_edit_cmd_resend.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_resend.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_resend.setMinimum(1)
         self.page_set_edit_cmd_resend.setMaximum(2)
         self.page_set_edit_cmd_resend.setObjectName("page_set_edit_cmd_resend")
@@ -1524,7 +1960,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_next = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_next.setGeometry(QtCore.QRect(629, 2880, 36, 30))
-        self.page_set_edit_cmd_next.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_next.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_next.setMinimum(1)
         self.page_set_edit_cmd_next.setMaximum(2)
         self.page_set_edit_cmd_next.setObjectName("page_set_edit_cmd_next")
@@ -1534,7 +1987,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_list = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_list.setGeometry(QtCore.QRect(629, 2840, 36, 30))
-        self.page_set_edit_cmd_list.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_list.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_list.setMinimum(1)
         self.page_set_edit_cmd_list.setMaximum(2)
         self.page_set_edit_cmd_list.setObjectName("page_set_edit_cmd_list")
@@ -1544,7 +2014,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_plugin_on = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_plugin_on.setGeometry(QtCore.QRect(629, 2800, 36, 30))
-        self.page_set_edit_cmd_plugin_on.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_plugin_on.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_plugin_on.setMinimum(1)
         self.page_set_edit_cmd_plugin_on.setMaximum(2)
         self.page_set_edit_cmd_plugin_on.setObjectName("page_set_edit_cmd_plugin_on")
@@ -1554,7 +2041,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_plugin_off = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_plugin_off.setGeometry(QtCore.QRect(629, 2760, 36, 30))
-        self.page_set_edit_cmd_plugin_off.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_plugin_off.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_plugin_off.setMinimum(1)
         self.page_set_edit_cmd_plugin_off.setMaximum(2)
         self.page_set_edit_cmd_plugin_off.setObjectName("page_set_edit_cmd_plugin_off")
@@ -1564,7 +2068,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_plugin_del = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_plugin_del.setGeometry(QtCore.QRect(629, 2720, 36, 30))
-        self.page_set_edit_cmd_plugin_del.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_plugin_del.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_plugin_del.setMinimum(1)
         self.page_set_edit_cmd_plugin_del.setMaximum(2)
         self.page_set_edit_cmd_plugin_del.setObjectName("page_set_edit_cmd_plugin_del")
@@ -1574,7 +2095,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_plugin_update = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_plugin_update.setGeometry(QtCore.QRect(629, 2680, 36, 30))
-        self.page_set_edit_cmd_plugin_update.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_plugin_update.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_plugin_update.setMinimum(1)
         self.page_set_edit_cmd_plugin_update.setMaximum(2)
         self.page_set_edit_cmd_plugin_update.setObjectName("page_set_edit_cmd_plugin_update")
@@ -1584,7 +2122,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_plugin_get = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_plugin_get.setGeometry(QtCore.QRect(629, 2640, 36, 30))
-        self.page_set_edit_cmd_plugin_get.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_plugin_get.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_plugin_get.setMinimum(1)
         self.page_set_edit_cmd_plugin_get.setMaximum(2)
         self.page_set_edit_cmd_plugin_get.setObjectName("page_set_edit_cmd_plugin_get")
@@ -1594,7 +2149,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cmd_plugin = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_plugin.setGeometry(QtCore.QRect(629, 2600, 36, 30))
-        self.page_set_edit_cmd_plugin.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cmd_plugin.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cmd_plugin.setMinimum(1)
         self.page_set_edit_cmd_plugin.setMaximum(2)
         self.page_set_edit_cmd_plugin.setObjectName("page_set_edit_cmd_plugin")
@@ -1614,7 +2186,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_api.setGeometry(QtCore.QRect(370, 290, 230, 30))
         self.page_set_edit_cfg_api.setTabletTracking(True)
         self.page_set_edit_cfg_api.setFocusPolicy(QtCore.Qt.ClickFocus)
-        self.page_set_edit_cfg_api.setStyleSheet("border: 1px solid rgba(0,0,0,0.5);")
+        self.page_set_edit_cfg_api.setStyleSheet("border: 1px solid rgba(0,0,0,0.5);border-radius: 5px;")
         self.page_set_edit_cfg_api.setEditable(True)
         self.page_set_edit_cfg_api.setInsertPolicy(QtWidgets.QComboBox.InsertAlphabetically)
         self.page_set_edit_cfg_api.setObjectName("page_set_edit_cfg_api")
@@ -1629,6 +2201,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_api_add.setStyleSheet(
             """QPushButton {
                    border: 1px solid rgba(0,0,0, 0.5);
+                   border-radius: 5px;
                }
                QPushButton:hover {
                    background-color: rgba(255, 255, 255, 0.4);
@@ -1644,6 +2217,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_api_del.setStyleSheet(
             """QPushButton {
                    border: 1px solid rgba(0,0,0, 0.5);
+                   border-radius: 5px;
                }
                QPushButton:hover {
                    background-color: rgba(255, 255, 255, 0.4);
@@ -1666,7 +2240,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_default_prompt_choose.setGeometry(QtCore.QRect(400, 472, 170, 30))
         self.page_set_edit_cfg_default_prompt_choose.setTabletTracking(True)
         self.page_set_edit_cfg_default_prompt_choose.setFocusPolicy(QtCore.Qt.ClickFocus)
-        self.page_set_edit_cfg_default_prompt_choose.setStyleSheet("border: 1px solid rgba(0,0,0,0.5);")
+        self.page_set_edit_cfg_default_prompt_choose.setStyleSheet(
+            "border: 1px solid rgba(0,0,0,0.5);border-radius: 5px;")
         self.page_set_edit_cfg_default_prompt_choose.setEditable(False)
         self.page_set_edit_cfg_default_prompt_choose.setInsertPolicy(QtWidgets.QComboBox.InsertAlphabetically)
         self.page_set_edit_cfg_default_prompt_choose.setObjectName("page_set_edit_cfg_default_prompt_choose")
@@ -1682,6 +2257,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_prompt_add.setStyleSheet(
             """QPushButton {
                    border: 1px solid rgba(0,0,0, 0.5);
+                   border-radius: 5px;
                }
                QPushButton:hover {
                    background-color: rgba(255, 255, 255, 0.4);
@@ -1697,6 +2273,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_prompt_del.setStyleSheet(
             """QPushButton {
                    border: 1px solid rgba(0,0,0, 0.5);
+                   border-radius: 5px;
                }
                QPushButton:hover {
                    background-color: rgba(255, 255, 255, 0.4);
@@ -1708,7 +2285,18 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_blob_message_strategy = QtWidgets.QComboBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_blob_message_strategy.setGeometry(QtCore.QRect(410, 2060, 91, 30))
-        self.page_set_edit_cfg_blob_message_strategy.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_blob_message_strategy.setStyleSheet(
+            "border: 1px solid rgba(0,0,0, 0.5);border-radius: 5px;"
+            "QComboBox {"
+            "    background-color: (255,255,255, 0.1);"
+            "    color: white;  /* 定义文本的颜色 */"
+            "}"
+            "QComboBox QAbstractItemView {"
+            "    background-color: white;"
+            "    selection-background-color:   /* 定义选择项后背景色 */"
+            "    color: rgb(255, 170, 255);"
+            "    selection-color: white;  /* 定义选择区文本的颜色 */"
+            "}")
         self.page_set_edit_cfg_blob_message_strategy.setObjectName("page_set_edit_cfg_blob_message_strategy")
         self.page_set_edit_cfg_blob_message_strategy.addItem("")
         self.page_set_edit_cfg_blob_message_strategy.addItem("")
@@ -1720,7 +2308,18 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_rate_limit_strategy = QtWidgets.QComboBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_rate_limit_strategy.setGeometry(QtCore.QRect(380, 1980, 71, 30))
-        self.page_set_edit_cfg_rate_limit_strategy.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_rate_limit_strategy.setStyleSheet(
+            "border: 1px solid rgba(0,0,0, 0.5);border-radius: 5px;"
+            "QComboBox {"
+            "    background-color: (255,255,255, 0.1);"
+            "    color: white;  /* 定义文本的颜色 */"
+            "}"
+            "QComboBox QAbstractItemView {"
+            "    background-color: white;"
+            "    selection-background-color:   /* 定义选择项后背景色 */"
+            "    color: rgb(255, 170, 255);"
+            "    selection-color: white;  /* 定义选择区文本的颜色 */"
+            "}")
         self.page_set_edit_cfg_rate_limit_strategy.setObjectName("page_set_edit_cfg_rate_limit_strategy")
         self.page_set_edit_cfg_rate_limit_strategy.addItem("")
         self.page_set_edit_cfg_rate_limit_strategy.addItem("")
@@ -1732,15 +2331,49 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_baidu_secret_key = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_baidu_secret_key.setGeometry(QtCore.QRect(440, 2300, 326, 30))
-        self.page_set_edit_cfg_baidu_secret_key.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_baidu_secret_key.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_baidu_secret_key.setObjectName("page_set_edit_cfg_baidu_secret_key")
         self.page_set_edit_cfg_baidu_secret_key.setText(self.dict_cfgs[value_cfgs_baidu_secret_key])
         self.page_set_edit_cfg_baidu_secret_key.textChanged.connect(
             lambda new_value: update_value_cfgs(value_cfgs_baidu_secret_key, new_value))
 
         self.page_set_edit_cfg_session_expire_time = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_cfg_session_expire_time.setGeometry(QtCore.QRect(430, 1900, 60, 30))
-        self.page_set_edit_cfg_session_expire_time.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_session_expire_time.setGeometry(QtCore.QRect(430, 1900, 120, 30))
+        self.page_set_edit_cfg_session_expire_time.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_session_expire_time.setMinimum(1)
         self.page_set_edit_cfg_session_expire_time.setMaximum(86400000)
         self.page_set_edit_cfg_session_expire_time.setSingleStep(60)
@@ -1759,7 +2392,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_blob_message_threshold = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_blob_message_threshold.setGeometry(QtCore.QRect(500, 2020, 81, 30))
-        self.page_set_edit_cfg_blob_message_threshold.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_blob_message_threshold.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_blob_message_threshold.setMaximum(4096)
         self.page_set_edit_cfg_blob_message_threshold.setSingleStep(128)
         self.page_set_edit_cfg_blob_message_threshold.setObjectName("page_set_edit_cfg_blob_message_threshold")
@@ -1802,6 +2452,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_btn_open_income_msg_check_file.setStyleSheet(
             """QPushButton {
                    border: 1px solid rgba(0,0,0, 0.5);
+                   border-radius: 5px;
                }
                QPushButton:hover {
                    background-color: rgba(255, 255, 255, 0.4);
@@ -1818,6 +2469,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_btn_open_banlist_file.setStyleSheet(
             """QPushButton {
                    border: 1px solid rgba(0,0,0, 0.5);
+                   border-radius: 5px;
                }
                QPushButton:hover {
                    background-color: rgba(255, 255, 255, 0.4);
@@ -1846,7 +2498,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_rate_limitation = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_rate_limitation.setGeometry(QtCore.QRect(410, 1940, 51, 30))
-        self.page_set_edit_cfg_rate_limitation.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_rate_limitation.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_rate_limitation.setMinimum(1)
         self.page_set_edit_cfg_rate_limitation.setMaximum(60)
         self.page_set_edit_cfg_rate_limitation.setObjectName("page_set_edit_cfg_rate_limitation")
@@ -1887,7 +2556,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_label_cfg_rate_limitation.setObjectName("page_set_label_cfg_rate_limitation")
 
         self.page_set_label_cfg_session_expire_time_danwei = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cfg_session_expire_time_danwei.setGeometry(QtCore.QRect(500, 1900, 48, 30))
+        self.page_set_label_cfg_session_expire_time_danwei.setGeometry(QtCore.QRect(555, 1900, 48, 30))
         self.page_set_label_cfg_session_expire_time_danwei.setObjectName(
             "page_set_label_cfg_session_expire_time_danwei")
 
@@ -1928,7 +2597,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_process_message_timeout = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_process_message_timeout.setGeometry(QtCore.QRect(430, 1700, 60, 30))
-        self.page_set_edit_cfg_process_message_timeout.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_process_message_timeout.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_process_message_timeout.setMinimum(1)
         self.page_set_edit_cfg_process_message_timeout.setMaximum(500)
         self.page_set_edit_cfg_process_message_timeout.setSingleStep(5)
@@ -1964,7 +2650,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_sys_pool_num = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_sys_pool_num.setGeometry(QtCore.QRect(440, 1780, 61, 30))
-        self.page_set_edit_cfg_sys_pool_num.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_sys_pool_num.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_sys_pool_num.setMinimum(1)
         self.page_set_edit_cfg_sys_pool_num.setMaximum(30)
         self.page_set_edit_cfg_sys_pool_num.setObjectName("page_set_edit_cfg_sys_pool_num")
@@ -1985,7 +2688,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_retry_times = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_retry_times.setGeometry(QtCore.QRect(450, 1740, 79, 30))
-        self.page_set_edit_cfg_retry_times.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_retry_times.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_retry_times.setMinimum(1)
         self.page_set_edit_cfg_retry_times.setMaximum(10)
         self.page_set_edit_cfg_retry_times.setObjectName("page_set_edit_cfg_retry_times")
@@ -2004,7 +2724,17 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_image_size = QtWidgets.QComboBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_image_size.setGeometry(QtCore.QRect(350, 1460, 110, 30))
-        self.page_set_edit_cfg_image_size.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_image_size.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);border-radius: 5px;"
+                                                        "QComboBox {"
+                                                        "    background-color: (255,255,255, 0.1);"
+                                                        "    color: white;  /* 定义文本的颜色 */"
+                                                        "}"
+                                                        "QComboBox QAbstractItemView {"
+                                                        "    background-color: white;"
+                                                        "    selection-background-color:   /* 定义选择项后背景色 */"
+                                                        "    color: rgb(255, 170, 255);"
+                                                        "    selection-color: white;  /* 定义选择区文本的颜色 */"
+                                                        "}")
         self.page_set_edit_cfg_image_size.setObjectName("page_set_edit_cfg_image_size")
         self.page_set_edit_cfg_image_size.addItem("")
         self.page_set_edit_cfg_image_size.addItem("")
@@ -2037,15 +2767,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_ignore_prefix = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_ignore_prefix.setGeometry(QtCore.QRect(430, 1100, 321, 30))
-        self.page_set_edit_cfg_ignore_prefix.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_cfg_ignore_prefix.setObjectName("page_set_edit_cfg_ignore_prefix")
         self.page_set_edit_cfg_ignore_prefix.setStyleSheet(
-            "QLineEdit {border: 1px solid rgba(0,0,0, 0.5);}QToolTip { border: none; background-color: white; color: black; }")
+            "QLineEdit {border: 1px solid rgba(0,0,0, 0.5);background-color: rgba(246, 247, 248, 0.3);border-radius: 5px;}QLineEdit:hover {border: 1px solid rgba(0, 0, 0, 1); background-color: white; border-radius: 5px; padding: 2px; opacity: 1;}QToolTip { border: none; background-color: white; color: black; } QToolTip QLabel { color: red; }")
         self.page_set_edit_cfg_ignore_prefix.setToolTip(
             "输入内容以<span style='color:red'>【英文逗号】</span>分隔。比如:关键词1,关键词2,关键词3")
 
-        # self.page_set_edit_cfg_ignore_prefix.setValue(self.dict_cfgs[w])
-        # self.page_set_edit_cfg_ignore_prefix.valueChanged.connect(lambda new_value: update_value_cfgs(w, new_value))
         self.page_set_edit_cfg_ignore_prefix.setText(
             ','.join(self.dict_cfgs[value_cfgs_ignore_rules][value_cfgs_ignore_rules_prefix]))
         self.page_set_edit_cfg_ignore_prefix.textChanged.connect(
@@ -2055,10 +2782,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_ignore_regexp = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_ignore_regexp.setGeometry(QtCore.QRect(430, 1140, 321, 30))
-        self.page_set_edit_cfg_ignore_regexp.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_cfg_ignore_regexp.setObjectName("page_set_edit_cfg_ignore_regexp")
         self.page_set_edit_cfg_ignore_regexp.setStyleSheet(
-            "QLineEdit {border: 1px solid rgba(0,0,0, 0.5);}QToolTip { border: none; background-color: white; color: black; } QToolTip QLabel { color: red; }")
+            "QLineEdit { background-color: rgba(246, 247, 248, 0.3);border: 1px solid rgba(0,0,0, 0.5);border-radius: 5px;}QLineEdit:hover {border: 1px solid rgba(0, 0, 0, 1); background-color: white; border-radius: 5px; padding: 2px; opacity: 1;}QToolTip { border: none; background-color: white; color: black; } QToolTip QLabel { color: red; }")
         self.page_set_edit_cfg_ignore_regexp.setToolTip(
             "输入内容以<span style='color:red'>【英文逗号】</span>分隔。比如:关键词1,关键词2,关键词3")
 
@@ -2071,7 +2797,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_api_presence_penalty = QtWidgets.QDoubleSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_api_presence_penalty.setGeometry(QtCore.QRect(450, 1420, 105, 30))
-        self.page_set_edit_cfg_api_presence_penalty.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_api_presence_penalty.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_api_presence_penalty.setMaximum(1.0)
         self.page_set_edit_cfg_api_presence_penalty.setSingleStep(0.1)
         self.page_set_edit_cfg_api_presence_penalty.setObjectName("page_set_edit_cfg_api_presence_penalty")
@@ -2084,7 +2827,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_api_frequency_penalty = QtWidgets.QDoubleSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_api_frequency_penalty.setGeometry(QtCore.QRect(450, 1380, 105, 30))
-        self.page_set_edit_cfg_api_frequency_penalty.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_api_frequency_penalty.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_api_frequency_penalty.setMaximum(1.0)
         self.page_set_edit_cfg_api_frequency_penalty.setSingleStep(0.1)
         self.page_set_edit_cfg_api_frequency_penalty.setObjectName("page_set_edit_cfg_api_frequency_penalty")
@@ -2113,7 +2873,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_api_top_p = QtWidgets.QDoubleSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_api_top_p.setGeometry(QtCore.QRect(550, 1340, 84, 30))
-        self.page_set_edit_cfg_api_top_p.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_api_top_p.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_api_top_p.setMaximum(1.0)
         self.page_set_edit_cfg_api_top_p.setSingleStep(0.1)
         self.page_set_edit_cfg_api_top_p.setObjectName("page_set_edit_cfg_api_top_p")
@@ -2142,7 +2919,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_prompt_submit_length = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_prompt_submit_length.setGeometry(QtCore.QRect(510, 1300, 91, 30))
-        self.page_set_edit_cfg_prompt_submit_length.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_prompt_submit_length.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_prompt_submit_length.setMaximum(4096)
         self.page_set_edit_cfg_prompt_submit_length.setSingleStep(128)
         self.page_set_edit_cfg_prompt_submit_length.setObjectName("page_set_edit_cfg_prompt_submit_length")
@@ -2165,7 +2959,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_response_regexp.setGeometry(QtCore.QRect(430, 1061, 321, 30))
         self.page_set_edit_cfg_response_regexp.setObjectName("page_set_edit_cfg_response_regexp")
         self.page_set_edit_cfg_response_regexp.setStyleSheet(
-            "QLineEdit {border: 1px solid rgba(0,0,0, 0.5);}QToolTip { border: none; background-color: white; color: black; } QToolTip QLabel { color: red; }")
+            "QLineEdit {border: 1px solid rgba(0,0,0, 0.5);background-color: rgba(246, 247, 248, 0.3);border-radius: 5px;}QLineEdit:hover {border: 1px solid rgba(0, 0, 0, 1); background-color: white; border-radius: 5px; padding: 2px; opacity: 1;}QToolTip { border: none; background-color: white; color: black; } QToolTip QLabel { color: red; }")
         self.page_set_edit_cfg_response_regexp.setToolTip(
             "输入内容以<span style='color:red'>【英文逗号】</span>分隔。比如:关键词1,关键词2,关键词3")
         self.page_set_edit_cfg_response_regexp.setText(
@@ -2178,7 +2972,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_response_prefix.setGeometry(QtCore.QRect(430, 1020, 321, 30))
         self.page_set_edit_cfg_response_prefix.setObjectName("page_set_edit_cfg_response_prefix")
         self.page_set_edit_cfg_response_prefix.setStyleSheet(
-            "QLineEdit {border: 1px solid rgba(0,0,0, 0.5);}QToolTip { border: none; background-color: white; color: black; } QToolTip QLabel { color: red; }")
+            "QLineEdit {border: 1px solid rgba(0,0,0, 0.5);background-color: rgba(246, 247, 248, 0.3);border-radius: 5px;}QLineEdit:hover {border: 1px solid rgba(0, 0, 0, 1); background-color: white; border-radius: 5px; padding: 2px; opacity: 1;}QToolTip { border: none; background-color: white; color: black; } QToolTip QLabel { color: red; }")
         self.page_set_edit_cfg_response_prefix.setToolTip(
             "输入内容以<span style='color:red'>【英文】逗号</span>分隔。比如关键词1,关键词2,关键词3")
 
@@ -2191,7 +2985,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_api_temperature = QtWidgets.QDoubleSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_api_temperature.setGeometry(QtCore.QRect(330, 1240, 60, 30))
-        self.page_set_edit_cfg_api_temperature.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_api_temperature.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_api_temperature.setMaximum(1.0)
         self.page_set_edit_cfg_api_temperature.setSingleStep(0.1)
         self.page_set_edit_cfg_api_temperature.setObjectName("page_set_edit_cfg_api_temperature")
@@ -2206,6 +3017,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_api_model.setEnabled(True)
         self.page_set_edit_cfg_api_model.setGeometry(QtCore.QRect(330, 1200, 201, 30))
         self.page_set_edit_cfg_api_model.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);"
+                                                       "border-radius: 5px;"
                                                        "QComboBox {"
                                                        "    background-color: (255,255,255, 0.1);"
                                                        "    color: white;  /* 定义文本的颜色 */"
@@ -2297,7 +3109,24 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_label_cfg_mirai_adapter.setObjectName("page_set_label_cfg_mirai_adapter")
         self.page_set_edit_cfg_mirai_host = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_mirai_host.setGeometry(QtCore.QRect(370, 85, 142, 25))
-        self.page_set_edit_cfg_mirai_host.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_mirai_host.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_mirai_host.setObjectName("page_set_edit_cfg_mirai_host")
         self.page_set_edit_cfg_mirai_host.setText(
             self.dict_cfgs[value_cfgs_mirai_http_api_config][value_cfgs_mirai_http_api_config_host])
@@ -2308,7 +3137,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_mirai_port = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_mirai_port.setGeometry(QtCore.QRect(370, 120, 142, 25))
-        self.page_set_edit_cfg_mirai_port.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_mirai_port.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_mirai_port.setObjectName("page_set_edit_cfg_mirai_port")
         self.page_set_edit_cfg_mirai_port.setMaximum(65535)
         self.page_set_edit_cfg_mirai_port.setMinimum(0)
@@ -2321,7 +3167,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_mirai_verifyKey = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_mirai_verifyKey.setGeometry(QtCore.QRect(370, 155, 140, 25))
-        self.page_set_edit_cfg_mirai_verifyKey.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_mirai_verifyKey.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_mirai_verifyKey.setObjectName("page_set_edit_cfg_mirai_verifyKey")
         self.page_set_edit_cfg_mirai_verifyKey.setText(
             self.dict_cfgs[value_cfgs_mirai_http_api_config][value_cfgs_mirai_http_api_config_verifyKey])
@@ -2332,7 +3195,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_mirai_qq = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_mirai_qq.setGeometry(QtCore.QRect(370, 190, 142, 25))
-        self.page_set_edit_cfg_mirai_qq.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_mirai_qq.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_mirai_qq.setObjectName("page_set_edit_cfg_mirai_qq")
         self.page_set_edit_cfg_mirai_qq.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("[0-9]{1,13}"), self))
         self.page_set_edit_cfg_mirai_qq.setText(str(
@@ -2345,7 +3225,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_admin_qq = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_admin_qq.setGeometry(QtCore.QRect(370, 225, 142, 25))
-        self.page_set_edit_cfg_admin_qq.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_admin_qq.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_admin_qq.setObjectName("page_set_edit_cfg_admin_qq")
         self.page_set_edit_cfg_admin_qq.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("[0-9]{1,13}"), self))
         self.page_set_edit_cfg_admin_qq.setText(str(
@@ -2356,7 +3253,17 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_mirai_adapter = QtWidgets.QComboBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_mirai_adapter.setGeometry(QtCore.QRect(370, 50, 200, 25))
-        self.page_set_edit_cfg_mirai_adapter.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_mirai_adapter.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);border-radius: 5px;"
+                                                           "QComboBox {"
+                                                           "    background-color: (255,255,255, 0.1);"
+                                                           "    color: white;  /* 定义文本的颜色 */"
+                                                           "}"
+                                                           "QComboBox QAbstractItemView {"
+                                                           "    background-color: white;"
+                                                           "    selection-background-color:   /* 定义选择项后背景色 */"
+                                                           "    color: rgb(255, 170, 255);"
+                                                           "    selection-color: white;  /* 定义选择区文本的颜色 */"
+                                                           "}")
         self.page_set_edit_cfg_mirai_adapter.setObjectName("page_set_edit_cfg_mirai_adapter")
         self.page_set_edit_cfg_mirai_adapter.addItem("")
         self.page_set_edit_cfg_mirai_adapter.addItem("")
@@ -2371,7 +3278,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_api_http_proxy = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_api_http_proxy.setGeometry(QtCore.QRect(450, 335, 300, 22))
-        self.page_set_edit_cfg_api_http_proxy.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_api_http_proxy.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_api_http_proxy.setObjectName("page_set_edit_cfg_api_http_proxy")
         self.page_set_edit_cfg_api_http_proxy.setPlaceholderText("http://example.com:12345/v1")
         self.page_set_edit_cfg_api_http_proxy.setText(
@@ -2383,7 +3307,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_api_reverse_proxy = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_api_reverse_proxy.setGeometry(QtCore.QRect(450, 370, 300, 22))
-        self.page_set_edit_cfg_api_reverse_proxy.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_api_reverse_proxy.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_api_reverse_proxy.setObjectName("page_set_edit_cfg_api_reverse_proxy")
         self.page_set_edit_cfg_api_reverse_proxy.setPlaceholderText("http://example.com:12345/v1")
         self.page_set_edit_cfg_api_reverse_proxy.setText(
@@ -2419,12 +3360,22 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_preset_mode = QtWidgets.QComboBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_preset_mode.setGeometry(QtCore.QRect(370, 430, 141, 31))
-        self.page_set_edit_cfg_preset_mode.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
         self.page_set_edit_cfg_preset_mode.setObjectName("page_set_edit_cfg_preset_mode")
         self.page_set_edit_cfg_preset_mode.addItem("")
         self.page_set_edit_cfg_preset_mode.addItem("")
         self.page_set_edit_cfg_preset_mode.setItemText(0, "normal")
         self.page_set_edit_cfg_preset_mode.setItemText(1, "full_scenario")
+        self.page_set_edit_cfg_preset_mode.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5); border-radius: 5px;"
+                                                         "QComboBox {"
+                                                         "    background-color: (255,255,255, 0.1);"
+                                                         "    color: white;  /* 定义文本的颜色 */"
+                                                         "}"
+                                                         "QComboBox QAbstractItemView {"
+                                                         "    background-color: white;"
+                                                         "    selection-background-color:   /* 定义选择项后背景色 */"
+                                                         "    color: rgb(255, 170, 255);"
+                                                         "    selection-color: white;  /* 定义选择区文本的颜色 */"
+                                                         "}")
         self.page_set_edit_cfg_preset_mode.setCurrentText(self.dict_cfgs[value_cfgs_preset_mode])
         self.page_set_edit_cfg_preset_mode.currentTextChanged.connect(
             lambda new_value: update_value_cfgs(value_cfgs_preset_mode, new_value))
@@ -2455,7 +3406,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_baidu_api_key = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_baidu_api_key.setGeometry(QtCore.QRect(400, 2260, 142, 30))
-        self.page_set_edit_cfg_baidu_api_key.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_baidu_api_key.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_baidu_api_key.setObjectName("page_set_edit_cfg_baidu_api_key")
         self.page_set_edit_cfg_baidu_api_key.setText(self.dict_cfgs[value_cfgs_baidu_api_key])
         self.page_set_edit_cfg_baidu_api_key.textChanged.connect(
@@ -2508,7 +3476,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_cfg_logging_level = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_logging_level.setGeometry(QtCore.QRect(360, 2540, 142, 30))
-        self.page_set_edit_cfg_logging_level.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_cfg_logging_level.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_cfg_logging_level.setObjectName("page_set_edit_cfg_logging_level")
         self.page_set_edit_cfg_logging_level.setValue(self.dict_cfgs[value_cfgs_logging_level])
         self.page_set_edit_cfg_logging_level.valueChanged.connect(
@@ -2779,7 +3764,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_tips_alter_tip_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_tips_alter_tip_message.setGeometry(QtCore.QRect(442, 3140, 527, 30))
-        self.page_set_edit_tips_alter_tip_message.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_tips_alter_tip_message.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_tips_alter_tip_message.setObjectName("page_set_edit_tips_alter_tip_message")
         self.page_set_edit_tips_alter_tip_message.setText(str(self.dict_tips[value_tips_alter_tip_message]))
         self.page_set_edit_tips_alter_tip_message.textChanged.connect(
@@ -2787,7 +3789,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_tips_rate_limit_drop_tip = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_tips_rate_limit_drop_tip.setGeometry(QtCore.QRect(442, 3180, 527, 30))
-        self.page_set_edit_tips_rate_limit_drop_tip.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_tips_rate_limit_drop_tip.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_tips_rate_limit_drop_tip.setObjectName("page_set_edit_tips_rate_limit_drop_tip")
         self.page_set_edit_tips_rate_limit_drop_tip.setText(str(self.dict_tips[value_tips_rate_limit_drop_tip]))
         self.page_set_edit_tips_rate_limit_drop_tip.textChanged.connect(
@@ -2795,7 +3814,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_tips_help_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_tips_help_message.setGeometry(QtCore.QRect(442, 3220, 527, 30))
-        self.page_set_edit_tips_help_message.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_tips_help_message.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_tips_help_message.setObjectName("page_set_edit_tips_help_message")
         self.page_set_edit_tips_help_message.setText(str(self.dict_tips[value_tips_help_message]))
         self.page_set_edit_tips_help_message.textChanged.connect(
@@ -2803,7 +3839,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_tips_reply_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_tips_reply_message.setGeometry(QtCore.QRect(442, 3260, 527, 30))
-        self.page_set_edit_tips_reply_message.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_tips_reply_message.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_tips_reply_message.setObjectName("page_set_edit_tips_reply_message")
         self.page_set_edit_tips_reply_message.setText(str(self.dict_tips[value_tips_reply_message]))
         self.page_set_edit_tips_reply_message.textChanged.connect(
@@ -2811,7 +3864,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_tips_replys_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_tips_replys_message.setGeometry(QtCore.QRect(442, 3300, 527, 30))
-        self.page_set_edit_tips_replys_message.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_tips_replys_message.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_tips_replys_message.setObjectName("page_set_edit_tips_replys_message")
         self.page_set_edit_tips_replys_message.setText(str(self.dict_tips[value_tips_replys_message]))
         self.page_set_edit_tips_replys_message.textChanged.connect(
@@ -2819,7 +3889,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_tips_command_admin_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_tips_command_admin_message.setGeometry(QtCore.QRect(442, 3340, 527, 30))
-        self.page_set_edit_tips_command_admin_message.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_tips_command_admin_message.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_tips_command_admin_message.setObjectName("page_set_edit_tips_command_admin_message")
         self.page_set_edit_tips_command_admin_message.setText(str(self.dict_tips[value_tips_command_admin_message]))
         self.page_set_edit_tips_command_admin_message.textChanged.connect(
@@ -2827,7 +3914,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_tips_command_err_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_tips_command_err_message.setGeometry(QtCore.QRect(442, 3380, 527, 30))
-        self.page_set_edit_tips_command_err_message.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_tips_command_err_message.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_tips_command_err_message.setObjectName("page_set_edit_tips_command_err_message")
         self.page_set_edit_tips_command_err_message.setText(str(self.dict_tips[value_tips_command_err_message]))
         self.page_set_edit_tips_command_err_message.textChanged.connect(
@@ -2835,7 +3939,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_tips_command_reset_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_tips_command_reset_message.setGeometry(QtCore.QRect(442, 3420, 527, 30))
-        self.page_set_edit_tips_command_reset_message.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_tips_command_reset_message.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_tips_command_reset_message.setObjectName("page_set_edit_tips_command_reset_message")
         self.page_set_edit_tips_command_reset_message.setText(str(self.dict_tips[value_tips_command_reset_message]))
         self.page_set_edit_tips_command_reset_message.textChanged.connect(
@@ -2843,7 +3964,24 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_set_edit_tips_command_reset_name_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_tips_command_reset_name_message.setGeometry(QtCore.QRect(442, 3460, 527, 30))
-        self.page_set_edit_tips_command_reset_name_message.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);")
+        self.page_set_edit_tips_command_reset_name_message.setStyleSheet("""
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
         self.page_set_edit_tips_command_reset_name_message.setObjectName(
             "page_set_edit_tips_command_reset_name_message")
         self.page_set_edit_tips_command_reset_name_message.setText(
@@ -2904,7 +4042,7 @@ class MainWindow(QtWidgets.QMainWindow):
             checkbox.stateChanged.connect(save_checkbox_state)
 
             plugin_index += 1
- 
+
         self.page_set_scroll_area.setWidget(self.scrollAreaWidgetContents_5)
         self.menu_tab.addTab(self.tab_set, "")
         self.tab_help = QtWidgets.QWidget()
@@ -2936,7 +4074,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     content = f.read()
                     html += markdown2.markdown(content)
         self.page_help_text.setHtml(html)
-  
+
         self.menu_tab.addTab(self.tab_help, "")
         self.tab_cbout = QtWidgets.QWidget()
         self.tab_cbout.setMinimumSize(QtCore.QSize(1020, 740))
@@ -2989,7 +4127,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btn_caidan_youshangjiao.setGeometry(QtCore.QRect(1280, 10, 21, 61))
         self.btn_caidan_youshangjiao.setText("")
         self.btn_caidan_youshangjiao.setObjectName("btn_caidan_youshangjiao")
-        #self.btn_caidan_youshangjiao.clicked.connect(self.btn_caidan_youshangjiao_clicked)
+        # self.btn_caidan_youshangjiao.clicked.connect(self.btn_caidan_youshangjiao_clicked)
         self.back_all.raise_()
         self.back_top.raise_()
         self.back_center.raise_()
@@ -3079,12 +4217,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def retranslateUi(self, MainWIndow):
         _translate = QtCore.QCoreApplication.translate
-        MainWIndow.setWindowTitle(_translate("MainWIndow", "QChatGPT beta 1.3"))
+        MainWIndow.setWindowTitle(_translate("MainWIndow", "QChatGPT 1.0"))
         self.page_log_label_time.setText(_translate("MainWIndow", "时间"))
         self.page_log_label_jiluqi.setText(_translate("MainWIndow", "记录器"))
         self.page_log_label_level.setText(_translate("MainWIndow", "级别"))
         self.page_log_label_message.setText(_translate("MainWIndow", "信息"))
         self.page_log_btn_open_log_path.setText(_translate("MainWIndow", "打开日志目录"))
+        self.page_log_btn_open_log_path.setToolTip("打开日志文件目录")
         self.page_log_btn_switch_unicode.setText(_translate("MainWIndow", "编码"))
         self.page_log_btn_cmd_send.setText(_translate("MainWIndow", "发送"))
         self.page_set_title_api_proxy.setText(_translate("MainWIndow", "API代理："))
@@ -3191,18 +4330,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_label_cmd_usage.setText(_translate("MainWIndow", "usage"))
         self.page_set_label_cmd_cfg.setText(_translate("MainWIndow", "cfg"))
         self.page_set_label_cmd_cmd.setText(_translate("MainWIndow", "cmd"))
-        # self.page_about_text.setHtml(_translate("MainWIndow",
-        #                                         "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-        #                                         "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-        #                                         "p, li { white-space: pre-wrap; }\n"
-        #                                         "</style></head><body style=\" font-family:\'SimSun\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-        #                                         "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:16pt;\">[关于页面]项目仓库：</span><img src=\"file:///C:\\Users\\26751\\AppData\\Roaming\\Tencent\\QQTempSys\\[5UQ[BL(6~BS2JV6W}N6[%S.png\" /><span style=\" font-size:16pt;\">https://github.com/2675hujilo/QChatGPT-win.git</span></p></body></html>"))
         self.textBrowser.setHtml(_translate("MainWIndow",
                                             "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                             "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
                                             "p, li { white-space: pre-wrap; }\n"
                                             "</style></head><body style=\" font-family:\'华文琥珀\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-                                            "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:131073;\"><span style=\" font-size:36pt; color:#00ff7f;\">欢</span><span style=\" font-size:36pt; color:#aaffff;\">迎</span><span style=\" font-size:36pt; color:#ff5500;\">使</span><span style=\" font-size:36pt; color:#5555ff;\">用</span><span style=\" font-size:36pt; color:#00ff00;\">Q</span><span style=\" font-size:36pt; color:#55ffff;\">C</span><span style=\" font-size:36pt; color:#0055ff;\">h</span><span style=\" font-size:36pt; color:#ff00ff;\">a</span><span style=\" font-size:36pt; color:#5500ff;\">t</span><span style=\" font-size:36pt; color:#00aa00;\">G</span><span style=\" font-size:36pt; color:#55ffff;\">P</span><span style=\" font-size:36pt; color:#5500ff;\">T</span><span style=\" font-size:36pt; color:#55ffff;\"> </span></p></body></html>"))
+                                            "<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; -qt-user-state:131073;\"><span style=\" font-size:36pt; color:#00aeec;\">欢</span><span style=\" font-size:36pt; color:#00aeec;\">迎</span><span style=\" font-size:36pt; color:#00aeec;\">使</span><span style=\" font-size:36pt; color:#00aeec;\">用</span><span style=\" font-size:36pt; color:#00aeec;\">Q</span><span style=\" font-size:36pt; color:#00aeec;\">C</span><span style=\" font-size:36pt; color:#00aeec;\">h</span><span style=\" font-size:36pt; color:#00aeec;\">a</span><span style=\" font-size:36pt; color:#00aeec;\">t</span><span style=\" font-size:36pt; color:#00aeec;\">G</span><span style=\" font-size:36pt; color:#00aeec;\">P</span><span style=\" font-size:36pt; color:#00aeec;\">T</span><span style=\" font-size:36pt; color:#00aeec;\"> </span></p></body></html>"))
 
 
 def rai_dia(message):
@@ -3230,6 +4363,7 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     app.setFont(QFont("微软雅黑", 10))
+    app.setStyleSheet("QLabel { color: rgb(1, 1, 1); } QLabel:hover { background-color: rgb(246, 247, 248); }")
 
     if "--debug" in sys.argv:
         window = MainWindow()
@@ -3244,4 +4378,4 @@ if __name__ == "__main__":
             window.show()
             app.exec_()
         except Exception as e:
-            raise e
+            rai_dia(e)
