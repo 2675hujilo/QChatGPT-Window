@@ -287,7 +287,7 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             mes = "找不到配置文件，请把此程序移动至机器人程序根目录下或者更新机器人！" + str(e)
             if QtWidgets.QMessageBox.critical(self, "错误", mes, QMessageBox.Ok):
-                exit()
+                sys.exit()
 
     def log_output(self, line):
         self.page_log_text_appendText(line)
