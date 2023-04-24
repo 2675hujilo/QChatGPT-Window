@@ -4870,9 +4870,9 @@ if __name__ == "__main__":
         app.exec_()
 
     else:
-        # try:
-        window = MainWindow()
-        window.show()
-        app.exec_()
-        # except Exception as e:
-        #     rai_dia(e)
+        try:
+            window = MainWindow()
+            window.show()
+            app.exec_()
+        except Exception as e:
+            rai_dia(e)
