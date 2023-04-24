@@ -32,16 +32,23 @@ doc_tips = "tips.py"
 
 # 节点树对应字典字段
 # doc_cfg的值
+value_cfgs_msg_source_adapter = "msg_source_adapter"
+
 value_cfgs_mirai_http_api_config = "mirai_http_api_config"
 value_cfgs_mirai_http_api_config_adapter = "adapter"
+value_cfgs_mirai_http_api_config_verifyKey = "verifyKey"
 value_cfgs_mirai_http_api_config_host = "host"
 value_cfgs_mirai_http_api_config_port = "port"
-value_cfgs_mirai_http_api_config_verifyKey = "verifyKey"
 value_cfgs_mirai_http_api_config_qq = "qq"
+
+value_cfgs_nakuru_config = "nakuru_config"
+value_cfgs_nakuru_config_host = "host"
+value_cfgs_nakuru_config_port = "port"
+value_cfgs_nakuru_config_http_port = "http_port"
+value_cfgs_nakuru_config_token = "token"
 
 value_cfgs_openai_config = "openai_config"
 value_cfgs_openai_config_api_key = "api_key"
-value_cfgs_openai_config_api_key_default = "default"
 value_cfgs_openai_config_http_proxy = "http_proxy"
 value_cfgs_openai_config_reverse_proxy = "reverse_proxy"
 
@@ -89,6 +96,7 @@ value_cfgs_admin_pool_num = "admin_pool_num"
 value_cfgs_user_pool_num = "user_pool_num"
 value_cfgs_session_expire_time = "session_expire_time"
 value_cfgs_rate_limitation = "rate_limitation"
+value_cfgs_rate_limitation_default = "default"
 value_cfgs_rate_limit_strategy = "rate_limit_strategy"
 value_cfgs_blob_message_threshold = "blob_message_threshold"
 value_cfgs_blob_message_strategy = "blob_message_strategy"
@@ -285,7 +293,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 shutil.copy('override-all.json', 'override.json')
 
         except Exception as e:
-            mes = "找不到配置文件，请把此程序移动至机器人程序根目录下或者更新机器人！" + str(e)
+            mes = "找不到配置文件，请把此程序移动至机器人程序根目录下或者更新机器人！（当前界面版本为1.2，支持QChatGPT版本为2.4.1若QChatGPT为其他版本可能发送未知错误。）" + str(
+                e)
             if QtWidgets.QMessageBox.critical(self, "错误", mes, QMessageBox.Ok):
                 sys.exit()
 
@@ -537,24 +546,27 @@ class MainWindow(QtWidgets.QMainWindow):
             rai_dia(e)
 
     def add_default_prompt(self):
-        new_key, ok = QtWidgets.QInputDialog.getText(self, "添加普通人格", "请输入人格名:")
-        if ok:
-            if new_key in self.dict_cfgs.get(value_cfgs_default_prompt, {}).keys():
-                QtWidgets.QMessageBox.warning(self, "添加普通人格", "人格名已存在！")
-            else:
-                # 使用QInputDialog获取新值
-                new_value, ok = QtWidgets.QInputDialog.getText(self, "添加普通人格", "请输入人格内容:")
-                if ok and new_value:
-                    # 将新键值对插入字典
-                    self.dict_cfgs[value_cfgs_default_prompt][new_key] = new_value
-                    with open(doc_cfg, "w", encoding='utf-8') as f:
-                        json.dump(self.dict_cfgs, f)
-                        # for key, value in self.dict_cfgs.items():
-                        #     f.write(f"{key} = {repr(value)}\n")
-                    # # 更新下拉框
-                    self.page_set_edit_cfg_default_prompt_choose.clear()
-                    self.page_set_edit_cfg_default_prompt_choose.addItems(
-                        self.dict_cfgs[value_cfgs_default_prompt].keys())
+        try:
+            new_key, ok = QtWidgets.QInputDialog.getText(self, "添加普通人格", "请输入人格名:")
+            if ok:
+                if new_key in self.dict_cfgs.get(value_cfgs_default_prompt, {}).keys():
+                    QtWidgets.QMessageBox.warning(self, "添加普通人格", "人格名已存在！")
+                else:
+                    # 使用QInputDialog获取新值
+                    new_value, ok = QtWidgets.QInputDialog.getText(self, "添加普通人格", "请输入人格内容:")
+                    if ok and new_value:
+                        # 将新键值对插入字典
+                        self.dict_cfgs[value_cfgs_default_prompt][new_key] = new_value
+                        with open(doc_cfg, "w", encoding='utf-8') as f:
+                            json.dump(self.dict_cfgs, f)
+                            # for key, value in self.dict_cfgs.items():
+                            #     f.write(f"{key} = {repr(value)}\n")
+                        # # 更新下拉框
+                        self.page_set_edit_cfg_default_prompt_choose.clear()
+                        self.page_set_edit_cfg_default_prompt_choose.addItems(
+                            self.dict_cfgs[value_cfgs_default_prompt].keys())
+        except Exception as e:
+            rai_dia(e)
 
     def del_default_prompt(self):
         if len(self.dict_cfgs[value_cfgs_default_prompt]) == 1:
@@ -580,6 +592,56 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             # 给出默认值或错误提示
             print("无法获取该键人格下拉框的值的值。")
+
+    def add_rate_limitation(self):
+        try:
+            new_key, ok = QtWidgets.QInputDialog.getText(self, "添加会话限速", "请输入限速名:")
+            if ok:
+                if new_key in self.dict_cfgs.get(value_cfgs_rate_limitation, {}).keys():
+                    QtWidgets.QMessageBox.warning(self, "添加会话限速", "限速名已存在！")
+                else:
+                    # 使用QInputDialog获取新值
+                    new_value, ok = QtWidgets.QInputDialog.getText(self, "添加会话限速", "请输入限速值:")
+                    new_value = int(new_value)
+                    if ok and new_value:
+                        # 将新键值对插入字典
+                        self.dict_cfgs[value_cfgs_rate_limitation][new_key] = new_value
+                        with open(doc_cfg, "w", encoding='utf-8') as f:
+                            json.dump(self.dict_cfgs, f)
+                            # for key, value in self.dict_cfgs.items():
+                            #     f.write(f"{key} = {repr(value)}\n")
+                        # # 更新下拉框
+                        self.page_set_edit_cfg_rate_limitation_choose.clear()
+                        self.page_set_edit_cfg_rate_limitation_choose.addItems(
+                            self.dict_cfgs[value_cfgs_rate_limitation].keys())
+        except Exception as e:
+            rai_dia(e)
+    def del_rate_limitation(self):
+        if len(self.dict_cfgs[value_cfgs_rate_limitation]) == 1:
+            QtWidgets.QMessageBox.warning(self, "删除会话限速", "最少保留一个会话限速！")
+        elif self.page_set_edit_cfg_rate_limitation_choose.currentText() == "default":
+            QtWidgets.QMessageBox.warning(self, "删除会话限速", "default不可删除！")
+        else:
+            self.dict_cfgs[value_cfgs_rate_limitation].pop(self.page_set_edit_cfg_rate_limitation_choose.currentText(),
+                                                           None)
+            self.page_set_edit_cfg_rate_limitation_choose.removeItem(
+                self.page_set_edit_cfg_rate_limitation_choose.currentIndex())
+            try:
+                with open(doc_cfg, "w", encoding='utf-8') as f:
+                    json.dump(self.dict_cfgs, f)
+                    # for key, value in self.dict_cfgs.items():
+                    #     f.write(f"{key} = {repr(value)}\n")
+            except Exception as e:
+                rai_dia(e)
+
+    def update_rate_limitation(self):
+        current_text = self.page_set_edit_cfg_rate_limitation_choose.currentText()
+        if current_text in self.dict_cfgs.get(value_cfgs_rate_limitation, {}):
+            self.page_set_edit_cfg_rate_limitation.setValue(
+                self.dict_cfgs[value_cfgs_rate_limitation][self.page_set_edit_cfg_rate_limitation_choose.currentText()])
+        else:
+            # 给出默认值或错误提示
+            print("无法获取该键下拉框的值的值。")
 
     def setupUi(self, MainWIndow):
         MainWIndow.setObjectName("MainWIndow")
@@ -644,6 +706,52 @@ class MainWindow(QtWidgets.QMainWindow):
         # 在内存中保存配置字典
         # ************************************这是目前无用的字段，但以后可能有用************************************
         self.dict_cfgs = cfg_dict.copy()
+
+        def adapter_changed(value):
+            update_value_cfgs(value_cfgs_msg_source_adapter, value)
+            adapter_check()
+
+        def adapter_check():
+            value = self.dict_cfgs[value_cfgs_msg_source_adapter]
+            if value == "nakuru":
+                self.page_set_edit_cfg_mirai_adapter.setHidden(True)
+                self.page_set_edit_cfg_mirai_host.setHidden(True)
+                self.page_set_edit_cfg_mirai_port.setHidden(True)
+                self.page_set_edit_cfg_mirai_verifyKey.setHidden(True)
+                self.page_set_edit_cfg_mirai_qq.setHidden(True)
+                self.page_set_label_cfg_mirai_adapter.setHidden(True)
+                self.page_set_label_cfg_mirai_host.setHidden(True)
+                self.page_set_label_cfg_mirai_port.setHidden(True)
+                self.page_set_label_cfg_mirai_verifyKey.setHidden(True)
+                self.page_set_label_cfg_mirai_qq.setHidden(True)
+                self.page_set_edit_cfg_nakuru_host.setHidden(False)
+                self.page_set_edit_cfg_nakuru_port.setHidden(False)
+                self.page_set_edit_cfg_nakuru_http_port.setHidden(False)
+                self.page_set_edit_cfg_nakuru_token.setHidden(False)
+                self.page_set_label_cfg_nakuru_host.setHidden(False)
+                self.page_set_label_cfg_nakuru_port.setHidden(False)
+                self.page_set_label_cfg_nakuru_http_port.setHidden(False)
+                self.page_set_label_cfg_nakuru_token.setHidden(False)
+
+            if value == "yirimirai":
+                self.page_set_edit_cfg_mirai_adapter.setHidden(False)
+                self.page_set_edit_cfg_mirai_host.setHidden(False)
+                self.page_set_edit_cfg_mirai_port.setHidden(False)
+                self.page_set_edit_cfg_mirai_verifyKey.setHidden(False)
+                self.page_set_edit_cfg_mirai_qq.setHidden(False)
+                self.page_set_label_cfg_mirai_adapter.setHidden(False)
+                self.page_set_label_cfg_mirai_host.setHidden(False)
+                self.page_set_label_cfg_mirai_port.setHidden(False)
+                self.page_set_label_cfg_mirai_verifyKey.setHidden(False)
+                self.page_set_label_cfg_mirai_qq.setHidden(False)
+                self.page_set_edit_cfg_nakuru_host.setHidden(True)
+                self.page_set_edit_cfg_nakuru_port.setHidden(True)
+                self.page_set_edit_cfg_nakuru_http_port.setHidden(True)
+                self.page_set_edit_cfg_nakuru_token.setHidden(True)
+                self.page_set_label_cfg_nakuru_host.setHidden(True)
+                self.page_set_label_cfg_nakuru_port.setHidden(True)
+                self.page_set_label_cfg_nakuru_http_port.setHidden(True)
+                self.page_set_label_cfg_nakuru_token.setHidden(True)
 
         def update_mirai_qq(value):
             if value:
@@ -766,6 +874,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.menu_tab.setTabsClosable(False)
         self.menu_tab.setTabBarAutoHide(True)
         self.menu_tab.setObjectName("menu_tab")
+
         self.tab_main = QtWidgets.QWidget()
         self.tab_main.setMinimumSize(QtCore.QSize(1020, 740))
         self.tab_main.setMaximumSize(QtCore.QSize(1160, 740))
@@ -838,7 +947,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_main_edit_current_command = QtWidgets.QLineEdit(self.tab_main)
         self.page_main_edit_current_command.setGeometry(QtCore.QRect(120, 700, 300, 30))
-        #self.page_main_edit_current_command.setText("pythonw main.pyw -r")
+        # self.page_main_edit_current_command.setText("pythonw main.pyw -r")
         self.page_main_edit_current_command.setText("../python/pythonw.exe main.pyw -r")
         # self.page_main_edit_current_command.setText("../mirai/java/bin/java.exe -jar ../mirai/mcl.jar")
         self.page_main_edit_current_command.setObjectName("page_main_edit_current_command")
@@ -940,7 +1049,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_log_btn_open_log_path.setObjectName("page_log_btn_open_log_path")
         self.page_log_btn_open_log_path.clicked.connect(self.open_log_path)
         self.page_log_btn_open_log_path.setHidden(False)
-        
+
         # self.page_log_btn_change_encode = QtWidgets.QLineEdit(self.tab_log)
         # self.page_log_btn_change_encode.setGeometry(QtCore.QRect(863, 40, 131, 25))
         # self.page_log_btn_change_encode.setStyleSheet("""
@@ -1040,8 +1149,9 @@ class MainWindow(QtWidgets.QMainWindow):
                                                       "QComboBox QAbstractItemView {background-color:  rgb(185, 208, 230);\n"
                                                       " } ")
         self.scrollAreaWidgetContents_5.setObjectName("scrollAreaWidgetContents_5")
+
         self.page_set_title_api_proxy = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_title_api_proxy.setGeometry(QtCore.QRect(260, 330, 91, 41))
+        self.page_set_title_api_proxy.setGeometry(QtCore.QRect(260, 330, 100, 41))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(11)
@@ -1254,6 +1364,15 @@ class MainWindow(QtWidgets.QMainWindow):
         font.setWeight(75)
         self.page_set_title_plugins.setFont(font)
         self.page_set_title_plugins.setObjectName("page_set_title_plugins")
+
+        self.page_set_label_cfg_msg_source_adapter = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
+        self.page_set_label_cfg_msg_source_adapter.setGeometry(QtCore.QRect(260, 10, 100, 24))
+        font = QtGui.QFont()
+        font.setFamily("微软雅黑")
+        font.setPointSize(11)
+        self.page_set_label_cfg_msg_source_adapter.setFont(font)
+        self.page_set_label_cfg_msg_source_adapter.setObjectName("page_set_label_cfg_msg_source_adapter")
+
         self.page_set_edit_cfg_response_at = QtWidgets.QCheckBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_response_at.setGeometry(QtCore.QRect(260, 940, 171, 30))
         font = QtGui.QFont()
@@ -1463,7 +1582,7 @@ QLineEdit:hover {
     opacity: 1;
 }
 """)
-        self.page_set_edit_cfg_random_rate.setMaximum(1.0)
+        self.page_set_edit_cfg_random_rate.setMaximum(1.1)
         self.page_set_edit_cfg_random_rate.setSingleStep(0.1)
         self.page_set_edit_cfg_random_rate.setObjectName("page_set_edit_cfg_random_rate")
         self.page_set_edit_cfg_random_rate.setValue(
@@ -2187,7 +2306,7 @@ QLineEdit:hover {
         self.page_set_edit_cfg_api.setTabletTracking(True)
         self.page_set_edit_cfg_api.setFocusPolicy(QtCore.Qt.ClickFocus)
         self.page_set_edit_cfg_api.setStyleSheet("border: 1px solid rgba(0,0,0,0.5);border-radius: 5px;")
-        self.page_set_edit_cfg_api.setEditable(True)
+        self.page_set_edit_cfg_api.setEditable(False)
         self.page_set_edit_cfg_api.setInsertPolicy(QtWidgets.QComboBox.InsertAlphabetically)
         self.page_set_edit_cfg_api.setObjectName("page_set_edit_cfg_api")
         self.page_set_edit_cfg_api.setCurrentIndex(0)
@@ -2481,9 +2600,9 @@ QLineEdit:hover {
         self.page_set_btn_open_banlist_file.clicked.connect(self.open_banlist_file)
         self.page_set_btn_open_banlist_file.setText("打开禁用列表")
 
-        self.page_set_label_cfg_rate_limitation_danwei = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cfg_rate_limitation_danwei.setGeometry(QtCore.QRect(470, 1940, 48, 30))
-        self.page_set_label_cfg_rate_limitation_danwei.setObjectName("page_set_label_cfg_rate_limitation_danwei")
+        # self.page_set_label_cfg_rate_limitation_danwei = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
+        # self.page_set_label_cfg_rate_limitation_danwei.setGeometry(QtCore.QRect(470, 1940, 48, 30))
+        # self.page_set_label_cfg_rate_limitation_danwei.setObjectName("page_set_label_cfg_rate_limitation_danwei")
 
         self.page_set_edit_cfg_sensitive_word_filter = QtWidgets.QCheckBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_sensitive_word_filter.setGeometry(QtCore.QRect(260, 2180, 329, 30))
@@ -2496,32 +2615,106 @@ QLineEdit:hover {
         self.page_set_edit_cfg_sensitive_word_filter.stateChanged.connect(
             lambda state: update_value_cfgs(value_cfgs_sensitive_word_filter, bool(state)))
 
+        # self.page_set_edit_cfg_default_prompt_choose = QtWidgets.QComboBox(self.scrollAreaWidgetContents_5)
+        # self.page_set_edit_cfg_default_prompt_choose.setGeometry(QtCore.QRect(400, 472, 170, 30))
+        # self.page_set_edit_cfg_default_prompt_choose.setTabletTracking(True)
+        # self.page_set_edit_cfg_default_prompt_choose.setFocusPolicy(QtCore.Qt.ClickFocus)
+        # self.page_set_edit_cfg_default_prompt_choose.setStyleSheet(
+        #     "border: 1px solid rgba(0,0,0,0.5);border-radius: 5px;")
+        # self.page_set_edit_cfg_default_prompt_choose.setEditable(False)
+        # self.page_set_edit_cfg_default_prompt_choose.setInsertPolicy(QtWidgets.QComboBox.InsertAlphabetically)
+        # self.page_set_edit_cfg_default_prompt_choose.setObjectName("page_set_edit_cfg_default_prompt_choose")
+        # # 添加选项到下拉框中
+        # self.page_set_edit_cfg_default_prompt_choose.addItems(self.dict_cfgs[value_cfgs_default_prompt].keys())
+        # self.page_set_edit_cfg_default_prompt_choose.setCurrentIndex(0)
+        # # 显示对应值
+        # self.page_set_edit_cfg_default_prompt_choose.currentTextChanged.connect(self.update_default_prompt)
+
+        self.page_set_edit_cfg_rate_limitation_choose = QtWidgets.QComboBox(self.scrollAreaWidgetContents_5)
+        self.page_set_edit_cfg_rate_limitation_choose.setGeometry(QtCore.QRect(380, 1940, 120, 30))
+        self.page_set_edit_cfg_rate_limitation_choose.setTabletTracking(True)
+        self.page_set_edit_cfg_rate_limitation_choose.setFocusPolicy(QtCore.Qt.ClickFocus)
+        self.page_set_edit_cfg_rate_limitation_choose.setStyleSheet(
+            "border: 1px solid rgba(0,0,0,0.5);border-radius: 5px;")
+        self.page_set_edit_cfg_rate_limitation_choose.setEditable(False)
+        self.page_set_edit_cfg_rate_limitation_choose.setInsertPolicy(QtWidgets.QComboBox.InsertAlphabetically)
+        self.page_set_edit_cfg_rate_limitation_choose.setObjectName("page_set_edit_cfg_rate_limitation_choose")
+        self.page_set_edit_cfg_rate_limitation_choose.addItems(self.dict_cfgs[value_cfgs_rate_limitation].keys())
+        self.page_set_edit_cfg_rate_limitation_choose.setCurrentIndex(0)
+        self.page_set_edit_cfg_rate_limitation_choose.currentTextChanged.connect(self.update_rate_limitation)
+
         self.page_set_edit_cfg_rate_limitation = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_cfg_rate_limitation.setGeometry(QtCore.QRect(410, 1940, 51, 30))
+        self.page_set_edit_cfg_rate_limitation.setGeometry(QtCore.QRect(510, 1940, 50, 30))
         self.page_set_edit_cfg_rate_limitation.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
-""")
+                                                                background-color: rgba(246, 247, 248, 0.3);
+                                                                border: none;
+                                                                border-radius: 5px;
+                                                                padding: 2px;
+                                                                border: 1px solid rgba(0, 0, 0, 0.5);
+                                                                border-radius: 5px;
+                                                                padding: 2px;
+                                                                opacity: 0.3;
+                                                            }
+                                                            QLineEdit:hover {
+                                                                border: 1px solid rgba(0, 0, 0, 1);
+                                                                background-color: white;
+                                                                border-radius: 5px;
+                                                                padding: 2px;
+                                                                opacity: 1;
+                                                            }
+                                                            """)
         self.page_set_edit_cfg_rate_limitation.setMinimum(1)
         self.page_set_edit_cfg_rate_limitation.setMaximum(60)
         self.page_set_edit_cfg_rate_limitation.setObjectName("page_set_edit_cfg_rate_limitation")
-        self.page_set_edit_cfg_rate_limitation.setValue(self.dict_cfgs[value_cfgs_rate_limitation])
-        self.page_set_edit_cfg_rate_limitation.valueChanged.connect(
-            lambda new_value: update_value_cfgs(value_cfgs_rate_limitation, new_value))
+        self.page_set_edit_cfg_rate_limitation.setValue(
+            next(iter(self.dict_cfgs[value_cfgs_rate_limitation].values())))
+        self.page_set_edit_cfg_rate_limitation.setDisabled(True)
+        self.page_set_edit_cfg_rate_limitation.editingFinished.connect(
+            lambda new_value: update_value_cfgs(cfg_dict[value_cfgs_rate_limitation].values(), new_value))
+        # self.page_set_edit_cfg_rate_limitation.setValue(self.dict_cfgs[value_cfgs_rate_limitation])
+        # self.page_set_edit_cfg_rate_limitation.valueChanged.connect(
+        #     lambda new_value: update_value_cfgs(value_cfgs_rate_limitation, new_value))
+
+        # self.page_set_edit_cfg_default_prompt = QtWidgets.QPlainTextEdit(self.scrollAreaWidgetContents_5)
+        # self.page_set_edit_cfg_default_prompt.setGeometry(QtCore.QRect(260, 510, 711, 400))
+        # self.page_set_edit_cfg_default_prompt.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
+        # self.page_set_edit_cfg_default_prompt.setDisabled(True)
+        # self.page_set_edit_cfg_default_prompt.setStyleSheet("background-color:rgba(255,255,255,0.5);")
+        # self.page_set_edit_cfg_default_prompt.setObjectName("page_set_edit_cfg_default_prompt")
+        # self.page_set_edit_cfg_default_prompt.setPlainText(
+        #     next(iter(self.dict_cfgs[value_cfgs_default_prompt].values())))
+
+        self.page_set_edit_cfg_rate_limitation_add = QtWidgets.QPushButton(self.scrollAreaWidgetContents_5)
+        self.page_set_edit_cfg_rate_limitation_add.setGeometry(QtCore.QRect(620, 1940, 50, 30))
+        self.page_set_edit_cfg_rate_limitation_add.setText("添加")
+        self.page_set_edit_cfg_rate_limitation_add.setStyleSheet(
+            """QPushButton {
+                   border: 1px solid rgba(0,0,0, 0.5);
+                   border-radius: 5px;
+               }
+               QPushButton:hover {
+                   background-color: rgba(255, 255, 255, 0.4);
+               }
+               QPushButton:pressed {
+                   background-color: rgba(255, 255, 255,6);
+               }""")
+        self.page_set_edit_cfg_rate_limitation_add.clicked.connect(self.add_rate_limitation)
+
+        self.page_set_edit_cfg_rate_limitation_del = QtWidgets.QPushButton(self.scrollAreaWidgetContents_5)
+        self.page_set_edit_cfg_rate_limitation_del.setGeometry(QtCore.QRect(690, 1940, 50, 30))
+        self.page_set_edit_cfg_rate_limitation_del.setText("删除")
+        self.page_set_edit_cfg_rate_limitation_del.setStyleSheet(
+            """QPushButton {
+                   border: 1px solid rgba(0,0,0, 0.5);
+                   border-radius: 5px;
+               }
+               QPushButton:hover {
+                   background-color: rgba(255, 255, 255, 0.4);
+               }
+               QPushButton:pressed {
+                   background-color: rgba(255, 255, 255,6);
+               }""")
+        self.page_set_edit_cfg_rate_limitation_del.clicked.connect(self.del_rate_limitation)
 
         self.page_set_label_cfg_rate_limit_strategy = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_label_cfg_rate_limit_strategy.setGeometry(QtCore.QRect(260, 1980, 126, 30))
@@ -2986,23 +3179,23 @@ QLineEdit:hover {
         self.page_set_edit_cfg_api_temperature = QtWidgets.QDoubleSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_api_temperature.setGeometry(QtCore.QRect(330, 1240, 60, 30))
         self.page_set_edit_cfg_api_temperature.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
-""")
+                                                            background-color: rgba(246, 247, 248, 0.3);
+                                                            border: none;
+                                                            border-radius: 5px;
+                                                            padding: 2px;
+                                                            border: 1px solid rgba(0, 0, 0, 0.5);
+                                                            border-radius: 5px;
+                                                            padding: 2px;
+                                                            opacity: 0.3;
+                                                        }
+                                                        QLineEdit:hover {
+                                                            border: 1px solid rgba(0, 0, 0, 1);
+                                                            background-color: white;
+                                                            border-radius: 5px;
+                                                            padding: 2px;
+                                                            opacity: 1;
+                                                        }
+                                                        """)
         self.page_set_edit_cfg_api_temperature.setMaximum(1.0)
         self.page_set_edit_cfg_api_temperature.setSingleStep(0.1)
         self.page_set_edit_cfg_api_temperature.setObjectName("page_set_edit_cfg_api_temperature")
@@ -3064,6 +3257,38 @@ QLineEdit:hover {
                                                 {**self.dict_cfgs[value_cfgs_completion_api_params],
                                                  **{value_cfgs_completion_api_params_model: new_value}}))
 
+        self.page_set_label_cfg_nakuru_host = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
+        self.page_set_label_cfg_nakuru_host.setGeometry(QtCore.QRect(260, 50, 100, 24))
+        font = QtGui.QFont()
+        font.setFamily("微软雅黑")
+        font.setPointSize(11)
+        self.page_set_label_cfg_nakuru_host.setFont(font)
+        self.page_set_label_cfg_nakuru_host.setObjectName("page_set_label_cfg_nakuru_host")
+
+        self.page_set_label_cfg_nakuru_port = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
+        self.page_set_label_cfg_nakuru_port.setGeometry(QtCore.QRect(260, 85, 100, 24))
+        font = QtGui.QFont()
+        font.setFamily("微软雅黑")
+        font.setPointSize(11)
+        self.page_set_label_cfg_nakuru_port.setFont(font)
+        self.page_set_label_cfg_nakuru_port.setObjectName("page_set_label_cfg_nakuru_port")
+
+        self.page_set_label_cfg_nakuru_http_port = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
+        self.page_set_label_cfg_nakuru_http_port.setGeometry(QtCore.QRect(260, 120, 100, 24))
+        font = QtGui.QFont()
+        font.setFamily("微软雅黑")
+        font.setPointSize(11)
+        self.page_set_label_cfg_nakuru_http_port.setFont(font)
+        self.page_set_label_cfg_nakuru_http_port.setObjectName("page_set_label_cfg_nakuru_http_port")
+
+        self.page_set_label_cfg_nakuru_token = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
+        self.page_set_label_cfg_nakuru_token.setGeometry(QtCore.QRect(260, 155, 100, 24))
+        font = QtGui.QFont()
+        font.setFamily("微软雅黑")
+        font.setPointSize(11)
+        self.page_set_label_cfg_nakuru_token.setFont(font)
+        self.page_set_label_cfg_nakuru_token.setObjectName("page_set_label_cfg_nakuru_token")
+
         self.page_set_label_cfg_mirai_qq = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_label_cfg_mirai_qq.setGeometry(QtCore.QRect(260, 190, 102, 25))
         font = QtGui.QFont()
@@ -3101,7 +3326,7 @@ QLineEdit:hover {
         self.page_set_label_cfg_mirai_port.setFont(font)
         self.page_set_label_cfg_mirai_port.setObjectName("page_set_label_cfg_mirai_port")
         self.page_set_label_cfg_mirai_adapter = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cfg_mirai_adapter.setGeometry(QtCore.QRect(260, 50, 90, 24))
+        self.page_set_label_cfg_mirai_adapter.setGeometry(QtCore.QRect(260, 50, 100, 24))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(11)
@@ -3135,6 +3360,34 @@ QLineEdit:hover {
                                                 {**self.dict_cfgs[value_cfgs_mirai_http_api_config],
                                                  **{value_cfgs_mirai_http_api_config_host: new_value}}))
 
+        self.page_set_edit_cfg_nakuru_host = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
+        self.page_set_edit_cfg_nakuru_host.setGeometry(QtCore.QRect(370, 50, 142, 25))
+        self.page_set_edit_cfg_nakuru_host.setStyleSheet("""
+            background-color: rgba(246, 247, 248, 0.3);
+            border: none;
+            border-radius: 5px;
+            padding: 2px;
+            border: 1px solid rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            padding: 2px;
+            opacity: 0.3;
+        }
+        QLineEdit:hover {
+            border: 1px solid rgba(0, 0, 0, 1);
+            background-color: white;
+            border-radius: 5px;
+            padding: 2px;
+            opacity: 1;
+        }
+        """)
+        self.page_set_edit_cfg_nakuru_host.setObjectName("page_set_edit_cfg_nakuru_host")
+        self.page_set_edit_cfg_nakuru_host.setText(
+            self.dict_cfgs[value_cfgs_nakuru_config][value_cfgs_nakuru_config_host])
+        self.page_set_edit_cfg_nakuru_host.textChanged.connect(
+            lambda new_value: update_value_cfgs(value_cfgs_nakuru_config,
+                                                {**self.dict_cfgs[value_cfgs_nakuru_config],
+                                                 **{value_cfgs_nakuru_config_host: new_value}}))
+
         self.page_set_edit_cfg_mirai_port = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_mirai_port.setGeometry(QtCore.QRect(370, 120, 142, 25))
         self.page_set_edit_cfg_mirai_port.setStyleSheet("""
@@ -3165,9 +3418,97 @@ QLineEdit:hover {
                                                 {**self.dict_cfgs[value_cfgs_mirai_http_api_config],
                                                  **{value_cfgs_mirai_http_api_config_port: new_value}}))
 
+        self.page_set_edit_cfg_nakuru_port = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
+        self.page_set_edit_cfg_nakuru_port.setGeometry(QtCore.QRect(370, 85, 142, 25))
+        self.page_set_edit_cfg_nakuru_port.setStyleSheet("""
+            background-color: rgba(246, 247, 248, 0.3);
+            border: none;
+            border-radius: 5px;
+            padding: 2px;
+            border: 1px solid rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            padding: 2px;
+            opacity: 0.3;
+        }
+        QLineEdit:hover {
+            border: 1px solid rgba(0, 0, 0, 1);
+            background-color: white;
+            border-radius: 5px;
+            padding: 2px;
+            opacity: 1;
+        }
+        """)
+        self.page_set_edit_cfg_nakuru_port.setObjectName("page_set_edit_cfg_nakuru_port")
+        self.page_set_edit_cfg_nakuru_port.setMaximum(65535)
+        self.page_set_edit_cfg_nakuru_port.setMinimum(0)
+        self.page_set_edit_cfg_nakuru_port.setValue(
+            self.dict_cfgs[value_cfgs_nakuru_config][value_cfgs_nakuru_config_port])
+        self.page_set_edit_cfg_nakuru_port.valueChanged.connect(
+            lambda new_value: update_value_cfgs(value_cfgs_nakuru_config,
+                                                {**self.dict_cfgs[value_cfgs_nakuru_config],
+                                                 **{value_cfgs_nakuru_config_port: new_value}}))
+
+        self.page_set_edit_cfg_nakuru_http_port = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
+        self.page_set_edit_cfg_nakuru_http_port.setGeometry(QtCore.QRect(370, 120, 142, 25))
+        self.page_set_edit_cfg_nakuru_http_port.setStyleSheet("""
+            background-color: rgba(246, 247, 248, 0.3);
+            border: none;
+            border-radius: 5px;
+            padding: 2px;
+            border: 1px solid rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            padding: 2px;
+            opacity: 0.3;
+        }
+        QLineEdit:hover {
+            border: 1px solid rgba(0, 0, 0, 1);
+            background-color: white;
+            border-radius: 5px;
+            padding: 2px;
+            opacity: 1;
+        }
+        """)
+        self.page_set_edit_cfg_nakuru_http_port.setObjectName("page_set_edit_cfg_nakuru_http_port")
+        self.page_set_edit_cfg_nakuru_http_port.setMaximum(65535)
+        self.page_set_edit_cfg_nakuru_http_port.setMinimum(0)
+        self.page_set_edit_cfg_nakuru_http_port.setValue(
+            self.dict_cfgs[value_cfgs_nakuru_config][value_cfgs_nakuru_config_http_port])
+        self.page_set_edit_cfg_nakuru_http_port.valueChanged.connect(
+            lambda new_value: update_value_cfgs(value_cfgs_nakuru_config,
+                                                {**self.dict_cfgs[value_cfgs_nakuru_config],
+                                                 **{value_cfgs_nakuru_config_http_port: new_value}}))
+
         self.page_set_edit_cfg_mirai_verifyKey = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_mirai_verifyKey.setGeometry(QtCore.QRect(370, 155, 140, 25))
         self.page_set_edit_cfg_mirai_verifyKey.setStyleSheet("""
+            background-color: rgba(246, 247, 248, 0.3);
+            border: none;
+            border-radius: 5px;
+            padding: 2px;
+            border: 1px solid rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            padding: 2px;
+            opacity: 0.3;
+        }
+        QLineEdit:hover {
+            border: 1px solid rgba(0, 0, 0, 1);
+            background-color: white;
+            border-radius: 5px;
+            padding: 2px;
+            opacity: 1;
+        }
+        """)
+        self.page_set_edit_cfg_mirai_verifyKey.setObjectName("page_set_edit_cfg_mirai_verifyKey")
+        self.page_set_edit_cfg_mirai_verifyKey.setText(
+            self.dict_cfgs[value_cfgs_mirai_http_api_config][value_cfgs_mirai_http_api_config_verifyKey])
+        self.page_set_edit_cfg_mirai_verifyKey.textChanged.connect(
+            lambda new_value: update_value_cfgs(value_cfgs_mirai_http_api_config,
+                                                {**self.dict_cfgs[value_cfgs_mirai_http_api_config],
+                                                 **{value_cfgs_mirai_http_api_config_verifyKey: new_value}}))
+
+        self.page_set_edit_cfg_nakuru_token = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
+        self.page_set_edit_cfg_nakuru_token.setGeometry(QtCore.QRect(370, 155, 140, 25))
+        self.page_set_edit_cfg_nakuru_token.setStyleSheet("""
     background-color: rgba(246, 247, 248, 0.3);
     border: none;
     border-radius: 5px;
@@ -3185,13 +3526,13 @@ QLineEdit:hover {
     opacity: 1;
 }
 """)
-        self.page_set_edit_cfg_mirai_verifyKey.setObjectName("page_set_edit_cfg_mirai_verifyKey")
-        self.page_set_edit_cfg_mirai_verifyKey.setText(
-            self.dict_cfgs[value_cfgs_mirai_http_api_config][value_cfgs_mirai_http_api_config_verifyKey])
-        self.page_set_edit_cfg_mirai_verifyKey.textChanged.connect(
-            lambda new_value: update_value_cfgs(value_cfgs_mirai_http_api_config,
-                                                {**self.dict_cfgs[value_cfgs_mirai_http_api_config],
-                                                 **{value_cfgs_mirai_http_api_config_verifyKey: new_value}}))
+        self.page_set_edit_cfg_nakuru_token.setObjectName("page_set_edit_cfg_nakuru_token")
+        self.page_set_edit_cfg_nakuru_token.setText(
+            self.dict_cfgs[value_cfgs_nakuru_config][value_cfgs_nakuru_config_token])
+        self.page_set_edit_cfg_nakuru_token.textChanged.connect(
+            lambda new_value: update_value_cfgs(value_cfgs_nakuru_config,
+                                                {**self.dict_cfgs[value_cfgs_nakuru_config],
+                                                 **{value_cfgs_nakuru_config_token: new_value}}))
 
         self.page_set_edit_cfg_mirai_qq = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_mirai_qq.setGeometry(QtCore.QRect(370, 190, 142, 25))
@@ -3276,6 +3617,28 @@ QLineEdit:hover {
                                                 {**self.dict_cfgs[value_cfgs_mirai_http_api_config],
                                                  **{value_cfgs_mirai_http_api_config_adapter: new_value}}))
 
+        self.page_set_edit_cfg_msg_source_adapter = QtWidgets.QComboBox(self.scrollAreaWidgetContents_5)
+        self.page_set_edit_cfg_msg_source_adapter.setGeometry(QtCore.QRect(370, 10, 200, 25))
+        self.page_set_edit_cfg_msg_source_adapter.setStyleSheet("border: 1px solid rgba(0,0,0, 0.5);border-radius: 5px;"
+                                                                "QComboBox {"
+                                                                "    background-color: (255,255,255, 0.1);"
+                                                                "    color: white;  /* 定义文本的颜色 */"
+                                                                "}"
+                                                                "QComboBox QAbstractItemView {"
+                                                                "    background-color: white;"
+                                                                "    selection-background-color:   /* 定义选择项后背景色 */"
+                                                                "    color: rgb(255, 170, 255);"
+                                                                "    selection-color: white;  /* 定义选择区文本的颜色 */"
+                                                                "}")
+        self.page_set_edit_cfg_msg_source_adapter.setObjectName("page_set_edit_cfg_msg_source_adapter")
+        self.page_set_edit_cfg_msg_source_adapter.addItem("")
+        self.page_set_edit_cfg_msg_source_adapter.addItem("")
+        self.page_set_edit_cfg_msg_source_adapter.setItemText(0, "yirimirai")
+        self.page_set_edit_cfg_msg_source_adapter.setItemText(1, "nakuru")
+        self.page_set_edit_cfg_msg_source_adapter.setCurrentText(self.dict_cfgs[value_cfgs_msg_source_adapter])
+        self.page_set_edit_cfg_msg_source_adapter.currentTextChanged.connect(
+            lambda new_value: adapter_changed(new_value))
+
         self.page_set_edit_cfg_api_http_proxy = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_api_http_proxy.setGeometry(QtCore.QRect(450, 335, 300, 22))
         self.page_set_edit_cfg_api_http_proxy.setStyleSheet("""
@@ -3335,7 +3698,7 @@ QLineEdit:hover {
                                                  **{value_cfgs_openai_config_reverse_proxy: new_value}}))
 
         self.page_set_label_cfg_api_reverse_proxy = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cfg_api_reverse_proxy.setGeometry(QtCore.QRect(370, 370, 65, 30))
+        self.page_set_label_cfg_api_reverse_proxy.setGeometry(QtCore.QRect(370, 370, 100, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(11)
@@ -3343,7 +3706,7 @@ QLineEdit:hover {
         self.page_set_label_cfg_api_reverse_proxy.setObjectName("page_set_label_cfg_api_reverse_proxy")
 
         self.page_set_label_cfg_api_http_proxy = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cfg_api_http_proxy.setGeometry(QtCore.QRect(370, 330, 41, 30))
+        self.page_set_label_cfg_api_http_proxy.setGeometry(QtCore.QRect(370, 330, 100, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(11)
@@ -3706,12 +4069,12 @@ QLineEdit:hover {
         self.page_set_label_cmd_delhst.setFont(font)
         self.page_set_label_cmd_delhst.setObjectName("page_set_label_cmd_delhst")
 
-        self.page_set_label_cmd_delhs_tall = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cmd_delhs_tall.setGeometry(QtCore.QRect(260, 2840, 90, 30))
+        self.page_set_label_cmd_delhst_all = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
+        self.page_set_label_cmd_delhst_all.setGeometry(QtCore.QRect(260, 2840, 90, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
-        self.page_set_label_cmd_delhs_tall.setFont(font)
-        self.page_set_label_cmd_delhs_tall.setObjectName("page_set_label_cmd_delhs_tall")
+        self.page_set_label_cmd_delhst_all.setFont(font)
+        self.page_set_label_cmd_delhst_all.setObjectName("page_set_label_cmd_delhst_all")
 
         self.page_set_label_cmd_last = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_label_cmd_last.setGeometry(QtCore.QRect(260, 2880, 90, 30))
@@ -4007,41 +4370,42 @@ QLineEdit:hover {
         # self.page_set_edit__plugin_1.setText("启用")
 
         # 加载switch.json
-        with open("plugins/switch.json", "r", encoding="utf-8") as f:
-            switch = json.load(f)
-        plugin_index = 0
-        for key, value in switch.items():
-            label = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-            font = QtGui.QFont()
-            font.setFamily("微软雅黑")
-            font.setPointSize(11)
-            label.setFont(font)
-            label.setObjectName(f"page_set_label_plugin_{plugin_index}")
-            label.setText(key)
-            label.setGeometry(QtCore.QRect(260, 3530 + plugin_index * 40, 200, 30))
+        if os.path.exists("plugins/switch.json"):
+            with open("plugins/switch.json", "r", encoding="utf-8") as f:
+                switch = json.load(f)
+            plugin_index = 0
+            for key, value in switch.items():
+                label = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
+                font = QtGui.QFont()
+                font.setFamily("微软雅黑")
+                font.setPointSize(11)
+                label.setFont(font)
+                label.setObjectName(f"page_set_label_plugin_{plugin_index}")
+                label.setText(key)
+                label.setGeometry(QtCore.QRect(260, 3530 + plugin_index * 40, 200, 30))
 
-            checkbox = QtWidgets.QCheckBox(self.scrollAreaWidgetContents_5)
-            font = QtGui.QFont()
-            font.setFamily("微软雅黑")
-            font.setPointSize(11)
-            checkbox.setFont(font)
-            checkbox.setObjectName(f"page_set_edit_plugin_{plugin_index}")
-            checkbox.setText("启用")
-            checkbox.setChecked(value["enabled"])
-            checkbox.setGeometry(QtCore.QRect(480, 3530 + plugin_index * 40, 60, 30))
+                checkbox = QtWidgets.QCheckBox(self.scrollAreaWidgetContents_5)
+                font = QtGui.QFont()
+                font.setFamily("微软雅黑")
+                font.setPointSize(11)
+                checkbox.setFont(font)
+                checkbox.setObjectName(f"page_set_edit_plugin_{plugin_index}")
+                checkbox.setText("启用")
+                checkbox.setChecked(value["enabled"])
+                checkbox.setGeometry(QtCore.QRect(480, 3530 + plugin_index * 40, 60, 30))
 
-            def save_checkbox_state(state, key=key):
-                try:
+                def save_checkbox_state(state, key=key):
+                    try:
 
-                    switch[key]["enabled"] = bool(int(state))
-                    with open("plugins/switch.json", "w", encoding="utf-8") as f:
-                        json.dump(switch, f, indent=4, ensure_ascii=False)
-                except Exception as e:
-                    rai_dia(e)
+                        switch[key]["enabled"] = bool(int(state))
+                        with open("plugins/switch.json", "w", encoding="utf-8") as f:
+                            json.dump(switch, f, indent=4, ensure_ascii=False)
+                    except Exception as e:
+                        rai_dia(e)
 
-            checkbox.stateChanged.connect(save_checkbox_state)
+                checkbox.stateChanged.connect(save_checkbox_state)
 
-            plugin_index += 1
+                plugin_index += 1
 
         self.page_set_scroll_area.setWidget(self.scrollAreaWidgetContents_5)
         self.menu_tab.addTab(self.tab_set, "")
@@ -4146,6 +4510,7 @@ QLineEdit:hover {
         self.retranslateUi(MainWIndow)
         self.menu_tab.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWIndow)
+        adapter_check()
 
     def open_income_msg_check_file(self):
         try:
@@ -4225,111 +4590,242 @@ QLineEdit:hover {
         self.page_log_btn_open_log_path.setText(_translate("MainWIndow", "打开日志目录"))
         self.page_log_btn_open_log_path.setToolTip("打开日志文件目录")
         self.page_log_btn_switch_unicode.setText(_translate("MainWIndow", "编码"))
+        # .self.page_log_btn_switch_unicodesetToolTip("")
         self.page_log_btn_cmd_send.setText(_translate("MainWIndow", "发送"))
+        # self.page_log_btn_cmd_send.setToolTip("")
         self.page_set_title_api_proxy.setText(_translate("MainWIndow", "API代理："))
+        self.page_set_title_api_proxy.setToolTip("http_proxy代理地址，填写示例http://example.com:12345/v1")
         self.page_set_title_api.setText(_translate("MainWIndow", "API设置："))
+        self.page_set_title_api.setToolTip("")
         self.page_set_title_main.setText(_translate("MainWIndow", "基本设置:"))
+        self.page_set_title_main.setToolTip("")
         self.label_122.setText(_translate("MainWIndow", "响应参数："))
+        self.label_122.setToolTip("")
         self.page_set_title_response.setText(_translate("MainWIndow", "人格设置："))
+        self.page_set_title_response.setToolTip("")
         self.page_set_title_pipeiguize.setText(_translate("MainWIndow", "匹配规则："))
+        self.page_set_title_pipeiguize.setToolTip("")
         self.page_set_btn_cfg_open_path_full_scenario.setText(_translate("MainWIndow", "打开情景预设目录"))
+        self.page_set_btn_cfg_open_path_full_scenario.setToolTip("打开情景预设目录full_scenario文件夹")
         self.page_set_title_moxingshezhi.setText(_translate("MainWIndow", "模型设置："))
+        self.page_set_title_moxingshezhi.setToolTip("")
         self.page_set_title_huihuashezhi.setText(_translate("MainWIndow", "会话设置："))
+        self.page_set_title_huihuashezhi.setToolTip("")
         self.page_set_title_kaifazheshezhi.setText(_translate("MainWIndow", "开发者设置："))
+        self.page_set_title_kaifazheshezhi.setToolTip("")
         self.page_set_title_zhilingquanxian.setText(_translate("MainWIndow", "指令权限："))
+        self.page_set_title_zhilingquanxian.setToolTip("")
         self.page_set_title_xiaoxitishiyu.setText(_translate("MainWIndow", "消息提示语："))
+        self.page_set_title_xiaoxitishiyu.setToolTip("")
         self.page_set_title_plugins.setText(_translate("MainWIndow", "插件设置："))
+        self.page_set_title_plugins.setToolTip("")
         self.page_set_edit_cfg_response_at.setText(_translate("MainWIndow", "响应“at”消息"))
+        self.page_set_edit_cfg_response_at.setToolTip("响应at机器人的消息")
         self.page_set_label_cfg_user_pool_num.setText(_translate("MainWIndow", "执行用户请求和指令的并行线程数量："))
+        self.page_set_label_cfg_user_pool_num.setToolTip(
+            "执行用户请求和指令的线程池并行线程数量，如需要更高的并发，可以增大该值。")
         self.page_set_label_cfg_admin_pool_num.setText(_translate("MainWIndow", "执行管理员请求和指令并行线程数量："))
+        self.page_set_label_cfg_admin_pool_num.setToolTip(
+            "执行管理员请求和指令的线程池并行线程数量，一般和管理员数量相等。")
         self.page_set_label_cfg_font_path.setText(_translate("MainWIndow", "文字转图片时使用的字体文件路径："))
+        self.page_set_label_cfg_font_path.setToolTip(
+            "文字转图片时使用的字体文件路径，当策略为’image‘时生效，若在Windows系统下，程序会自动使用Windows自带的微软雅黑字体，若未填写或不存在且不是Windows，将禁用文字转图片功能，改为使用转发消息组件。")
         self.page_set_btn_save.setText(_translate("MainWIndow", "保存设置"))
+        self.page_set_btn_save.setToolTip("保存当前页面设置到override.json文件")
         self.page_set_label_cfg_default_prompt.setText(_translate("MainWIndow", "普通模式人格："))
+        self.page_set_label_cfg_default_prompt.setToolTip(
+            "每个会话的预设信息，影响所有会话，无视指令重置。可以通过这个字段指定某些情况的回复，可直接用自然语言描述指令。")
         self.page_set_label_cfg_inappropriate_message_tips.setText(_translate("MainWIndow", "不合规消息自定义返回："))
+        self.page_set_label_cfg_inappropriate_message_tips.setToolTip("不合规消息自定义返回")
         self.page_set_label_cfg_prompt_submit_length.setText(_translate("MainWIndow", "发送对话记录上下文的字符数："))
+        self.page_set_label_cfg_prompt_submit_length.setToolTip(
+            " 每次向OpenAI接口发送对话记录上下文的字符数，最大不超过4096 个字符。 注意：较大的prompt_submit_length会导致OpenAI账户额度消耗更快。")
         self.page_set_label_cfg_random_rate.setText(_translate("MainWIndow", "随机响应概率:"))
+        self.page_set_label_cfg_random_rate.setToolTip(
+            "随机响应概率，0.0-1.0，0.0为不随机响应，1.0为响应所有消息, 仅在前几项判断不通过时生效。")
         self.page_set_label_cfg_api.setText(_translate("MainWIndow", "API_KEY："))
+        self.page_set_label_cfg_api.setToolTip("API_KEY")
         self.page_set_label_cfg_blob_message_threshold.setText(_translate("MainWIndow", "应用长消息处理策略的阈值："))
+        self.page_set_label_cfg_blob_message_threshold.setToolTip("openai的api_key")
         self.page_set_edit_cfg_baidu_check.setText(_translate("MainWIndow", "启用百度云内容安全审核"))
+        self.page_set_edit_cfg_baidu_check.setToolTip("启用百度云内容安全审核")
         self.page_set_label_cfg_baidu_secret_key.setText(_translate("MainWIndow", "百度云SECRET_KEY："))
+        self.page_set_label_cfg_baidu_secret_key.setToolTip("百度云SECRET_KEY 32位的英文数字字符串")
         self.page_set_edit_cfg_income_msg_check.setText(_translate("MainWIndow", "检查收到的消息中是否包含敏感词"))
-        self.page_set_label_cfg_rate_limitation_danwei.setText(_translate("MainWIndow", "次"))
+        self.page_set_edit_cfg_income_msg_check.setToolTip(
+            "是否检查收到的消息中是否包含敏感词，若收到的消息无法通过下方指定的敏感词检查策略，则发送提示信息。")
+        # self.page_set_label_cfg_rate_limitation_danwei.setText(_translate("MainWIndow", "次"))
+        # self.page_set_label_cfg_rate_limitation_danwei.setToolTip("")
         self.page_set_edit_cfg_sensitive_word_filter.setText(_translate("MainWIndow", "以同样数量的*代替敏感词回复"))
+        self.page_set_edit_cfg_sensitive_word_filter.setToolTip(
+            "敏感词过滤开关，以同样数量的*代替敏感词回复， 请在sensitive.json中添加敏感词。")
         self.page_set_label_cfg_rate_limit_strategy.setText(_translate("MainWIndow", "会话限速策略："))
+        self.page_set_label_cfg_rate_limit_strategy.setToolTip(
+            '会话限速策略：\n -  wait : 每次对话获取到回复时，等待一定时间再发送回复，保证其不会超过限速均值\n -  drop : 此分钟内，若对话次数超过限速次数，则丢弃之后的对话，每自然分钟重置。')
         self.page_set_label_cfg_session_expire_time.setText(_translate("MainWIndow", "每个会话的过期时间："))
+        self.page_set_label_cfg_session_expire_time.setToolTip("每个会话的过期时间")
         self.page_set_label_cfg_blob_message_strategy.setText(_translate("MainWIndow", "长消息处理策略："))
-        self.page_set_label_cfg_rate_limitation.setText(_translate("MainWIndow", "会话限速：每分钟"))
+        self.page_set_label_cfg_blob_message_strategy.setToolTip(
+            "长消息处理策略\n- image: 将长消息转换为图片发送\n- forward: 将长消息转换为转发消息组件发送")
+        self.page_set_label_cfg_rate_limitation.setText(_translate("MainWIndow", "会话限速："))
+        self.page_set_label_cfg_rate_limitation.setToolTip(
+            "未指定的都使用default的限速值，default不可删除。单位：每分钟/次")
         self.page_set_label_cfg_session_expire_time_danwei.setText(_translate("MainWIndow", "秒"))
+        self.page_set_label_cfg_session_expire_time_danwei.setToolTip("")
         self.page_set_label_cfg_image_size.setText(_translate("MainWIndow", "图片尺寸："))
+        self.page_set_label_cfg_image_size.setToolTip("图片尺寸，支持256x256, 512x512, 1024x1024")
         self.page_set_edit_cfg_quote_origin.setText(_translate("MainWIndow", "群内回复消息时引用原消息"))
+        self.page_set_edit_cfg_quote_origin.setToolTip("群内回复消息时是否引用原消息.")
         self.page_set_label_cfg_include_image_description.setText(_translate("MainWIndow", "回复绘图时包含图片描述"))
+        self.page_set_label_cfg_include_image_description.setToolTip("回复绘图时是否包含图片描述.")
         self.page_set_label_cfg_sys_pool_num.setText(_translate("MainWIndow", "程序运行本身线程池："))
+        self.page_set_label_cfg_sys_pool_num.setToolTip(
+            "线程池相关配置\n# 该参数决定机器人可以同时处理几个人的消息，超出线程池数量的请求会被阻塞，不会被丢弃\n# 如果你不清楚该参数的意义，请不要更改\n# 程序运行本身线程池，无代码层面修改请勿更改。")
         self.page_set_edit_cfg_qiyongduoduixiangmingcheng.setText(
             _translate("MainWIndow", "群内会话启用多对象名称(暂未实现)"))
+        self.page_set_edit_cfg_qiyongduoduixiangmingcheng.setToolTip("（快去催高中生）")
         self.page_set_label_cfg_process_message_timeout_danwei.setText(_translate("MainWIndow", "秒"))
+        self.page_set_label_cfg_process_message_timeout_danwei.setToolTip("")
         self.page_set_label_cfg_retry_times.setText(_translate("MainWIndow", "消息处理超时重试次数："))
+        self.page_set_label_cfg_retry_times.setToolTip("消息处理超时重试次数。")
         self.page_set_edit_cfg_show_prefix.setText(_translate("MainWIndow", "回复消息时显示[GPT]前缀"))
+        self.page_set_edit_cfg_show_prefix.setToolTip("回复消息时是否显示[GPT]前缀。")
         self.page_set_label_cfg_process_message_timeout_left.setText(_translate("MainWIndow", "消息处理的超时时间:"))
+        self.page_set_label_cfg_process_message_timeout_left.setToolTip("消息处理的超时时间，单位为秒。")
         self.page_set_label_cfg_ignore_prefix.setText(_translate("MainWIndow", "忽略前缀："))
+        self.page_set_label_cfg_ignore_prefix.setToolTip("忽略前缀")
         self.page_set_label_cfg_ignore_regexp.setText(_translate("MainWIndow", "忽略正则表达式："))
+        self.page_set_label_cfg_ignore_regexp.setToolTip("忽略正则表达式")
         self.page_set_label_cfg_api_model.setText(_translate("MainWIndow", "模型："))
+        self.page_set_label_cfg_api_model.setToolTip(
+            "具体请查看OpenAI的文档: https://beta.openai.com/docs/api-reference/completions/create")
         self.page_set_label_cfg_api_frequency_penalty.setText(_translate("MainWIndow", "frequency_penalty："))
+        self.page_set_label_cfg_api_frequency_penalty.setToolTip("神奇的参数, 取值范围[0, 1]")
         self.page_set_label_cfg_api_presence_penalty.setText(_translate("MainWIndow", "presence_penalty："))
+        self.page_set_label_cfg_api_presence_penalty.setToolTip("神奇的参数, 取值范围[0, 1]")
         self.page_set_label_cfg_api_top_p.setText(_translate("MainWIndow", "生成的文本的文本与要求的符合度："))
+        self.page_set_label_cfg_api_top_p.setToolTip("生成的文本的文本与要求的符合度, 取值范围[0, 1]。")
         self.page_set_label_cfg_api_temperature.setText(_translate("MainWIndow", "理性："))
+        self.page_set_label_cfg_api_temperature.setToolTip("数值越低得到的回答越理性，取值范围[0, 1]。")
         self.page_set_label_cfg_mirai_qq.setText(_translate("MainWIndow", "机器人QQ："))
+        self.page_set_label_cfg_mirai_qq.setToolTip("机器人的QQ号，请于mirai中的qq保持一致。")
         self.page_set_label_cfg_admin_qq.setText(_translate("MainWIndow", "管理员QQ："))
+        self.page_set_label_cfg_admin_qq.setToolTip("[必需] 管理员QQ号，用于接收报错等通知及执行管理员级别指令")
         self.page_set_label_cfg_mirai_verifyKey.setText(_translate("MainWIndow", "verifyKey："))
+        self.page_set_label_cfg_mirai_verifyKey.setToolTip("mirai-api-http的verifyKey")
         self.page_set_label_cfg_mirai_host.setText(_translate("MainWIndow", "主机地址："))
+        self.page_set_label_cfg_mirai_host.setToolTip("运行mirai的主机地址")
         self.page_set_label_cfg_mirai_port.setText(_translate("MainWIndow", "端口："))
-        self.page_set_label_cfg_mirai_adapter.setText(_translate("MainWIndow", "接入方式："))
-        self.page_set_label_cfg_api_reverse_proxy.setText(_translate("MainWIndow", "reverse:"))
-        self.page_set_label_cfg_api_http_proxy.setText(_translate("MainWIndow", "http:"))
+        self.page_set_label_cfg_mirai_port.setToolTip("运行mirai的主机端口")
+        self.page_set_label_cfg_mirai_adapter.setText(_translate("MainWIndow", "mirai适配器："))
+        self.page_set_label_cfg_mirai_adapter.setToolTip("选择适配器，目前支持HTTPAdapter和WebSocketAdapter")
+        self.page_set_label_cfg_nakuru_host.setText(_translate("MainWIndow", "主机地址："))
+        self.page_set_label_cfg_nakuru_host.setToolTip("go-cqhttp的地址")
+        self.page_set_label_cfg_nakuru_port.setText(_translate("MainWIndow", "端口："))
+        self.page_set_label_cfg_nakuru_port.setToolTip("go-cqhttp的正向websocket端口")
+        self.page_set_label_cfg_nakuru_http_port.setText(_translate("MainWIndow", "正向端口："))
+        self.page_set_label_cfg_nakuru_http_port.setToolTip("o-cqhttp的正向http端口")
+        self.page_set_label_cfg_nakuru_token.setText(_translate("MainWIndow", "token："))
+        self.page_set_label_cfg_nakuru_token.setToolTip("若在go-cqhttp的config.yml设置了access_token, 则填写此处。")
+        self.page_set_label_cfg_msg_source_adapter.setText(_translate("MainWIndow", "协议适配器："))
+        self.page_set_label_cfg_msg_source_adapter.setToolTip(
+            "消息处理协议适配器\n# 目前支持以下适配器:\n# - yirimirai: mirai的通信框架，YiriMirai框架适配器, 请同时填写下方mirai_http_api_config\n# - nakuru: go-cqhttp通信框架，请同时填写下方nakuru_config\n")
+        self.page_set_label_cfg_api_reverse_proxy.setText(_translate("MainWIndow", "反向代理:"))
+        self.page_set_label_cfg_api_reverse_proxy.setToolTip("反向代理地址，填写示例http://example.com:12345/v1")
+        self.page_set_label_cfg_api_http_proxy.setText(_translate("MainWIndow", "正向代理:"))
+        self.page_set_label_cfg_api_http_proxy.setToolTip("正向代理地址，填写示例http://example.com:12345/v1")
         self.page_set_label_cfg_preset_mode.setText(_translate("MainWIndow", "人格模式："))
+        self.page_set_label_cfg_preset_mode.setToolTip(
+            "情景预设格式\n# 参考值：默认方式：normal | 完整情景：full_scenario\n# 默认方式 的格式为上述default_prompt中的内容，或prompts目录下的文件名\n# 完整情景方式 的格式为JSON，在scenario目录下的JSON文件中列出对话的每个回合，编写方法见scenario/default-template.json\n#     编写方法请查看https://github.com/RockChinQ/QChatGPT/wiki/%E5%8A%9F%E8%83%BD%E4%BD%BF%E7%94%A8#%E9%A2%84%E8%AE%BE%E6%96%87%E5%AD%97full_scenario%E6%A8%A1%E5%BC%8F")
         self.page_set_label_cfg_response_prefix.setText(_translate("MainWIndow", "响应前缀："))
+        self.page_set_label_cfg_response_prefix.setToolTip("响应前缀")
         self.page_set_label_cfg_response_regexp.setText(_translate("MainWIndow", "响应正则表达式："))
+        self.page_set_label_cfg_response_regexp.setToolTip("响应正则表达式")
         self.page_set_label_cfg_baidu_api_key.setText(_translate("MainWIndow", "百度云API_KEY："))
+        self.page_set_label_cfg_baidu_api_key.setToolTip("百度云API_KEY 24位英文数字字符串。")
         self.page_set_edit_cfg_encourage_sponsor_at_start.setText(_translate("MainWIndow", "启动时发送赞赏码"))
+        self.page_set_edit_cfg_encourage_sponsor_at_start.setToolTip(
+            "启动时是否发送赞赏码，仅当使用量已经超过2048字时发送。")
         self.page_set_edit_cfg_hide_exce_info_to_user.setText(
             _translate("MainWIndow", "消息处理出错时向用户隐藏错误详细信息"))
+        self.page_set_edit_cfg_hide_exce_info_to_user.setToolTip("消息处理出错时是否向用户隐藏错误详细信息。")
         self.page_set_edit_cfg_upgrade_dependencies.setText(_translate("MainWIndow", "启动时进行依赖库更新"))
+        self.page_set_edit_cfg_upgrade_dependencies.setToolTip("是否在启动时进行依赖库更新。")
         self.page_set_edit_cfg_report_usage.setText(_translate("MainWIndow", "上报统计信息"))
+        self.page_set_edit_cfg_report_usage.setToolTip(
+            "是否上报统计信息\n用于统计机器人的使用情况，不会收集任何用户信息\n 仅上报时间、字数使用量、绘图使用量，其他信息不会上报。")
         self.page_set_label_cfg_logging_level.setText(_translate("MainWIndow", "日志级别："))
+        self.page_set_label_cfg_logging_level.setToolTip("日志级别")
         self.page_set_label_cmd_plugin_off.setText(_translate("MainWIndow", "plugin.off"))
+        self.page_set_label_cmd_plugin_off.setToolTip("插件关闭，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_plugin.setText(_translate("MainWIndow", "plugin"))
+        self.page_set_label_cmd_plugin.setToolTip("插件管理，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_plugin_get.setText(_translate("MainWIndow", "plugin.get"))
+        self.page_set_label_cmd_plugin_get.setToolTip("下载插件，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_plugin_update.setText(_translate("MainWIndow", "plugin.update"))
+        self.page_set_label_cmd_plugin_update.setToolTip("更新插件，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_plugin_del.setText(_translate("MainWIndow", "plugin.del"))
+        self.page_set_label_cmd_plugin_del.setToolTip("删除插件，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_plugin_on.setText(_translate("MainWIndow", "plugin.on"))
+        self.page_set_label_cmd_plugin_on.setToolTip("打开插件，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_list.setText(_translate("MainWIndow", "list"))
+        self.page_set_label_cmd_list.setToolTip("显示当前插件列表，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_next.setText(_translate("MainWIndow", "next"))
+        self.page_set_label_cmd_next.setToolTip("切换后一次对话，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_resend.setText(_translate("MainWIndow", "resend"))
+        self.page_set_label_cmd_resend.setToolTip("重新获取上一次问题的回复，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_help.setText(_translate("MainWIndow", "help"))
+        self.page_set_label_cmd_help.setToolTip("显示自定义的帮助信息，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_update.setText(_translate("MainWIndow", "update"))
+        self.page_set_label_cmd_update.setToolTip("更新程序，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_version.setText(_translate("MainWIndow", "version"))
+        self.page_set_label_cmd_version.setToolTip("查看版本信息，1为普通权限，2为管理员权限。")
         self.page_set_label_tips_command_reset_name_message.setText(_translate("MainWIndow", "修改预设成功提示："))
+        self.page_set_label_tips_command_reset_name_message.setToolTip("修改预设成功提示")
         self.page_set_label_tips_alter_tip_message.setText(_translate("MainWIndow", "出错提示："))
+        self.page_set_label_tips_alter_tip_message.setToolTip("出错提示，1为普通权限，2为管理员权限。")
         self.page_set_label_tips_rate_limit_drop_tip.setText(_translate("MainWIndow", "对话丢弃的提示信息："))
+        self.page_set_label_tips_rate_limit_drop_tip.setToolTip("对话丢弃的提示信息，1为普通权限，2为管理员权限。")
         self.page_set_label_tips_help_message.setText(_translate("MainWIndow", "指令！help帮助信息："))
+        self.page_set_label_tips_help_message.setToolTip("指令！help帮助信息，1为普通权限，2为管理员权限。")
         self.page_set_label_tips_reply_message.setText(_translate("MainWIndow", "私聊消息超时提示："))
+        self.page_set_label_tips_reply_message.setToolTip("私聊消息超时提示，1为普通权限，2为管理员权限。")
         self.page_set_label_tips_replys_message.setText(_translate("MainWIndow", "群聊消息超时提示："))
+        self.page_set_label_tips_replys_message.setToolTip("群聊消息超时提示，1为普通权限，2为管理员权限。")
         self.page_set_label_tips_command_admin_message.setText(_translate("MainWIndow", "指令权限不足提示："))
+        self.page_set_label_tips_command_admin_message.setToolTip("指令权限不足提示，1为普通权限，2为管理员权限。")
         self.page_set_label_tips_command_err_message.setText(_translate("MainWIndow", "指令无效提示提示："))
+        self.page_set_label_tips_command_err_message.setToolTip("指令无效提示提示，1为普通权限，2为管理员权限。")
         self.page_set_label_tips_command_reset_message.setText(_translate("MainWIndow", "会话重置提示："))
+        self.page_set_label_tips_command_reset_message.setToolTip("会话重置提示，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_draw.setText(_translate("MainWIndow", "draw"))
+        self.page_set_label_cmd_draw.setToolTip("使用DALL·E生成图片，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_default.setText(_translate("MainWIndow", "default"))
+        self.page_set_label_cmd_default.setToolTip("操作情景预设，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_default_set.setText(_translate("MainWIndow", "default.set"))
+        self.page_set_label_cmd_default_set.setToolTip("设置情景预设，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_del.setText(_translate("MainWIndow", "del"))
+        self.page_set_label_cmd_del.setToolTip("删除当前会话的历史记录，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_del_all.setText(_translate("MainWIndow", "del.all"))
+        self.page_set_label_cmd_del_all.setToolTip("删除所有会话的历史记录，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_delhst.setText(_translate("MainWIndow", "delhst"))
-        self.page_set_label_cmd_delhs_tall.setText(_translate("MainWIndow", "delhst.all"))
+        self.page_set_label_cmd_delhst.setToolTip("删除指定会话的所有历史记录，1为普通权限，2为管理员权限。")
+        self.page_set_label_cmd_delhst_all.setText(_translate("MainWIndow", "delhst.all"))
+        self.page_set_label_cmd_delhst_all.setToolTip("删除指定会话的所有历史记录，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_last.setText(_translate("MainWIndow", "last"))
+        self.page_set_label_cmd_last.setToolTip("切换前一次对话，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_prompt.setText(_translate("MainWIndow", "prompt"))
+        self.page_set_label_cmd_prompt.setToolTip("获取当前会话的前文，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_reset.setText(_translate("MainWIndow", "reset"))
+        self.page_set_label_cmd_reset.setToolTip("重置当前会话，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_reload.setText(_translate("MainWIndow", "reload"))
+        self.page_set_label_cmd_reload.setToolTip("执行热重载，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_usage.setText(_translate("MainWIndow", "usage"))
+        self.page_set_label_cmd_usage.setToolTip("获取使用情况，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_cfg.setText(_translate("MainWIndow", "cfg"))
+        self.page_set_label_cmd_cfg.setToolTip("配置项管理，1为普通权限，2为管理员权限。")
         self.page_set_label_cmd_cmd.setText(_translate("MainWIndow", "cmd"))
+        self.page_set_label_cmd_cmd.setToolTip("显示指令列表，1为普通权限，2为管理员权限。")
         self.textBrowser.setHtml(_translate("MainWIndow",
                                             "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
                                             "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
@@ -4363,7 +4859,8 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     app.setFont(QFont("微软雅黑", 10))
-    app.setStyleSheet("QLabel { color: rgb(1, 1, 1); } QLabel:hover { background-color: rgb(246, 247, 248); }")
+    app.setStyleSheet(
+        "QLabel { color: rgb(1, 1, 1); } QLabel:hover { background-color: rgb(246, 247, 248); }QToolTip {   color: white; }  ")
 
     if "--debug" in sys.argv:
         window = MainWindow()
@@ -4373,9 +4870,9 @@ if __name__ == "__main__":
         app.exec_()
 
     else:
-        try:
-            window = MainWindow()
-            window.show()
-            app.exec_()
-        except Exception as e:
-            rai_dia(e)
+        # try:
+        window = MainWindow()
+        window.show()
+        app.exec_()
+        # except Exception as e:
+        #     rai_dia(e)
