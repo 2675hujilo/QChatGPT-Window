@@ -114,6 +114,7 @@ value_cfgs_upgrade_dependencies = "upgrade_dependencies"
 value_cfgs_report_usage = "report_usage"
 value_cfgs_inappropriate_message_tips = "inappropriate_message_tips"
 value_cfgs_logging_level = "logging_level"
+value_cfgs_force_delay_range="force_delay_range"
 
 # doc_cmds的值
 value_cmds_draw = "draw"
@@ -2815,6 +2816,9 @@ QLineEdit:hover {
         self.page_set_edit_cfg_process_message_timeout.setValue(self.dict_cfgs[value_cfgs_process_message_timeout])
         self.page_set_edit_cfg_process_message_timeout.valueChanged.connect(
             lambda new_value: update_value_cfgs(value_cfgs_process_message_timeout, new_value))
+        # self.page_set_edit_cfg_qiyongduoduixiangmingcheng.setChecked(self.dict_cfgs[x])
+        # self.page_set_edit_cfg_qiyongduoduixiangmingcheng.stateChanged.connect(lambda state: update_value_cfgs(x, bool(state)))
+        # 暂未实现
 
         self.page_set_edit_cfg_qiyongduoduixiangmingcheng = QtWidgets.QCheckBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_qiyongduoduixiangmingcheng.setEnabled(False)
@@ -2824,9 +2828,90 @@ QLineEdit:hover {
         font.setPointSize(11)
         self.page_set_edit_cfg_qiyongduoduixiangmingcheng.setFont(font)
         self.page_set_edit_cfg_qiyongduoduixiangmingcheng.setObjectName("page_set_edit_cfg_qiyongduoduixiangmingcheng")
-        # self.page_set_edit_cfg_qiyongduoduixiangmingcheng.setChecked(self.dict_cfgs[x])
-        # self.page_set_edit_cfg_qiyongduoduixiangmingcheng.stateChanged.connect(lambda state: update_value_cfgs(x, bool(state)))
-        # 暂未实现
+        self.page_set_edit_cfg_qiyongduoduixiangmingcheng.setHidden(True)
+
+
+        self.page_set_label_cfg_force_delay_range=QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
+        self.page_set_label_cfg_force_delay_range.setGeometry(QtCore.QRect(260,1640,354,30))
+        font = QtGui.QFont()
+        font.setFamily("微软雅黑")
+        font.setPointSize(11)
+        self.page_set_label_cfg_force_delay_range.setFont(font)
+        self.page_set_label_cfg_force_delay_range.setObjectName(
+            "page_set_label_cfg_force_delay_range")
+
+        self.page_set_label_cfg_force_delay_range_danwei = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
+        self.page_set_label_cfg_force_delay_range_danwei.setGeometry(QtCore.QRect(540, 1640, 354, 30))
+        font = QtGui.QFont()
+        font.setFamily("微软雅黑")
+        font.setPointSize(11)
+        self.page_set_label_cfg_force_delay_range_danwei.setFont(font)
+        self.page_set_label_cfg_force_delay_range_danwei.setObjectName(
+            "page_set_label_cfg_force_delay_range_danwei")
+
+        self.page_set_label_cfg_force_delay_range_ = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
+        self.page_set_label_cfg_force_delay_range_.setGeometry(QtCore.QRect(445, 1640, 354, 30))
+        font = QtGui.QFont()
+        font.setFamily("微软雅黑")
+        font.setPointSize(11)
+        self.page_set_label_cfg_force_delay_range_.setFont(font)
+        self.page_set_label_cfg_force_delay_range_.setObjectName(
+            "page_set_label_cfg_force_delay_range_")
+
+        self.page_set_edit_cfg_force_delay_range_left = QtWidgets.QDoubleSpinBox(self.scrollAreaWidgetContents_5)
+        self.page_set_edit_cfg_force_delay_range_left.setGeometry(QtCore.QRect(380, 1640, 61, 30))
+        self.page_set_edit_cfg_force_delay_range_left.setStyleSheet("""
+            background-color: rgba(246, 247, 248, 0.3);
+            border: none;
+            border-radius: 5px;
+            padding: 2px;
+            border: 1px solid rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            padding: 2px;
+            opacity: 0.3;
+        }
+        QLineEdit:hover {
+            border: 1px solid rgba(0, 0, 0, 1);
+            background-color: white;
+            border-radius: 5px;
+            padding: 2px;
+            opacity: 1;
+        }
+        """)
+        self.page_set_edit_cfg_force_delay_range_left.setMinimum(0)
+        self.page_set_edit_cfg_force_delay_range_left.setMaximum(30)
+        self.page_set_edit_cfg_force_delay_range_left.setObjectName("page_set_edit_cfg_force_delay_range_left")
+        self.page_set_edit_cfg_force_delay_range_left.setValue(self.dict_cfgs[value_cfgs_force_delay_range][0])
+        self.page_set_edit_cfg_force_delay_range_left.valueChanged.connect(
+            lambda new_value: update_value_cfgs(value_cfgs_sys_pool_num, new_value))
+
+        self.page_set_edit_cfg_force_delay_range_right = QtWidgets.QDoubleSpinBox(self.scrollAreaWidgetContents_5)
+        self.page_set_edit_cfg_force_delay_range_right.setGeometry(QtCore.QRect(470, 1640, 61, 30))
+        self.page_set_edit_cfg_force_delay_range_right.setStyleSheet("""
+            background-color: rgba(246, 247, 248, 0.3);
+            border: none;
+            border-radius: 5px;
+            padding: 2px;
+            border: 1px solid rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            padding: 2px;
+            opacity: 0.3;
+        }
+        QLineEdit:hover {
+            border: 1px solid rgba(0, 0, 0, 1);
+            background-color: white;
+            border-radius: 5px;
+            padding: 2px;
+            opacity: 1;
+        }
+        """)
+        self.page_set_edit_cfg_force_delay_range_right.setMinimum(0)
+        self.page_set_edit_cfg_force_delay_range_right.setMaximum(30)
+        self.page_set_edit_cfg_force_delay_range_right.setObjectName("page_set_edit_cfg_force_delay_range_right")
+        self.page_set_edit_cfg_force_delay_range_right.setValue(self.dict_cfgs[value_cfgs_force_delay_range][1])
+
+
+
 
         self.page_set_label_cfg_process_message_timeout_danwei = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_label_cfg_process_message_timeout_danwei.setGeometry(QtCore.QRect(490, 1700, 48, 30))
@@ -3238,18 +3323,20 @@ QLineEdit:hover {
         self.page_set_edit_cfg_api_model.addItem("")
         self.page_set_edit_cfg_api_model.addItem("")
         self.page_set_edit_cfg_api_model.setItemText(0, "gpt-4")
-        self.page_set_edit_cfg_api_model.setItemText(1, "gpt-4-0314")
+        self.page_set_edit_cfg_api_model.setItemText(1, "gpt-4-0614")
         self.page_set_edit_cfg_api_model.setItemText(2, "gpt-4-32k")
-        self.page_set_edit_cfg_api_model.setItemText(3, "gpt-4-32k-0314")
+        self.page_set_edit_cfg_api_model.setItemText(3, "gpt-4-32k-0614")
         self.page_set_edit_cfg_api_model.setItemText(4, "gpt-3.5-turbo")
-        self.page_set_edit_cfg_api_model.setItemText(5, "gpt-3.5-turbo-0301")
-        self.page_set_edit_cfg_api_model.setItemText(6, "text-davinci-003")
-        self.page_set_edit_cfg_api_model.setItemText(7, "text-davinci-002")
-        self.page_set_edit_cfg_api_model.setItemText(8, "code-davinci-002")
-        self.page_set_edit_cfg_api_model.setItemText(9, "code-cushman-001")
-        self.page_set_edit_cfg_api_model.setItemText(10, "text-curie-001")
-        self.page_set_edit_cfg_api_model.setItemText(11, "text-babbage-001")
-        self.page_set_edit_cfg_api_model.setItemText(12, "text-ada-001")
+        self.page_set_edit_cfg_api_model.setItemText(5, "gpt-3.5-turbo-16k")
+        self.page_set_edit_cfg_api_model.setItemText(6, "gpt-3.5-turbo-0613")
+        self.page_set_edit_cfg_api_model.setItemText(7, "gpt-3.5-turbo-16k-0613")
+        self.page_set_edit_cfg_api_model.setItemText(8, "text-davinci-003")
+        self.page_set_edit_cfg_api_model.setItemText(9, "text-davinci-002")
+        self.page_set_edit_cfg_api_model.setItemText(10, "code-davinci-002")
+        self.page_set_edit_cfg_api_model.setItemText(11, "code-cushman-001")
+        self.page_set_edit_cfg_api_model.setItemText(12, "text-curie-001")
+        self.page_set_edit_cfg_api_model.setItemText(13, "text-babbage-001")
+        self.page_set_edit_cfg_api_model.setItemText(14, "text-ada-001")
         self.page_set_edit_cfg_api_model.setCurrentText(
             self.dict_cfgs[value_cfgs_completion_api_params][value_cfgs_completion_api_params_model])
         self.page_set_edit_cfg_api_model.currentTextChanged.connect(
@@ -4548,7 +4635,7 @@ QLineEdit:hover {
     def update_doc_cfgs(self):
         try:
             with open(doc_cfg, "w", encoding='utf-8') as f:
-                json.dump(self.dict_cfgs, f)
+                json.dump(self.dict_cfgs, f, indent=4)
         except Exception as e:
             rai_dia(e)
 
@@ -4571,7 +4658,7 @@ QLineEdit:hover {
         # 将更改后的配置写回到配置文件中
         try:
             with open(doc_cmds, "w", encoding='utf-8') as f:
-                json.dump(self.dict_cmds, f)
+                json.dump(self.dict_cmds, f, indent=4)
         except Exception as e:
             rai_dia(e)
         # ************************************这是目前无用的字段，但以后可能有用************************************
@@ -4684,6 +4771,10 @@ QLineEdit:hover {
         self.page_set_edit_cfg_qiyongduoduixiangmingcheng.setText(
             _translate("MainWIndow", "群内会话启用多对象名称(暂未实现)"))
         self.page_set_edit_cfg_qiyongduoduixiangmingcheng.setToolTip("（快去催高中生）")
+        self.page_set_label_cfg_force_delay_range.setText(_translate("MainWIndow","强制延迟时间:"))
+        self.page_set_label_cfg_force_delay_range.setToolTip(_translate("MainWIndow","回复前的强制延迟时间，降低机器人被腾讯风控概率,此机制对命令和消息、私聊及群聊均生效每次处理时从以下的范围取一个随机秒数，,当此次消息处理时间低于此秒数时，将会强制延迟至此秒数, 例如：[1.5, 3]，则每次处理时会随机取一个1.5-3秒的随机数，若处理时间低于此随机数，则强制延迟至此随机秒数."))
+        self.page_set_label_cfg_force_delay_range_danwei.setText(_translate("MainWIndow","秒"))
+        self.page_set_label_cfg_force_delay_range_.setText( "—")
         self.page_set_label_cfg_process_message_timeout_danwei.setText(_translate("MainWIndow", "秒"))
         self.page_set_label_cfg_process_message_timeout_danwei.setToolTip("")
         self.page_set_label_cfg_retry_times.setText(_translate("MainWIndow", "消息处理超时重试次数："))
@@ -4870,9 +4961,6 @@ if __name__ == "__main__":
         app.exec_()
 
     else:
-        try:
-            window = MainWindow()
-            window.show()
-            app.exec_()
-        except Exception as e:
-            rai_dia(e)
+        window = MainWindow()
+        window.show()
+        app.exec_()
