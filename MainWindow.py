@@ -114,7 +114,7 @@ value_cfgs_upgrade_dependencies = "upgrade_dependencies"
 value_cfgs_report_usage = "report_usage"
 value_cfgs_inappropriate_message_tips = "inappropriate_message_tips"
 value_cfgs_logging_level = "logging_level"
-value_cfgs_force_delay_range="force_delay_range"
+value_cfgs_force_delay_range = "force_delay_range"
 
 # doc_cmds的值
 value_cmds_draw = "draw"
@@ -521,10 +521,9 @@ class MainWindow(QtWidgets.QMainWindow):
                             self.page_set_edit_cfg_api.setCurrentIndex(self.page_set_edit_cfg_api.count() - 1)
 
                             # 写回文件
-                            with open(doc_cfg, "w", encoding='utf-8') as f:
-                                json.dump(self.dict_cfgs, f)
-                                # for key, value in self.dict_cfgs.items():
-                                #     f.write(f"{key} = {repr(value)}\n")
+                            self.update_doc_cfgs()
+                            # for key, value in self.dict_cfgs.items():
+                            #     f.write(f"{key} = {repr(value)}\n")
                             break
                         else:
                             QtWidgets.QMessageBox.warning(self, "添加 API Key", "API 值格式不正确，请重新输入！")
@@ -538,14 +537,52 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_api.removeItem(self.page_set_edit_cfg_api.currentIndex())
 
         # 写回文件
-        try:
-            with open(doc_cfg, "w", encoding='utf-8') as f:
-                json.dump(self.dict_cfgs, f)
-                # for key, value in self.dict_cfgs.items():
-                #     f.write(f"{key} = {repr(value)}\n")
-        except Exception as e:
-            rai_dia(e)
+        self.update_doc_cfgs()
 
+    def add_response_rules(self):
+        response_rules_name, ok = QtWidgets.QInputDialog.getText(self, "添加回复规则", "回复规则名称：")
+        if ok and response_rules_name:
+            if response_rules_name in self.dict_cfgs.get(value_cfgs_response_rules, {}).keys():
+                QtWidgets.QMessageBox.warning(self, "添加回复规则", "规则名称已存在！")
+            else:
+                self.dict_cfgs[value_cfgs_response_rules][response_rules_name] = {"at": True,
+                                                                                  "prefix": ["/ai", "!ai", "！ai", "ai"],
+                                                                                  "regexp": [], "random_rate": 0.0, }
+                # 更新下拉框
+                self.page_set_edit_cfg_response_rules_choose.addItems([response_rules_name])
+                self.update_doc_cfgs()
+
+    def del_response_rules(self):
+        if self.page_set_edit_cfg_response_rules_choose.currentText() == "default":
+            QtWidgets.QMessageBox.warning(self, "删除回复规则", "default不可删除！")
+        self.dict_cfgs[value_cfgs_response_rules].pop(
+            self.page_set_edit_cfg_response_rules_choose.currentText(), None)
+        self.update_doc_cfgs()
+
+    def update_response_rules(self):
+        temp={
+            "at": self.page_set_edit_cfg_response_at.isChecked(),
+            "prefix": self.page_set_edit_cfg_response_prefix.text().strip().split(','),
+            "regexp": self.page_set_edit_cfg_response_regexp.text().strip().split(','),
+            "random_rate": self.page_set_edit_cfg_random_rate.value(), }
+        self.dict_cfgs[value_cfgs_response_rules][self.page_set_edit_cfg_response_rules_choose.currentText()]=temp
+        self.update_doc_cfgs()
+
+    def update_response_rules_value(self):
+        self.page_set_edit_cfg_response_at.setChecked(
+            self.dict_cfgs[value_cfgs_response_rules][self.page_set_edit_cfg_response_rules_choose.currentText()][
+                value_cfgs_response_rules_at])
+        self.page_set_edit_cfg_response_prefix.setText(
+            ','.join(
+                self.dict_cfgs[value_cfgs_response_rules][self.page_set_edit_cfg_response_rules_choose.currentText()][
+                    value_cfgs_response_rules_prefix]))
+        self.page_set_edit_cfg_random_rate.setValue(
+            self.dict_cfgs[value_cfgs_response_rules][self.page_set_edit_cfg_response_rules_choose.currentText()][
+                value_cfgs_response_rules_random_rate])
+        self.page_set_edit_cfg_response_regexp.setText(
+            ','.join(
+                self.dict_cfgs[value_cfgs_response_rules][self.page_set_edit_cfg_response_rules_choose.currentText()][
+                    value_cfgs_response_rules_regexp]))
     def add_default_prompt(self):
         try:
             new_key, ok = QtWidgets.QInputDialog.getText(self, "添加普通人格", "请输入人格名:")
@@ -558,10 +595,9 @@ class MainWindow(QtWidgets.QMainWindow):
                     if ok and new_value:
                         # 将新键值对插入字典
                         self.dict_cfgs[value_cfgs_default_prompt][new_key] = new_value
-                        with open(doc_cfg, "w", encoding='utf-8') as f:
-                            json.dump(self.dict_cfgs, f)
-                            # for key, value in self.dict_cfgs.items():
-                            #     f.write(f"{key} = {repr(value)}\n")
+                        self.update_doc_cfgs()
+                        # for key, value in self.dict_cfgs.items():
+                        #     f.write(f"{key} = {repr(value)}\n")
                         # # 更新下拉框
                         self.page_set_edit_cfg_default_prompt_choose.clear()
                         self.page_set_edit_cfg_default_prompt_choose.addItems(
@@ -577,13 +613,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                                           None)
             self.page_set_edit_cfg_default_prompt_choose.removeItem(
                 self.page_set_edit_cfg_default_prompt_choose.currentIndex())
-            try:
-                with open(doc_cfg, "w", encoding='utf-8') as f:
-                    json.dump(self.dict_cfgs, f)
-                    # for key, value in self.dict_cfgs.items():
-                    #     f.write(f"{key} = {repr(value)}\n")
-            except Exception as e:
-                rai_dia(e)
+            self.update_doc_cfgs()
 
     def update_default_prompt(self):
         current_text = self.page_set_edit_cfg_default_prompt_choose.currentText()
@@ -617,6 +647,7 @@ class MainWindow(QtWidgets.QMainWindow):
                             self.dict_cfgs[value_cfgs_rate_limitation].keys())
         except Exception as e:
             rai_dia(e)
+
     def del_rate_limitation(self):
         if len(self.dict_cfgs[value_cfgs_rate_limitation]) == 1:
             QtWidgets.QMessageBox.warning(self, "删除会话限速", "最少保留一个会话限速！")
@@ -763,14 +794,16 @@ class MainWindow(QtWidgets.QMainWindow):
         def update_admin_qq(value):
             if value:
                 update_value_cfgs(value_cfgs_admin_qq, int(value))
-        def update_value_limit(name,left_value,right_value):
+
+        def update_value_limit(name, left_value, right_value):
             try:
                 self.page_set_edit_cfg_force_delay_range_left.setMaximum(right_value)
                 self.page_set_edit_cfg_force_delay_range_right.setMinimum(left_value)
-                self.dict_cfgs[name] = [left_value,right_value]
+                self.dict_cfgs[name] = [left_value, right_value]
                 self.update_doc_cfgs()
             except Exception as e:
                 rai_dia(e)
+
         def update_value_cfgs(name, new_value):
             try:
                 self.dict_cfgs[name] = new_value
@@ -789,11 +822,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # 更新cmdpriv.json文件中的数据
         def update_value_cmds(name, new_value):
             self.dict_cmds[name] = new_value
-            try:
-                with open(doc_cmds, "w", encoding='utf-8') as f:
-                    json.dump(self.dict_cmds, f)
-            except Exception as e:
-                rai_dia(e)
+            self.update_doc_cmds()
 
         self.centralwidget = QtWidgets.QWidget(MainWIndow)
         self.centralwidget.setEnabled(True)
@@ -1381,18 +1410,64 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_label_cfg_msg_source_adapter.setFont(font)
         self.page_set_label_cfg_msg_source_adapter.setObjectName("page_set_label_cfg_msg_source_adapter")
 
+        self.page_set_edit_cfg_response_rules_choose = QtWidgets.QComboBox(self.scrollAreaWidgetContents_5)
+        self.page_set_edit_cfg_response_rules_choose.setGeometry(QtCore.QRect(260, 940, 171, 30))
+        self.page_set_edit_cfg_response_rules_choose.setTabletTracking(True)
+        self.page_set_edit_cfg_response_rules_choose.setFocusPolicy(QtCore.Qt.ClickFocus)
+        self.page_set_edit_cfg_response_rules_choose.setStyleSheet(
+            "border: 1px solid rgba(0,0,0,0.5);border-radius: 5px;")
+        self.page_set_edit_cfg_response_rules_choose.setEditable(False)
+        self.page_set_edit_cfg_response_rules_choose.setInsertPolicy(QtWidgets.QComboBox.InsertAlphabetically)
+        self.page_set_edit_cfg_response_rules_choose.setObjectName("page_set_edit_cfg_response_rules_choose")
+        # 添加选项到下拉框中
+        self.page_set_edit_cfg_response_rules_choose.addItems(self.dict_cfgs[value_cfgs_response_rules].keys())
+        self.page_set_edit_cfg_response_rules_choose.setCurrentIndex(0)
+        # 显示对应值
+        self.page_set_edit_cfg_response_rules_choose.currentTextChanged.connect(self.update_response_rules_value)
+
+        self.page_set_edit_cfg_response_rules_add = QtWidgets.QPushButton(self.scrollAreaWidgetContents_5)
+        self.page_set_edit_cfg_response_rules_add.setGeometry(QtCore.QRect(470, 940, 50, 30))
+        self.page_set_edit_cfg_response_rules_add.setText("添加")
+        self.page_set_edit_cfg_response_rules_add.setStyleSheet(
+            """QPushButton {
+                   border: 1px solid rgba(0,0,0, 0.5);
+                   border-radius: 5px;
+               }
+               QPushButton:hover {
+                   background-color: rgba(255, 255, 255, 0.4);
+               }
+               QPushButton:pressed {
+                   background-color: rgba(255, 255, 255,6);
+               }""")
+        self.page_set_edit_cfg_response_rules_add.clicked.connect(self.add_response_rules)
+
+        self.page_set_edit_cfg_response_rules_del = QtWidgets.QPushButton(self.scrollAreaWidgetContents_5)
+        self.page_set_edit_cfg_response_rules_del.setGeometry(QtCore.QRect(540, 940, 50, 30))
+        self.page_set_edit_cfg_response_rules_del.setText("删除")
+        self.page_set_edit_cfg_response_rules_del.setStyleSheet(
+            """QPushButton {
+                   border: 1px solid rgba(0,0,0, 0.5);
+                   border-radius: 5px;
+               }
+               QPushButton:hover {
+                   background-color: rgba(255, 255, 255, 0.4);
+               }
+               QPushButton:pressed {
+                   background-color: rgba(255, 255, 255,6);
+               }""")
+        self.page_set_edit_cfg_response_rules_del.clicked.connect(self.del_response_rules)
+
         self.page_set_edit_cfg_response_at = QtWidgets.QCheckBox(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_cfg_response_at.setGeometry(QtCore.QRect(260, 940, 171, 30))
+        self.page_set_edit_cfg_response_at.setGeometry(QtCore.QRect(260, 980, 171, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(11)
         self.page_set_edit_cfg_response_at.setFont(font)
         self.page_set_edit_cfg_response_at.setObjectName("page_set_edit_cfg_response_at")
         self.page_set_edit_cfg_response_at.setChecked(
-            self.dict_cfgs[value_cfgs_response_rules][value_cfgs_response_rules_at])
-        self.page_set_edit_cfg_response_at.stateChanged.connect(
-            lambda state: update_value_cfgs(value_cfgs_response_rules, {**self.dict_cfgs[value_cfgs_response_rules],
-                                                                        **{value_cfgs_response_rules_at: bool(state)}}))
+            self.dict_cfgs[value_cfgs_response_rules][self.page_set_edit_cfg_response_rules_choose.currentText()][
+                value_cfgs_response_rules_at])
+        self.page_set_edit_cfg_response_at.stateChanged.connect(self.update_response_rules)
 
         self.page_set_edit_cfg_font_path = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_font_path.setGeometry(QtCore.QRect(544, 2100, 142, 30))
@@ -1563,7 +1638,7 @@ QLineEdit:hover {
         self.page_set_label_cfg_prompt_submit_length.setObjectName("page_set_label_cfg_prompt_submit_length")
 
         self.page_set_label_cfg_random_rate = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cfg_random_rate.setGeometry(QtCore.QRect(260, 980, 112, 30))
+        self.page_set_label_cfg_random_rate.setGeometry(QtCore.QRect(440, 980, 112, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(11)
@@ -1571,7 +1646,7 @@ QLineEdit:hover {
         self.page_set_label_cfg_random_rate.setObjectName("page_set_label_cfg_random_rate")
 
         self.page_set_edit_cfg_random_rate = QtWidgets.QDoubleSpinBox(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_cfg_random_rate.setGeometry(QtCore.QRect(390, 980, 60, 30))
+        self.page_set_edit_cfg_random_rate.setGeometry(QtCore.QRect(590, 980, 60, 30))
         self.page_set_edit_cfg_random_rate.setStyleSheet("""
     background-color: rgba(246, 247, 248, 0.3);
     border: none;
@@ -1594,11 +1669,9 @@ QLineEdit:hover {
         self.page_set_edit_cfg_random_rate.setSingleStep(0.1)
         self.page_set_edit_cfg_random_rate.setObjectName("page_set_edit_cfg_random_rate")
         self.page_set_edit_cfg_random_rate.setValue(
-            self.dict_cfgs[value_cfgs_response_rules][value_cfgs_response_rules_random_rate])
-        self.page_set_edit_cfg_random_rate.valueChanged.connect(
-            lambda new_value: update_value_cfgs(value_cfgs_response_rules, {**self.dict_cfgs[value_cfgs_response_rules],
-                                                                            **{
-                                                                                value_cfgs_response_rules_random_rate: new_value}}))
+            self.dict_cfgs[value_cfgs_response_rules][self.page_set_edit_cfg_response_rules_choose.currentText()][
+                value_cfgs_response_rules_random_rate])
+        self.page_set_edit_cfg_random_rate.valueChanged.connect(self.update_response_rules)
 
         self.page_set_edit_cmd_draw = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_draw.setGeometry(QtCore.QRect(350, 2600, 36, 30))
@@ -2837,9 +2910,8 @@ QLineEdit:hover {
         self.page_set_edit_cfg_qiyongduoduixiangmingcheng.setObjectName("page_set_edit_cfg_qiyongduoduixiangmingcheng")
         self.page_set_edit_cfg_qiyongduoduixiangmingcheng.setHidden(True)
 
-
-        self.page_set_label_cfg_force_delay_range=QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
-        self.page_set_label_cfg_force_delay_range.setGeometry(QtCore.QRect(260,1640,354,30))
+        self.page_set_label_cfg_force_delay_range = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
+        self.page_set_label_cfg_force_delay_range.setGeometry(QtCore.QRect(260, 1640, 354, 30))
         font = QtGui.QFont()
         font.setFamily("微软雅黑")
         font.setPointSize(11)
@@ -2924,7 +2996,6 @@ QLineEdit:hover {
     opacity: 1;
 }
 """)
-
 
         self.page_set_label_cfg_process_message_timeout_danwei = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.page_set_label_cfg_process_message_timeout_danwei.setGeometry(QtCore.QRect(490, 1700, 48, 30))
@@ -3254,11 +3325,10 @@ QLineEdit:hover {
         self.page_set_edit_cfg_response_regexp.setToolTip(
             "输入内容以<span style='color:red'>【英文逗号】</span>分隔。比如:关键词1,关键词2,关键词3")
         self.page_set_edit_cfg_response_regexp.setText(
-            ','.join(self.dict_cfgs[value_cfgs_response_rules][value_cfgs_response_rules_regexp]))
-        self.page_set_edit_cfg_response_regexp.textChanged.connect(
-            lambda new_value: update_value_cfgs(value_cfgs_response_rules,
-                                                {**self.dict_cfgs[value_cfgs_response_rules],
-                                                 **{value_cfgs_response_rules_regexp: new_value.split(',')}}))
+            ','.join(
+                self.dict_cfgs[value_cfgs_response_rules][self.page_set_edit_cfg_response_rules_choose.currentText()][
+                    value_cfgs_response_rules_regexp]))
+        self.page_set_edit_cfg_response_regexp.editingFinished.connect(self.update_response_rules)
         self.page_set_edit_cfg_response_prefix = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_response_prefix.setGeometry(QtCore.QRect(430, 1020, 321, 30))
         self.page_set_edit_cfg_response_prefix.setObjectName("page_set_edit_cfg_response_prefix")
@@ -3268,11 +3338,10 @@ QLineEdit:hover {
             "输入内容以<span style='color:red'>【英文】逗号</span>分隔。比如关键词1,关键词2,关键词3")
 
         self.page_set_edit_cfg_response_prefix.setText(
-            ','.join(self.dict_cfgs[value_cfgs_response_rules][value_cfgs_response_rules_prefix]))
-        self.page_set_edit_cfg_response_prefix.textChanged.connect(
-            lambda new_value: update_value_cfgs(value_cfgs_response_rules,
-                                                {**self.dict_cfgs[value_cfgs_response_rules],
-                                                 **{value_cfgs_response_rules_prefix: new_value.split(',')}}))
+            ','.join(
+                self.dict_cfgs[value_cfgs_response_rules][self.page_set_edit_cfg_response_rules_choose.currentText()][
+                    value_cfgs_response_rules_prefix]))
+        self.page_set_edit_cfg_response_prefix.editingFinished.connect(self.update_response_rules)
 
         self.page_set_edit_cfg_api_temperature = QtWidgets.QDoubleSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_api_temperature.setGeometry(QtCore.QRect(330, 1240, 60, 30))
@@ -4648,7 +4717,7 @@ QLineEdit:hover {
     def update_doc_cfgs(self):
         try:
             with open(doc_cfg, "w", encoding='utf-8') as f:
-                json.dump(self.dict_cfgs, f, indent=4)
+                json.dump(self.dict_cfgs, f, indent=4, ensure_ascii=False)
         except Exception as e:
             rai_dia(e)
 
@@ -4671,7 +4740,7 @@ QLineEdit:hover {
         # 将更改后的配置写回到配置文件中
         try:
             with open(doc_cmds, "w", encoding='utf-8') as f:
-                json.dump(self.dict_cmds, f, indent=4)
+                json.dump(self.dict_cmds, f, indent=4, ensure_ascii=False)
         except Exception as e:
             rai_dia(e)
         # ************************************这是目前无用的字段，但以后可能有用************************************
@@ -4784,10 +4853,11 @@ QLineEdit:hover {
         self.page_set_edit_cfg_qiyongduoduixiangmingcheng.setText(
             _translate("MainWIndow", "群内会话启用多对象名称(暂未实现)"))
         self.page_set_edit_cfg_qiyongduoduixiangmingcheng.setToolTip("（快去催高中生）")
-        self.page_set_label_cfg_force_delay_range.setText(_translate("MainWIndow","强制延迟时间:"))
-        self.page_set_label_cfg_force_delay_range.setToolTip(_translate("MainWIndow","回复前的强制延迟时间，降低机器人被腾讯风控概率,此机制对命令和消息、私聊及群聊均生效每次处理时从以下的范围取一个随机秒数，,当此次消息处理时间低于此秒数时，将会强制延迟至此秒数, 例如：[1.5, 3]，则每次处理时会随机取一个1.5-3秒的随机数，若处理时间低于此随机数，则强制延迟至此随机秒数."))
-        self.page_set_label_cfg_force_delay_range_danwei.setText(_translate("MainWIndow","秒"))
-        self.page_set_label_cfg_force_delay_range_.setText( "—")
+        self.page_set_label_cfg_force_delay_range.setText(_translate("MainWIndow", "强制延迟时间:"))
+        self.page_set_label_cfg_force_delay_range.setToolTip(_translate("MainWIndow",
+                                                                        "回复前的强制延迟时间，降低机器人被腾讯风控概率,此机制对命令和消息、私聊及群聊均生效每次处理时从以下的范围取一个随机秒数，,当此次消息处理时间低于此秒数时，将会强制延迟至此秒数, 例如：[1.5, 3]，则每次处理时会随机取一个1.5-3秒的随机数，若处理时间低于此随机数，则强制延迟至此随机秒数."))
+        self.page_set_label_cfg_force_delay_range_danwei.setText(_translate("MainWIndow", "秒"))
+        self.page_set_label_cfg_force_delay_range_.setText("—")
         self.page_set_label_cfg_process_message_timeout_danwei.setText(_translate("MainWIndow", "秒"))
         self.page_set_label_cfg_process_message_timeout_danwei.setToolTip("")
         self.page_set_label_cfg_retry_times.setText(_translate("MainWIndow", "消息处理超时重试次数："))
