@@ -763,7 +763,14 @@ class MainWindow(QtWidgets.QMainWindow):
         def update_admin_qq(value):
             if value:
                 update_value_cfgs(value_cfgs_admin_qq, int(value))
-
+        def update_value_limit(name,left_value,right_value):
+            try:
+                self.page_set_edit_cfg_force_delay_range_left.setMaximum(right_value)
+                self.page_set_edit_cfg_force_delay_range_right.setMinimum(left_value)
+                self.dict_cfgs[name] = [left_value,right_value]
+                self.update_doc_cfgs()
+            except Exception as e:
+                rai_dia(e)
         def update_value_cfgs(name, new_value):
             try:
                 self.dict_cfgs[name] = new_value
@@ -2859,7 +2866,28 @@ QLineEdit:hover {
             "page_set_label_cfg_force_delay_range_")
 
         self.page_set_edit_cfg_force_delay_range_left = QtWidgets.QDoubleSpinBox(self.scrollAreaWidgetContents_5)
+        self.page_set_edit_cfg_force_delay_range_left.setObjectName("page_set_edit_cfg_force_delay_range_left")
+        self.page_set_edit_cfg_force_delay_range_left.setValue(self.dict_cfgs[value_cfgs_force_delay_range][0])
+        self.page_set_edit_cfg_force_delay_range_right = QtWidgets.QDoubleSpinBox(self.scrollAreaWidgetContents_5)
+        self.page_set_edit_cfg_force_delay_range_right.setObjectName("page_set_edit_cfg_force_delay_range_right")
+        self.page_set_edit_cfg_force_delay_range_right.setValue(self.dict_cfgs[value_cfgs_force_delay_range][1])
+
         self.page_set_edit_cfg_force_delay_range_left.setGeometry(QtCore.QRect(380, 1640, 61, 30))
+        self.page_set_edit_cfg_force_delay_range_left.setMinimum(0)
+        self.page_set_edit_cfg_force_delay_range_left.setMaximum(self.page_set_edit_cfg_force_delay_range_right.value())
+        self.page_set_edit_cfg_force_delay_range_left.valueChanged.connect(
+            lambda new_value: update_value_limit(value_cfgs_force_delay_range,
+                                                 self.page_set_edit_cfg_force_delay_range_left.value(),
+                                                 self.page_set_edit_cfg_force_delay_range_right.value()))
+
+        self.page_set_edit_cfg_force_delay_range_right.setGeometry(QtCore.QRect(470, 1640, 61, 30))
+        self.page_set_edit_cfg_force_delay_range_right.setMinimum(self.page_set_edit_cfg_force_delay_range_left.value())
+        self.page_set_edit_cfg_force_delay_range_right.setMaximum(30)
+        self.page_set_edit_cfg_force_delay_range_right.valueChanged.connect(
+            lambda new_value: update_value_limit(value_cfgs_force_delay_range,
+                                                 self.page_set_edit_cfg_force_delay_range_left.value(),
+                                                 self.page_set_edit_cfg_force_delay_range_right.value()))
+
         self.page_set_edit_cfg_force_delay_range_left.setStyleSheet("""
             background-color: rgba(246, 247, 248, 0.3);
             border: none;
@@ -2878,39 +2906,24 @@ QLineEdit:hover {
             opacity: 1;
         }
         """)
-        self.page_set_edit_cfg_force_delay_range_left.setMinimum(0)
-        self.page_set_edit_cfg_force_delay_range_left.setMaximum(30)
-        self.page_set_edit_cfg_force_delay_range_left.setObjectName("page_set_edit_cfg_force_delay_range_left")
-        self.page_set_edit_cfg_force_delay_range_left.setValue(self.dict_cfgs[value_cfgs_force_delay_range][0])
-        self.page_set_edit_cfg_force_delay_range_left.valueChanged.connect(
-            lambda new_value: update_value_cfgs(value_cfgs_sys_pool_num, new_value))
-
-        self.page_set_edit_cfg_force_delay_range_right = QtWidgets.QDoubleSpinBox(self.scrollAreaWidgetContents_5)
-        self.page_set_edit_cfg_force_delay_range_right.setGeometry(QtCore.QRect(470, 1640, 61, 30))
         self.page_set_edit_cfg_force_delay_range_right.setStyleSheet("""
-            background-color: rgba(246, 247, 248, 0.3);
-            border: none;
-            border-radius: 5px;
-            padding: 2px;
-            border: 1px solid rgba(0, 0, 0, 0.5);
-            border-radius: 5px;
-            padding: 2px;
-            opacity: 0.3;
-        }
-        QLineEdit:hover {
-            border: 1px solid rgba(0, 0, 0, 1);
-            background-color: white;
-            border-radius: 5px;
-            padding: 2px;
-            opacity: 1;
-        }
-        """)
-        self.page_set_edit_cfg_force_delay_range_right.setMinimum(0)
-        self.page_set_edit_cfg_force_delay_range_right.setMaximum(30)
-        self.page_set_edit_cfg_force_delay_range_right.setObjectName("page_set_edit_cfg_force_delay_range_right")
-        self.page_set_edit_cfg_force_delay_range_right.setValue(self.dict_cfgs[value_cfgs_force_delay_range][1])
-
-
+    background-color: rgba(246, 247, 248, 0.3);
+    border: none;
+    border-radius: 5px;
+    padding: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 0.3;
+}
+QLineEdit:hover {
+    border: 1px solid rgba(0, 0, 0, 1);
+    background-color: white;
+    border-radius: 5px;
+    padding: 2px;
+    opacity: 1;
+}
+""")
 
 
         self.page_set_label_cfg_process_message_timeout_danwei = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
