@@ -5837,7 +5837,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def retranslateUi(self, MainWIndow):
         _translate = QtCore.QCoreApplication.translate
-        MainWIndow.setWindowTitle(_translate("MainWIndow", "QChatGPT 1.0"))
+        MainWIndow.setWindowTitle(_translate("MainWIndow", "QChatGPT 1.3"))
         self.page_log_label_time.setText(_translate("MainWIndow", "时间"))
         self.page_log_label_jiluqi.setText(_translate("MainWIndow", "记录器"))
         self.page_log_label_level.setText(_translate("MainWIndow", "级别"))
