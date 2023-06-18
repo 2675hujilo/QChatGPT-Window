@@ -1,6 +1,6 @@
 # QChatGPT-Window
 QChatgpt的图形化界面
-把MainWindow.py放在机器人程序根目录下
+把MainWindow.py和images文件夹放在机器人程序根目录下
 # 直接启动
 ```pythom
 python MainWindow.py
@@ -27,7 +27,7 @@ pyinstaller MainWindow.py -F -w -i images/icon.ico
 ```
 encoding="gbk",
 ```
-- 启动命令错误:
+- 修改默认启动命令:
 修改MainWindow.py第987行
 ```
 self.page_main_edit_current_command.setText("pythonw main.pyw -r")
