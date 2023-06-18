@@ -294,7 +294,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 shutil.copy('override-all.json', 'override.json')
 
         except Exception as e:
-            mes = "找不到配置文件，请把此程序移动至机器人程序根目录下或者更新机器人！（当前界面版本为1.2，支持QChatGPT版本为2.4.1若QChatGPT为其他版本可能发生未知错误。）若更新版本后打开界面时依然报错，删除override.json即可）" + str(
+            mes = "找不到配置文件，请把此程序移动至机器人程序根目录下或者更新机器人！（当前界面版本为1.3，支持QChatGPT版本为2.4.7若QChatGPT为其他版本可能发生未知错误。）若更新版本后打开界面时依然报错，删除override.json即可）" + str(
                 e)
             if QtWidgets.QMessageBox.critical(self, "错误", mes, QMessageBox.Ok):
                 sys.exit()
@@ -984,8 +984,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.page_main_edit_current_command = QtWidgets.QLineEdit(self.tab_main)
         self.page_main_edit_current_command.setGeometry(QtCore.QRect(120, 700, 300, 30))
-        # self.page_main_edit_current_command.setText("pythonw main.pyw -r")
-        self.page_main_edit_current_command.setText("../python/pythonw.exe main.pyw -r")
+        self.page_main_edit_current_command.setText("pythonw main.pyw -r")
+        # self.page_main_edit_current_command.setText("../python/pythonw.exe main.pyw -r")
         # self.page_main_edit_current_command.setText("../mirai/java/bin/java.exe -jar ../mirai/mcl.jar")
         self.page_main_edit_current_command.setObjectName("page_main_edit_current_command")
         self.page_main_edit_current_command.setStyleSheet("""
