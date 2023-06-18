@@ -989,7 +989,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.page_main_edit_current_command.setText("../mirai/java/bin/java.exe -jar ../mirai/mcl.jar")
         self.page_main_edit_current_command.setObjectName("page_main_edit_current_command")
         self.page_main_edit_current_command.setStyleSheet("""
-            background-color: rgba(246, 247, 248, 0.3);
+            QLineEdit{background-color: rgba(246, 247, 248, 0.3);
             border: none;
             border-radius: 5px;
             padding: 2px;
@@ -1127,22 +1127,23 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_log_cmd_input.setObjectName("page_log_cmd_input")
 
         self.page_log_cmd_input.setStyleSheet("""
-            background-color: rgba(246, 247, 248, 0.3);
-            border: none;
-            border-radius: 5px;
-            padding: 2px;
-            border: 1px solid rgba(0, 0, 0, 0.5);
-            border-radius: 5px;
-            padding: 2px;
-            opacity: 0.3;
-        }
-        QLineEdit:hover {
-            border: 1px solid rgba(0, 0, 0, 1);
-            background-color: white;
-            border-radius: 5px;
-            padding: 2px;
-            opacity: 1;
-        }
+            QLineEdit{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
         """)
 
         self.page_log_cmd_input.setHidden(True)
@@ -1472,22 +1473,40 @@ class MainWindow(QtWidgets.QMainWindow):
         self.page_set_edit_cfg_font_path = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_font_path.setGeometry(QtCore.QRect(544, 2100, 142, 30))
         self.page_set_edit_cfg_font_path.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_font_path.setObjectName("page_set_edit_cfg_font_path")
         self.page_set_edit_cfg_font_path.setText(self.dict_cfgs[value_cfgs_font_path])
@@ -1497,22 +1516,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_user_pool_num = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_user_pool_num.setGeometry(QtCore.QRect(560, 1860, 61, 30))
         self.page_set_edit_cfg_user_pool_num.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_user_pool_num.setMinimum(1)
         self.page_set_edit_cfg_user_pool_num.setMaximum(30)
@@ -1532,22 +1569,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_admin_pool_num = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_admin_pool_num.setGeometry(QtCore.QRect(560, 1820, 61, 30))
         self.page_set_edit_cfg_admin_pool_num.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_admin_pool_num.setMinimum(1)
         self.page_set_edit_cfg_admin_pool_num.setMaximum(30)
@@ -1607,22 +1662,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_inappropriate_message_tips = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_inappropriate_message_tips.setGeometry(QtCore.QRect(460, 2340, 400, 30))
         self.page_set_edit_cfg_inappropriate_message_tips.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_inappropriate_message_tips.setObjectName("page_set_edit_cfg_inappropriate_message_tips")
         self.page_set_edit_cfg_inappropriate_message_tips.setText(self.dict_cfgs[value_cfgs_inappropriate_message_tips])
@@ -1648,22 +1721,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_random_rate = QtWidgets.QDoubleSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_random_rate.setGeometry(QtCore.QRect(590, 980, 60, 30))
         self.page_set_edit_cfg_random_rate.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_random_rate.setMaximum(1.1)
         self.page_set_edit_cfg_random_rate.setSingleStep(0.1)
@@ -1676,22 +1767,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_draw = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_draw.setGeometry(QtCore.QRect(350, 2600, 36, 30))
         self.page_set_edit_cmd_draw.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_draw.setMinimum(1)
         self.page_set_edit_cmd_draw.setMaximum(2)
@@ -1703,22 +1812,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_default = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_default.setGeometry(QtCore.QRect(350, 2640, 36, 30))
         self.page_set_edit_cmd_default.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_default.setMinimum(1)
         self.page_set_edit_cmd_default.setMaximum(2)
@@ -1730,22 +1857,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_default_set = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_default_set.setGeometry(QtCore.QRect(350, 2680, 36, 30))
         self.page_set_edit_cmd_default_set.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_default_set.setMinimum(1)
         self.page_set_edit_cmd_default_set.setMaximum(2)
@@ -1757,22 +1902,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_del = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_del.setGeometry(QtCore.QRect(350, 2720, 36, 30))
         self.page_set_edit_cmd_del.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_del.setMinimum(1)
         self.page_set_edit_cmd_del.setMaximum(2)
@@ -1783,22 +1946,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_del_all = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_del_all.setGeometry(QtCore.QRect(350, 2760, 36, 30))
         self.page_set_edit_cmd_del_all.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_del_all.setMinimum(1)
         self.page_set_edit_cmd_del_all.setMaximum(2)
@@ -1810,22 +1991,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_delhst = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_delhst.setGeometry(QtCore.QRect(350, 2800, 36, 30))
         self.page_set_edit_cmd_delhst.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+    QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_delhst.setMinimum(1)
         self.page_set_edit_cmd_delhst.setMaximum(2)
@@ -1837,22 +2036,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_delhst_all = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_delhst_all.setGeometry(QtCore.QRect(350, 2840, 36, 30))
         self.page_set_edit_cmd_delhst_all.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_delhst_all.setMinimum(1)
         self.page_set_edit_cmd_delhst_all.setMaximum(2)
@@ -1864,22 +2081,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_last = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_last.setGeometry(QtCore.QRect(350, 2880, 36, 30))
         self.page_set_edit_cmd_last.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_last.setMinimum(1)
         self.page_set_edit_cmd_last.setMaximum(2)
@@ -1891,22 +2126,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_prompt = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_prompt.setGeometry(QtCore.QRect(350, 2920, 36, 30))
         self.page_set_edit_cmd_prompt.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+    QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_prompt.setMinimum(1)
         self.page_set_edit_cmd_prompt.setMaximum(2)
@@ -1918,22 +2171,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_reset = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_reset.setGeometry(QtCore.QRect(350, 2960, 36, 30))
         self.page_set_edit_cmd_reset.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_reset.setMinimum(1)
         self.page_set_edit_cmd_reset.setMaximum(2)
@@ -1945,22 +2216,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_reload = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_reload.setGeometry(QtCore.QRect(350, 3000, 36, 30))
         self.page_set_edit_cmd_reload.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_reload.setMinimum(1)
         self.page_set_edit_cmd_reload.setMaximum(2)
@@ -1972,22 +2261,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_usage = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_usage.setGeometry(QtCore.QRect(350, 3040, 36, 30))
         self.page_set_edit_cmd_usage.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_usage.setMinimum(1)
         self.page_set_edit_cmd_usage.setMaximum(2)
@@ -1999,22 +2306,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_version = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_version.setGeometry(QtCore.QRect(629, 3040, 36, 30))
         self.page_set_edit_cmd_version.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_version.setMinimum(1)
         self.page_set_edit_cmd_version.setMaximum(2)
@@ -2026,22 +2351,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_cmd = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_cmd.setGeometry(QtCore.QRect(629, 3080, 36, 30))
         self.page_set_edit_cmd_cmd.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_cmd.setMinimum(1)
         self.page_set_edit_cmd_cmd.setMaximum(2)
@@ -2053,22 +2396,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_cfg = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_cfg.setGeometry(QtCore.QRect(350, 3080, 36, 30))
         self.page_set_edit_cmd_cfg.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_cfg.setMinimum(1)
         self.page_set_edit_cmd_cfg.setMaximum(2)
@@ -2080,22 +2441,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_update = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_update.setGeometry(QtCore.QRect(629, 3000, 36, 30))
         self.page_set_edit_cmd_update.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_update.setMinimum(1)
         self.page_set_edit_cmd_update.setMaximum(2)
@@ -2107,22 +2486,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_help = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_help.setGeometry(QtCore.QRect(629, 2960, 36, 30))
         self.page_set_edit_cmd_help.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_help.setMinimum(1)
         self.page_set_edit_cmd_help.setMaximum(2)
@@ -2134,22 +2531,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_resend = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_resend.setGeometry(QtCore.QRect(629, 2920, 36, 30))
         self.page_set_edit_cmd_resend.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_resend.setMinimum(1)
         self.page_set_edit_cmd_resend.setMaximum(2)
@@ -2161,22 +2576,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_next = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_next.setGeometry(QtCore.QRect(629, 2880, 36, 30))
         self.page_set_edit_cmd_next.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_next.setMinimum(1)
         self.page_set_edit_cmd_next.setMaximum(2)
@@ -2188,22 +2621,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_list = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_list.setGeometry(QtCore.QRect(629, 2840, 36, 30))
         self.page_set_edit_cmd_list.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_list.setMinimum(1)
         self.page_set_edit_cmd_list.setMaximum(2)
@@ -2215,22 +2666,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_plugin_on = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_plugin_on.setGeometry(QtCore.QRect(629, 2800, 36, 30))
         self.page_set_edit_cmd_plugin_on.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_plugin_on.setMinimum(1)
         self.page_set_edit_cmd_plugin_on.setMaximum(2)
@@ -2242,22 +2711,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_plugin_off = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_plugin_off.setGeometry(QtCore.QRect(629, 2760, 36, 30))
         self.page_set_edit_cmd_plugin_off.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_plugin_off.setMinimum(1)
         self.page_set_edit_cmd_plugin_off.setMaximum(2)
@@ -2269,22 +2756,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_plugin_del = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_plugin_del.setGeometry(QtCore.QRect(629, 2720, 36, 30))
         self.page_set_edit_cmd_plugin_del.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_plugin_del.setMinimum(1)
         self.page_set_edit_cmd_plugin_del.setMaximum(2)
@@ -2296,22 +2801,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_plugin_update = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_plugin_update.setGeometry(QtCore.QRect(629, 2680, 36, 30))
         self.page_set_edit_cmd_plugin_update.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_plugin_update.setMinimum(1)
         self.page_set_edit_cmd_plugin_update.setMaximum(2)
@@ -2323,22 +2846,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_plugin_get = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_plugin_get.setGeometry(QtCore.QRect(629, 2640, 36, 30))
         self.page_set_edit_cmd_plugin_get.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_plugin_get.setMinimum(1)
         self.page_set_edit_cmd_plugin_get.setMaximum(2)
@@ -2350,22 +2891,40 @@ QLineEdit:hover {
         self.page_set_edit_cmd_plugin = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cmd_plugin.setGeometry(QtCore.QRect(629, 2600, 36, 30))
         self.page_set_edit_cmd_plugin.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cmd_plugin.setMinimum(1)
         self.page_set_edit_cmd_plugin.setMaximum(2)
@@ -2532,22 +3091,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_baidu_secret_key = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_baidu_secret_key.setGeometry(QtCore.QRect(440, 2300, 326, 30))
         self.page_set_edit_cfg_baidu_secret_key.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_baidu_secret_key.setObjectName("page_set_edit_cfg_baidu_secret_key")
         self.page_set_edit_cfg_baidu_secret_key.setText(self.dict_cfgs[value_cfgs_baidu_secret_key])
@@ -2557,22 +3134,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_session_expire_time = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_session_expire_time.setGeometry(QtCore.QRect(430, 1900, 120, 30))
         self.page_set_edit_cfg_session_expire_time.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_session_expire_time.setMinimum(1)
         self.page_set_edit_cfg_session_expire_time.setMaximum(86400000)
@@ -2593,22 +3188,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_blob_message_threshold = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_blob_message_threshold.setGeometry(QtCore.QRect(500, 2020, 81, 30))
         self.page_set_edit_cfg_blob_message_threshold.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_blob_message_threshold.setMaximum(4096)
         self.page_set_edit_cfg_blob_message_threshold.setSingleStep(128)
@@ -2727,7 +3340,7 @@ QLineEdit:hover {
         self.page_set_edit_cfg_rate_limitation = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_rate_limitation.setGeometry(QtCore.QRect(510, 1940, 50, 30))
         self.page_set_edit_cfg_rate_limitation.setStyleSheet("""
-                                                                background-color: rgba(246, 247, 248, 0.3);
+                                                                QLineEdit{background-color: rgba(246, 247, 248, 0.3);
                                                                 border: none;
                                                                 border-radius: 5px;
                                                                 padding: 2px;
@@ -2872,22 +3485,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_process_message_timeout = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_process_message_timeout.setGeometry(QtCore.QRect(430, 1700, 60, 30))
         self.page_set_edit_cfg_process_message_timeout.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_process_message_timeout.setMinimum(1)
         self.page_set_edit_cfg_process_message_timeout.setMaximum(500)
@@ -2961,40 +3592,59 @@ QLineEdit:hover {
                                                  self.page_set_edit_cfg_force_delay_range_right.value()))
 
         self.page_set_edit_cfg_force_delay_range_left.setStyleSheet("""
-            background-color: rgba(246, 247, 248, 0.3);
-            border: none;
-            border-radius: 5px;
-            padding: 2px;
-            border: 1px solid rgba(0, 0, 0, 0.5);
-            border-radius: 5px;
-            padding: 2px;
-            opacity: 0.3;
-        }
-        QLineEdit:hover {
-            border: 1px solid rgba(0, 0, 0, 1);
-            background-color: white;
-            border-radius: 5px;
-            padding: 2px;
-            opacity: 1;
-        }
+            QLineEdit{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
         """)
         self.page_set_edit_cfg_force_delay_range_right.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
 
         self.page_set_label_cfg_process_message_timeout_danwei = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
@@ -3013,22 +3663,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_sys_pool_num = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_sys_pool_num.setGeometry(QtCore.QRect(440, 1780, 61, 30))
         self.page_set_edit_cfg_sys_pool_num.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_sys_pool_num.setMinimum(1)
         self.page_set_edit_cfg_sys_pool_num.setMaximum(30)
@@ -3051,22 +3719,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_retry_times = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_retry_times.setGeometry(QtCore.QRect(450, 1740, 79, 30))
         self.page_set_edit_cfg_retry_times.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_retry_times.setMinimum(1)
         self.page_set_edit_cfg_retry_times.setMaximum(10)
@@ -3160,22 +3846,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_api_presence_penalty = QtWidgets.QDoubleSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_api_presence_penalty.setGeometry(QtCore.QRect(450, 1420, 105, 30))
         self.page_set_edit_cfg_api_presence_penalty.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_api_presence_penalty.setMaximum(1.0)
         self.page_set_edit_cfg_api_presence_penalty.setSingleStep(0.1)
@@ -3190,22 +3894,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_api_frequency_penalty = QtWidgets.QDoubleSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_api_frequency_penalty.setGeometry(QtCore.QRect(450, 1380, 105, 30))
         self.page_set_edit_cfg_api_frequency_penalty.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_api_frequency_penalty.setMaximum(1.0)
         self.page_set_edit_cfg_api_frequency_penalty.setSingleStep(0.1)
@@ -3236,22 +3958,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_api_top_p = QtWidgets.QDoubleSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_api_top_p.setGeometry(QtCore.QRect(550, 1340, 84, 30))
         self.page_set_edit_cfg_api_top_p.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_api_top_p.setMaximum(1.0)
         self.page_set_edit_cfg_api_top_p.setSingleStep(0.1)
@@ -3282,22 +4022,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_prompt_submit_length = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_prompt_submit_length.setGeometry(QtCore.QRect(510, 1300, 91, 30))
         self.page_set_edit_cfg_prompt_submit_length.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_prompt_submit_length.setMaximum(4096)
         self.page_set_edit_cfg_prompt_submit_length.setSingleStep(128)
@@ -3346,7 +4104,7 @@ QLineEdit:hover {
         self.page_set_edit_cfg_api_temperature = QtWidgets.QDoubleSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_api_temperature.setGeometry(QtCore.QRect(330, 1240, 60, 30))
         self.page_set_edit_cfg_api_temperature.setStyleSheet("""
-                                                            background-color: rgba(246, 247, 248, 0.3);
+                                                            QLineEdit{ background-color: rgba(246, 247, 248, 0.3);
                                                             border: none;
                                                             border-radius: 5px;
                                                             padding: 2px;
@@ -3504,22 +4262,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_mirai_host = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_mirai_host.setGeometry(QtCore.QRect(370, 85, 142, 25))
         self.page_set_edit_cfg_mirai_host.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_mirai_host.setObjectName("page_set_edit_cfg_mirai_host")
         self.page_set_edit_cfg_mirai_host.setText(
@@ -3532,22 +4308,23 @@ QLineEdit:hover {
         self.page_set_edit_cfg_nakuru_host = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_nakuru_host.setGeometry(QtCore.QRect(370, 50, 142, 25))
         self.page_set_edit_cfg_nakuru_host.setStyleSheet("""
-            background-color: rgba(246, 247, 248, 0.3);
-            border: none;
-            border-radius: 5px;
-            padding: 2px;
-            border: 1px solid rgba(0, 0, 0, 0.5);
-            border-radius: 5px;
-            padding: 2px;
-            opacity: 0.3;
-        }
-        QLineEdit:hover {
-            border: 1px solid rgba(0, 0, 0, 1);
-            background-color: white;
-            border-radius: 5px;
-            padding: 2px;
-            opacity: 1;
-        }
+            QLineEdit{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
         """)
         self.page_set_edit_cfg_nakuru_host.setObjectName("page_set_edit_cfg_nakuru_host")
         self.page_set_edit_cfg_nakuru_host.setText(
@@ -3560,22 +4337,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_mirai_port = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_mirai_port.setGeometry(QtCore.QRect(370, 120, 142, 25))
         self.page_set_edit_cfg_mirai_port.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_mirai_port.setObjectName("page_set_edit_cfg_mirai_port")
         self.page_set_edit_cfg_mirai_port.setMaximum(65535)
@@ -3590,22 +4385,23 @@ QLineEdit:hover {
         self.page_set_edit_cfg_nakuru_port = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_nakuru_port.setGeometry(QtCore.QRect(370, 85, 142, 25))
         self.page_set_edit_cfg_nakuru_port.setStyleSheet("""
-            background-color: rgba(246, 247, 248, 0.3);
-            border: none;
-            border-radius: 5px;
-            padding: 2px;
-            border: 1px solid rgba(0, 0, 0, 0.5);
-            border-radius: 5px;
-            padding: 2px;
-            opacity: 0.3;
-        }
-        QLineEdit:hover {
-            border: 1px solid rgba(0, 0, 0, 1);
-            background-color: white;
-            border-radius: 5px;
-            padding: 2px;
-            opacity: 1;
-        }
+            QLineEdit{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
         """)
         self.page_set_edit_cfg_nakuru_port.setObjectName("page_set_edit_cfg_nakuru_port")
         self.page_set_edit_cfg_nakuru_port.setMaximum(65535)
@@ -3620,22 +4416,23 @@ QLineEdit:hover {
         self.page_set_edit_cfg_nakuru_http_port = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_nakuru_http_port.setGeometry(QtCore.QRect(370, 120, 142, 25))
         self.page_set_edit_cfg_nakuru_http_port.setStyleSheet("""
-            background-color: rgba(246, 247, 248, 0.3);
-            border: none;
-            border-radius: 5px;
-            padding: 2px;
-            border: 1px solid rgba(0, 0, 0, 0.5);
-            border-radius: 5px;
-            padding: 2px;
-            opacity: 0.3;
-        }
-        QLineEdit:hover {
-            border: 1px solid rgba(0, 0, 0, 1);
-            background-color: white;
-            border-radius: 5px;
-            padding: 2px;
-            opacity: 1;
-        }
+            QLineEdit{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
         """)
         self.page_set_edit_cfg_nakuru_http_port.setObjectName("page_set_edit_cfg_nakuru_http_port")
         self.page_set_edit_cfg_nakuru_http_port.setMaximum(65535)
@@ -3650,22 +4447,23 @@ QLineEdit:hover {
         self.page_set_edit_cfg_mirai_verifyKey = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_mirai_verifyKey.setGeometry(QtCore.QRect(370, 155, 140, 25))
         self.page_set_edit_cfg_mirai_verifyKey.setStyleSheet("""
-            background-color: rgba(246, 247, 248, 0.3);
-            border: none;
-            border-radius: 5px;
-            padding: 2px;
-            border: 1px solid rgba(0, 0, 0, 0.5);
-            border-radius: 5px;
-            padding: 2px;
-            opacity: 0.3;
-        }
-        QLineEdit:hover {
-            border: 1px solid rgba(0, 0, 0, 1);
-            background-color: white;
-            border-radius: 5px;
-            padding: 2px;
-            opacity: 1;
-        }
+            QLineEdit{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
         """)
         self.page_set_edit_cfg_mirai_verifyKey.setObjectName("page_set_edit_cfg_mirai_verifyKey")
         self.page_set_edit_cfg_mirai_verifyKey.setText(
@@ -3678,22 +4476,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_nakuru_token = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_nakuru_token.setGeometry(QtCore.QRect(370, 155, 140, 25))
         self.page_set_edit_cfg_nakuru_token.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_nakuru_token.setObjectName("page_set_edit_cfg_nakuru_token")
         self.page_set_edit_cfg_nakuru_token.setText(
@@ -3706,22 +4522,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_mirai_qq = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_mirai_qq.setGeometry(QtCore.QRect(370, 190, 142, 25))
         self.page_set_edit_cfg_mirai_qq.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_mirai_qq.setObjectName("page_set_edit_cfg_mirai_qq")
         self.page_set_edit_cfg_mirai_qq.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("[0-9]{1,13}"), self))
@@ -3736,22 +4570,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_admin_qq = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_admin_qq.setGeometry(QtCore.QRect(370, 225, 142, 25))
         self.page_set_edit_cfg_admin_qq.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_admin_qq.setObjectName("page_set_edit_cfg_admin_qq")
         self.page_set_edit_cfg_admin_qq.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("[0-9]{1,13}"), self))
@@ -3811,22 +4663,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_api_http_proxy = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_api_http_proxy.setGeometry(QtCore.QRect(450, 335, 300, 22))
         self.page_set_edit_cfg_api_http_proxy.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_api_http_proxy.setObjectName("page_set_edit_cfg_api_http_proxy")
         self.page_set_edit_cfg_api_http_proxy.setPlaceholderText("http://example.com:12345/v1")
@@ -3840,22 +4710,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_api_reverse_proxy = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_api_reverse_proxy.setGeometry(QtCore.QRect(450, 370, 300, 22))
         self.page_set_edit_cfg_api_reverse_proxy.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_api_reverse_proxy.setObjectName("page_set_edit_cfg_api_reverse_proxy")
         self.page_set_edit_cfg_api_reverse_proxy.setPlaceholderText("http://example.com:12345/v1")
@@ -3939,22 +4827,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_baidu_api_key = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_baidu_api_key.setGeometry(QtCore.QRect(400, 2260, 142, 30))
         self.page_set_edit_cfg_baidu_api_key.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_baidu_api_key.setObjectName("page_set_edit_cfg_baidu_api_key")
         self.page_set_edit_cfg_baidu_api_key.setText(self.dict_cfgs[value_cfgs_baidu_api_key])
@@ -4009,22 +4915,40 @@ QLineEdit:hover {
         self.page_set_edit_cfg_logging_level = QtWidgets.QSpinBox(self.scrollAreaWidgetContents_5)
         self.page_set_edit_cfg_logging_level.setGeometry(QtCore.QRect(360, 2540, 142, 30))
         self.page_set_edit_cfg_logging_level.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_cfg_logging_level.setObjectName("page_set_edit_cfg_logging_level")
         self.page_set_edit_cfg_logging_level.setValue(self.dict_cfgs[value_cfgs_logging_level])
@@ -4297,22 +5221,40 @@ QLineEdit:hover {
         self.page_set_edit_tips_alter_tip_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_tips_alter_tip_message.setGeometry(QtCore.QRect(442, 3140, 527, 30))
         self.page_set_edit_tips_alter_tip_message.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_tips_alter_tip_message.setObjectName("page_set_edit_tips_alter_tip_message")
         self.page_set_edit_tips_alter_tip_message.setText(str(self.dict_tips[value_tips_alter_tip_message]))
@@ -4322,22 +5264,40 @@ QLineEdit:hover {
         self.page_set_edit_tips_rate_limit_drop_tip = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_tips_rate_limit_drop_tip.setGeometry(QtCore.QRect(442, 3180, 527, 30))
         self.page_set_edit_tips_rate_limit_drop_tip.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_tips_rate_limit_drop_tip.setObjectName("page_set_edit_tips_rate_limit_drop_tip")
         self.page_set_edit_tips_rate_limit_drop_tip.setText(str(self.dict_tips[value_tips_rate_limit_drop_tip]))
@@ -4347,22 +5307,40 @@ QLineEdit:hover {
         self.page_set_edit_tips_help_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_tips_help_message.setGeometry(QtCore.QRect(442, 3220, 527, 30))
         self.page_set_edit_tips_help_message.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_tips_help_message.setObjectName("page_set_edit_tips_help_message")
         self.page_set_edit_tips_help_message.setText(str(self.dict_tips[value_tips_help_message]))
@@ -4372,22 +5350,40 @@ QLineEdit:hover {
         self.page_set_edit_tips_reply_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_tips_reply_message.setGeometry(QtCore.QRect(442, 3260, 527, 30))
         self.page_set_edit_tips_reply_message.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_tips_reply_message.setObjectName("page_set_edit_tips_reply_message")
         self.page_set_edit_tips_reply_message.setText(str(self.dict_tips[value_tips_reply_message]))
@@ -4397,22 +5393,40 @@ QLineEdit:hover {
         self.page_set_edit_tips_replys_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_tips_replys_message.setGeometry(QtCore.QRect(442, 3300, 527, 30))
         self.page_set_edit_tips_replys_message.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_tips_replys_message.setObjectName("page_set_edit_tips_replys_message")
         self.page_set_edit_tips_replys_message.setText(str(self.dict_tips[value_tips_replys_message]))
@@ -4422,22 +5436,40 @@ QLineEdit:hover {
         self.page_set_edit_tips_command_admin_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_tips_command_admin_message.setGeometry(QtCore.QRect(442, 3340, 527, 30))
         self.page_set_edit_tips_command_admin_message.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_tips_command_admin_message.setObjectName("page_set_edit_tips_command_admin_message")
         self.page_set_edit_tips_command_admin_message.setText(str(self.dict_tips[value_tips_command_admin_message]))
@@ -4447,22 +5479,40 @@ QLineEdit:hover {
         self.page_set_edit_tips_command_err_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_tips_command_err_message.setGeometry(QtCore.QRect(442, 3380, 527, 30))
         self.page_set_edit_tips_command_err_message.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_tips_command_err_message.setObjectName("page_set_edit_tips_command_err_message")
         self.page_set_edit_tips_command_err_message.setText(str(self.dict_tips[value_tips_command_err_message]))
@@ -4472,22 +5522,40 @@ QLineEdit:hover {
         self.page_set_edit_tips_command_reset_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_tips_command_reset_message.setGeometry(QtCore.QRect(442, 3420, 527, 30))
         self.page_set_edit_tips_command_reset_message.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_tips_command_reset_message.setObjectName("page_set_edit_tips_command_reset_message")
         self.page_set_edit_tips_command_reset_message.setText(str(self.dict_tips[value_tips_command_reset_message]))
@@ -4497,22 +5565,40 @@ QLineEdit:hover {
         self.page_set_edit_tips_command_reset_name_message = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_5)
         self.page_set_edit_tips_command_reset_name_message.setGeometry(QtCore.QRect(442, 3460, 527, 30))
         self.page_set_edit_tips_command_reset_name_message.setStyleSheet("""
-    background-color: rgba(246, 247, 248, 0.3);
-    border: none;
-    border-radius: 5px;
-    padding: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 0.3;
-}
-QLineEdit:hover {
-    border: 1px solid rgba(0, 0, 0, 1);
-    background-color: white;
-    border-radius: 5px;
-    padding: 2px;
-    opacity: 1;
-}
+        QLineEdit {
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QLineEdit:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
+    QSpinBox{
+        background-color: rgba(246, 247, 248, 0.3);
+        border: none;
+        border-radius: 5px;
+        padding: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 0.3;
+    }
+    QSpinBox:hover {
+        border: 1px solid rgba(0, 0, 0, 1);
+        background-color: white;
+        border-radius: 5px;
+        padding: 2px;
+        opacity: 1;
+    }
 """)
         self.page_set_edit_tips_command_reset_name_message.setObjectName(
             "page_set_edit_tips_command_reset_name_message")
