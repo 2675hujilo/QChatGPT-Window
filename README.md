@@ -2,13 +2,8 @@
 QChatgpt的图形化界面
 把MainWindow.py放在机器人程序根目录下
 # 直接启动
-一般启动:
 ```pycon
 python MainWindow.py
-```
-无命令行启动:
-```pycon
-pythonw MainWindow.pyw
 ```
 
 # 打包为exe
